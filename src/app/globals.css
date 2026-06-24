@@ -28,7 +28,7 @@ body {
 }
 
 *, a, button, [role="button"], input, select, textarea, label {
-  cursor: none !important;
+  cursor: default !important;
 }
 
 #kuska-cursor {
