@@ -15,18 +15,24 @@ const MENU = [
 ]
 
 export default function ClienteDashboardPage() {
-  const { data: session, status } = useSession()
-  const router = useRouter()
+  const session = useSession()
+  const router  = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(true)
 
-  useEffect(() => {
-    if (status === 'unauthenticated') router.push('/login')
-  }, [status, router])
+  const sessionData   = session?.data
+  const sessionStatus = session?.status
 
-  if (status === 'loading') {
+  useEffect(() => {
+    if (sessionStatus === 'unauthenticated') router.push('/login')
+  }, [sessionStatus, router])
+
+  if (sessionStatus === 'loading' || !sessionData) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F5F0E8]">
-        <Image src="/images/logo.jpeg" alt="Kuska" width={60} height={60} className="rounded-xl animate-pulse" />
+        <div className="flex flex-col items-center gap-4">
+          <Image src="/images/logo.jpeg" alt="Kuska" width={60} height={60} className="rounded-xl animate-pulse" />
+          <p className="text-[#3D1C02]/60 text-sm">Cargando...</p>
+        </div>
       </div>
     )
   }
@@ -43,7 +49,6 @@ export default function ClienteDashboardPage() {
             </div>
           )}
         </div>
-
         <nav className="flex-1 py-4">
           {MENU.map(item => (
             <Link key={item.href} href={item.href}
@@ -53,12 +58,11 @@ export default function ClienteDashboardPage() {
             </Link>
           ))}
         </nav>
-
         <div className="border-t border-white/10 p-4">
           {sidebarOpen && (
             <div className="mb-3">
-              <p className="text-white text-sm font-medium truncate">{session?.user?.name || 'Cliente'}</p>
-              <p className="text-white/40 text-xs truncate">{session?.user?.phone}</p>
+              <p className="text-white text-sm font-medium truncate">{sessionData.user?.name || 'Cliente'}</p>
+              <p className="text-white/40 text-xs truncate">{(sessionData.user as any)?.phone}</p>
             </div>
           )}
           <button onClick={() => signOut({ callbackUrl: '/' })}
@@ -67,7 +71,6 @@ export default function ClienteDashboardPage() {
             {sidebarOpen && <span>Cerrar sesión</span>}
           </button>
         </div>
-
         <button onClick={() => setSidebarOpen(!sidebarOpen)}
           className="absolute -right-3 top-20 bg-[#2E7A6E] text-white w-6 h-6 rounded-full flex items-center justify-center text-xs shadow-lg border border-white/20">
           {sidebarOpen ? '←' : '→'}
@@ -77,7 +80,7 @@ export default function ClienteDashboardPage() {
       <main className={`flex-1 ${sidebarOpen ? 'ml-64' : 'ml-16'} transition-all duration-300 p-6`}>
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-[#3D1C02]" style={{ fontFamily: 'serif' }}>
-            ¡Hola, {session?.user?.name?.split(' ')[0] || 'viajero'}! 👋
+            ¡Hola, {sessionData.user?.name?.split(' ')[0] || 'viajero'}! 👋
           </h1>
           <p className="text-[#3D1C02]/50 text-sm mt-1">Descubre el arte artesanal del Perú</p>
         </div>
