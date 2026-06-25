@@ -18,7 +18,6 @@ export async function POST(req: NextRequest) {
     const otp       = generateOTP()
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000)
 
-    // Buscar o crear usuario
     let user = await prisma.user.findUnique({ where: { phone: fullPhone } })
     if (!user) {
       user = await prisma.user.create({
@@ -26,34 +25,29 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    // Eliminar OTPs anteriores usando SQL raw para evitar problemas de FK
     await prisma.$executeRawUnsafe(
       `DELETE FROM sessions WHERE "userId" = $1`,
       user.id
     )
 
-    // Crear nuevo OTP usando SQL raw
     await prisma.$executeRawUnsafe(
-      `INSERT INTO sessions (id, "userId", token, "expiresAt", "createdAt") 
-       VALUES (gen_random_uuid(), $1, $2, $3, NOW())`,
+      `INSERT INTO sessions (id, "userId", token, "expiresAt", "createdAt") VALUES (gen_random_uuid(), $1, $2, $3, NOW())`,
       user.id,
       otp,
       expiresAt
     )
 
-    console.log(`OTP para ${fullPhone}: ${otp}`)
-
     return NextResponse.json({
       success: true,
       message: 'Código enviado',
-      otp, // Siempre visible en desarrollo
+      otp,
     })
   } catch (error) {
     console.error('OTP error:', error)
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.issues[0].message }, { status: 422 })
     }
-    return NextResponse.json({ 
+    return NextResponse.json({
       error: 'Error al enviar OTP',
       detail: String(error)
     }, { status: 500 })
