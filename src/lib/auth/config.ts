@@ -1,10 +1,11 @@
 import { type NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { prisma } from '@/lib/db/client'
+import { AUTH_SECRET } from '@/lib/auth/secret'
 import '@/lib/auth/types'
 
 export const authOptions: NextAuthOptions = {
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: AUTH_SECRET,
   session: { strategy: 'jwt', maxAge: 30 * 24 * 60 * 60 },
   pages: { signIn: '/login' },
   providers: [

@@ -2,7 +2,15 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/db/client'
 import { z } from 'zod'
 
-const schema = z.object({ phone: z.string().min(9).max(9) })
+// Acepta: 987654321 · 51987654321 · +51 987 654 321 · (51) 987-654-321
+// Normaliza siempre al número local peruano de 9 dígitos (9XXXXXXXX).
+const schema = z.object({
+  phone: z
+    .string()
+    .transform(v => v.replace(/[\s\-().+]/g, ''))
+    .pipe(z.string().regex(/^(?:51)?9\d{8}$/, 'Número de celular peruano inválido'))
+    .transform(v => v.replace(/^51/, '')),
+})
 
 export async function POST(req: Request) {
   try {
