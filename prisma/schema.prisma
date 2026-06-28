@@ -1,0 +1,776 @@
+// prisma/schema.prisma — Kuska platform, PostgreSQL en Neon
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ── ENUMS ────────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  ARTESANO
+  CLIENTE
+  ADMIN
+}
+
+enum Lang {
+  es
+  qu
+  ay
+  aw
+}
+
+enum IdentityStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+  EXPIRED
+}
+
+enum ProductStatus {
+  DRAFT
+  PENDING_REVIEW
+  ACTIVE
+  PAUSED
+  SOLD_OUT
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PREPARING
+  SHIPPED
+  AT_HUB
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum DeliveryStatus {
+  CREATED
+  PICKED_UP
+  IN_TRANSIT
+  AT_HUB
+  DELIVERED
+  FAILED
+}
+
+enum FairType {
+  FISICA
+  DIGITAL
+  HIBRIDA
+}
+
+enum FairStatus {
+  DRAFT
+  OPEN
+  FULL
+  ACTIVE
+  CLOSED
+}
+
+enum WorkshopStatus {
+  DRAFT
+  PUBLISHED
+  FULL
+  COMPLETED
+  CANCELLED
+}
+
+enum RecordType {
+  INGRESO
+  EGRESO
+  INVERSION
+  DEVOLUCION
+}
+
+enum SaleMode {
+  WHATSAPP
+  PLATFORM
+}
+
+enum PlanType {
+  BASIC
+  PRO
+  COLLECTIVE
+}
+
+enum NotifType {
+  SALE
+  MESSAGE
+  FAIR
+  SYSTEM
+  PAYMENT
+}
+
+// ── MÓDULO 1: USUARIOS ───────────────────────────────────────────────────────
+
+model User {
+  id            String   @id @default(cuid())
+  phone         String   @unique
+  email         String?  @unique
+  role          UserRole @default(CLIENTE)
+  preferredLang Lang     @default(es)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  identity       IdentityVerification?
+  artisanProfile ArtisanProfile?
+  clientProfile  ClientProfile?
+  sessions       Session[]
+  notifications  Notification[]
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model IdentityVerification {
+  id           String         @id @default(cuid())
+  userId       String         @unique
+  dni          String         @unique
+  firstName    String?
+  lastName     String?
+  fullName     String?
+  selfieUrl    String?
+  reniecStatus IdentityStatus @default(PENDING)
+  reniecPayload Json?
+  verifiedAt   DateTime?
+  expiresAt    DateTime?
+  createdAt    DateTime       @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("identity_verifications")
+}
+
+// ── MÓDULO 2: PERFILES ───────────────────────────────────────────────────────
+
+model ArtisanProfile {
+  id              String  @id @default(cuid())
+  userId          String  @unique
+  displayName     String
+  bio             String?
+  craftLineage    String?
+  regionId        String?
+  community       String?
+  workshopAddress String?
+  phone           String?
+  whatsapp        String?
+  avatarUrl       String?
+  coverUrl        String?
+  isVerified      Boolean @default(false)
+  totalSales      Int     @default(0)
+  avgRating       Float   @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  region             Region?            @relation(fields: [regionId], references: [id])
+  products           Product[]
+  heritageStories    HeritageStory[]
+  linajeCultural     LinajeCultural[]
+  workshops          Workshop[]
+  fairParticipations FairParticipation[]
+  creditScore        CreditScore?
+  financialRecords   FinancialRecord[]
+  communityPosts     CommunityPost[]
+  academyProgress    AcademyProgress[]
+  cfoConversations   CfoConversation[]
+  investmentOffers   InvestmentOffer[]
+  membership         Membership?
+  groupMembers       GroupMember[]
+
+  @@map("artisan_profiles")
+}
+
+model ClientProfile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  displayName String
+  avatarUrl   String?
+  createdAt   DateTime @default(now())
+
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders           Order[]
+  workshopBookings WorkshopBooking[]
+  reviews          Review[]
+  emprendedorPlans EmprendedorPlan[]
+
+  @@map("client_profiles")
+}
+
+// ── GEOGRAFÍA ────────────────────────────────────────────────────────────────
+
+model Region {
+  id        String  @id @default(cuid())
+  name      String  @unique
+  code      String  @unique
+  latitude  Float?
+  longitude Float?
+
+  artisans ArtisanProfile[]
+  products Product[]
+  hubs     CommunityHub[]
+  fairs    Fair[]
+
+  @@map("regions")
+}
+
+// ── MARKETPLACE ──────────────────────────────────────────────────────────────
+
+model Category {
+  id       String  @id @default(cuid())
+  name     String  @unique
+  slug     String  @unique
+  iconUrl  String?
+  parentId String?
+
+  parent   Category?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryTree")
+  products Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id              String        @id @default(cuid())
+  artisanId       String
+  categoryId      String
+  regionId        String?
+  title           String
+  slug            String        @unique
+  description     String?
+  price           Float
+  stock           Int           @default(1)
+  status          ProductStatus @default(DRAFT)
+  culturalLineage String?
+  materials       String[]
+  dimensions      Json?
+  saleMode        SaleMode      @default(PLATFORM)
+  whatsappNumber  String?
+  views           Int           @default(0)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  artisan       ArtisanProfile @relation(fields: [artisanId], references: [id], onDelete: Cascade)
+  category      Category       @relation(fields: [categoryId], references: [id])
+  region        Region?        @relation(fields: [regionId], references: [id])
+  images        ProductImage[]
+  heritageStory HeritageStory?
+  orderItems    OrderItem[]
+  reviews       Review[]
+
+  @@map("products")
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  url       String
+  altText   String?
+  isPrimary Boolean @default(false)
+  position  Int     @default(0)
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_images")
+}
+
+// ── RAÍCES / STORYTELLING ────────────────────────────────────────────────────
+
+model HeritageStory {
+  id             String   @id @default(cuid())
+  productId      String   @unique
+  artisanId      String
+  title          String
+  narrative      String
+  audioUrl       String?
+  videoUrl       String?
+  lineageTree    Json?
+  symbolsMeaning Json?
+  culturalRegion String?
+  generationNum  Int?
+  langVersions   Json?
+  views          Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  product Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  artisan ArtisanProfile @relation(fields: [artisanId], references: [id])
+  media   RaicesMedia[]
+
+  @@map("heritage_stories")
+}
+
+model RaicesMedia {
+  id       String  @id @default(cuid())
+  storyId  String
+  type     String
+  url      String
+  caption  String?
+  position Int     @default(0)
+
+  story HeritageStory @relation(fields: [storyId], references: [id], onDelete: Cascade)
+
+  @@map("raices_media")
+}
+
+model LinajeCultural {
+  id             String   @id @default(cuid())
+  artisanId      String
+  techniqueName  String
+  originRegion   String?
+  originYear     Int?
+  description    String?
+  ancestors      Json?
+  certifications String[]
+  createdAt      DateTime @default(now())
+
+  artisan ArtisanProfile @relation(fields: [artisanId], references: [id], onDelete: Cascade)
+
+  @@map("linaje_cultural")
+}
+
+// ── ÓRDENES ──────────────────────────────────────────────────────────────────
+
+model Order {
+  id            String      @id @default(cuid())
+  clientId      String
+  status        OrderStatus @default(PENDING)
+  subtotal      Float
+  shippingCost  Float       @default(0)
+  commission    Float       @default(0)
+  total         Float
+  notes         String?
+  paymentIntent String?
+  paidAt        DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  client   ClientProfile @relation(fields: [clientId], references: [id])
+  items    OrderItem[]
+  delivery Delivery?
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id         String @id @default(cuid())
+  orderId    String
+  productId  String
+  artisanId  String
+  quantity   Int    @default(1)
+  unitPrice  Float
+  totalPrice Float
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
+}
+
+// ── LOGÍSTICA ────────────────────────────────────────────────────────────────
+
+model CommunityHub {
+  id           String  @id @default(cuid())
+  name         String
+  type         String  @default("COMUNAL")
+  regionId     String?
+  address      String?
+  latitude     Float
+  longitude    Float
+  contactName  String?
+  contactPhone String?
+  isActive     Boolean @default(true)
+  schedule     Json?
+
+  region     Region?    @relation(fields: [regionId], references: [id])
+  deliveries Delivery[]
+
+  @@map("community_hubs")
+}
+
+model Delivery {
+  id           String         @id @default(cuid())
+  orderId      String         @unique
+  hubId        String?
+  status       DeliveryStatus @default(CREATED)
+  trackingCode String?        @unique
+  gpsLastLat   Float?
+  gpsLastLng   Float?
+  gpsUpdatedAt DateTime?
+  estimatedAt  DateTime?
+  deliveredAt  DateTime?
+  carrierNotes String?
+
+  order Order         @relation(fields: [orderId], references: [id])
+  hub   CommunityHub? @relation(fields: [hubId], references: [id])
+
+  @@map("deliveries")
+}
+
+// ── FERIAS ───────────────────────────────────────────────────────────────────
+
+model Fair {
+  id            String     @id @default(cuid())
+  name          String
+  type          FairType
+  status        FairStatus @default(DRAFT)
+  organizerId   String?
+  regionId      String?
+  description   String?
+  startDate     DateTime
+  endDate       DateTime
+  locationName  String?
+  latitude      Float?
+  longitude     Float?
+  streamUrl     String?
+  maxArtisans   Int?
+  bannerUrl     String?
+  aiSuggestions Json?
+  createdAt     DateTime   @default(now())
+
+  region         Region?             @relation(fields: [regionId], references: [id])
+  participations FairParticipation[]
+
+  @@map("fairs")
+}
+
+model FairParticipation {
+  id        String   @id @default(cuid())
+  fairId    String
+  artisanId String
+  status    String   @default("REGISTERED")
+  boothCode String?
+  joinedAt  DateTime @default(now())
+
+  fair    Fair           @relation(fields: [fairId], references: [id], onDelete: Cascade)
+  artisan ArtisanProfile @relation(fields: [artisanId], references: [id])
+
+  @@unique([fairId, artisanId])
+  @@map("fair_participations")
+}
+
+// ── TALLERES ─────────────────────────────────────────────────────────────────
+
+model Workshop {
+  id          String         @id @default(cuid())
+  artisanId   String
+  title       String
+  description String?
+  price       Float          @default(0)
+  isFree      Boolean        @default(false)
+  maxStudents Int            @default(10)
+  durationHrs Float?
+  modality    String         @default("PRESENCIAL")
+  location    String?
+  streamUrl   String?
+  status      WorkshopStatus @default(DRAFT)
+  scheduledAt DateTime?
+  coverUrl    String?
+  createdAt   DateTime       @default(now())
+
+  artisan  ArtisanProfile    @relation(fields: [artisanId], references: [id], onDelete: Cascade)
+  bookings WorkshopBooking[]
+
+  @@map("workshops")
+}
+
+model WorkshopBooking {
+  id         String   @id @default(cuid())
+  workshopId String
+  clientId   String
+  status     String   @default("CONFIRMED")
+  paymentRef String?
+  bookedAt   DateTime @default(now())
+
+  workshop Workshop      @relation(fields: [workshopId], references: [id])
+  client   ClientProfile @relation(fields: [clientId], references: [id])
+
+  @@unique([workshopId, clientId])
+  @@map("workshop_bookings")
+}
+
+// ── HUB DE CAPITALIZACIÓN ────────────────────────────────────────────────────
+
+model CreditScore {
+  id             String   @id @default(cuid())
+  artisanId      String   @unique
+  score          Int      @default(0)
+  tier           String   @default("BRONCE")
+  salesCount     Int      @default(0)
+  salesTotal     Float    @default(0)
+  reputationAvg  Float    @default(0)
+  activityDays   Int      @default(0)
+  scoreBreakdown Json?
+  lastCalculated DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  artisan          ArtisanProfile    @relation(fields: [artisanId], references: [id], onDelete: Cascade)
+  investmentOffers InvestmentOffer[]
+
+  @@map("credit_scores")
+}
+
+model InvestmentOffer {
+  id           String   @id @default(cuid())
+  artisanId    String
+  scoreId      String?
+  investorName String
+  investorType String?
+  amount       Float
+  currency     String   @default("PEN")
+  terms        String?
+  status       String   @default("PENDING")
+  offeredAt    DateTime @default(now())
+
+  artisan ArtisanProfile @relation(fields: [artisanId], references: [id])
+  score   CreditScore?   @relation(fields: [scoreId], references: [id])
+
+  @@map("investment_offers")
+}
+
+// ── CFO-BOT ──────────────────────────────────────────────────────────────────
+
+model FinancialRecord {
+  id          String     @id @default(cuid())
+  artisanId   String
+  type        RecordType
+  amount      Float
+  description String?
+  category    String?
+  referenceId String?
+  recordedAt  DateTime   @default(now())
+  createdAt   DateTime   @default(now())
+
+  artisan ArtisanProfile @relation(fields: [artisanId], references: [id], onDelete: Cascade)
+
+  @@map("financial_records")
+}
+
+model CfoConversation {
+  id        String   @id @default(cuid())
+  artisanId String
+  messages  Json     @default("[]")
+  context   Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  artisan ArtisanProfile @relation(fields: [artisanId], references: [id], onDelete: Cascade)
+
+  @@map("cfo_conversations")
+}
+
+// ── ACADEMIA ─────────────────────────────────────────────────────────────────
+
+model AcademyCourse {
+  id           String   @id @default(cuid())
+  title        String
+  description  String?
+  provider     String?
+  category     String?
+  durationHrs  Float?
+  level        String   @default("BASICO")
+  coverUrl     String?
+  isFree       Boolean  @default(true)
+  langVersions String[] @default(["es"])
+  createdAt    DateTime @default(now())
+
+  lessons  AcademyLesson[]
+  progress AcademyProgress[]
+
+  @@map("academy_courses")
+}
+
+model AcademyLesson {
+  id          String  @id @default(cuid())
+  courseId    String
+  title       String
+  contentUrl  String?
+  contentType String  @default("VIDEO")
+  durationMin Int?
+  position    Int     @default(0)
+  isOffline   Boolean @default(false)
+
+  course   AcademyCourse     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  progress AcademyProgress[]
+
+  @@map("academy_lessons")
+}
+
+model AcademyProgress {
+  id           String    @id @default(cuid())
+  artisanId    String
+  courseId     String
+  completedPct Float     @default(0)
+  lastLessonId String?
+  completedAt  DateTime?
+  startedAt    DateTime  @default(now())
+
+  artisan    ArtisanProfile @relation(fields: [artisanId], references: [id], onDelete: Cascade)
+  course     AcademyCourse  @relation(fields: [courseId], references: [id])
+  lastLesson AcademyLesson? @relation(fields: [lastLessonId], references: [id])
+
+  @@unique([artisanId, courseId])
+  @@map("academy_progress")
+}
+
+// ── COMUNIDAD ────────────────────────────────────────────────────────────────
+
+model CommunityPost {
+  id        String   @id @default(cuid())
+  artisanId String
+  content   String
+  mediaUrls String[]
+  tags      String[]
+  likes     Int      @default(0)
+  isPinned  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  artisan  ArtisanProfile @relation(fields: [artisanId], references: [id], onDelete: Cascade)
+  comments PostComment[]
+
+  @@map("community_posts")
+}
+
+model PostComment {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  content   String
+  createdAt DateTime @default(now())
+
+  post CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@map("post_comments")
+}
+
+// ── GRUPOS (MÓDULO 15) ───────────────────────────────────────────────────────
+
+model ArtisanGroup {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  avatarUrl   String?
+  createdById String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  members  GroupMember[]
+  messages GroupMessage[]
+
+  @@map("artisan_groups")
+}
+
+model GroupMember {
+  id        String   @id @default(cuid())
+  groupId   String
+  artisanId String
+  role      String   @default("MEMBER")
+  joinedAt  DateTime @default(now())
+
+  group   ArtisanGroup   @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  artisan ArtisanProfile @relation(fields: [artisanId], references: [id])
+
+  @@unique([groupId, artisanId])
+  @@map("group_members")
+}
+
+model GroupMessage {
+  id        String   @id @default(cuid())
+  groupId   String
+  senderId  String
+  content   String
+  mediaUrl  String?
+  createdAt DateTime @default(now())
+
+  group ArtisanGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@map("group_messages")
+}
+
+// ── EMPRENDEDOR IA (MÓDULO 19) ───────────────────────────────────────────────
+
+model EmprendedorPlan {
+  id        String   @id @default(cuid())
+  clientId  String
+  ideaTitle String
+  ideaDesc  String
+  planJson  Json
+  pdfUrl    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  client ClientProfile @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@map("emprendedor_plans")
+}
+
+// ── RESEÑAS ──────────────────────────────────────────────────────────────────
+
+model Review {
+  id        String   @id @default(cuid())
+  productId String
+  clientId  String
+  orderId   String?
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+
+  product Product       @relation(fields: [productId], references: [id])
+  client  ClientProfile @relation(fields: [clientId], references: [id])
+
+  @@unique([productId, clientId, orderId])
+  @@map("reviews")
+}
+
+// ── MEMBRESÍAS ───────────────────────────────────────────────────────────────
+
+model Membership {
+  id        String    @id @default(cuid())
+  artisanId String    @unique
+  plan      PlanType  @default(BASIC)
+  startsAt  DateTime  @default(now())
+  expiresAt DateTime?
+  isActive  Boolean   @default(true)
+  paidAt    DateTime?
+  amount    Float     @default(10)
+
+  artisan ArtisanProfile @relation(fields: [artisanId], references: [id], onDelete: Cascade)
+
+  @@map("memberships")
+}
+
+// ── NOTIFICACIONES ───────────────────────────────────────────────────────────
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  type      NotifType
+  title     String
+  body      String
+  data      Json?
+  isRead    Boolean   @default(false)
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
