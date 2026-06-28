@@ -24,17 +24,23 @@ export const authOptions: NextAuthOptions = {
 
         if (!user || !user.isActive) return null
 
-        const session = await prisma.session.findFirst({
-          where: {
-            userId:    user.id,
-            token:     credentials.otp,
-            expiresAt: { gt: new Date() },
-          },
-        })
+        // $queryRawUnsafe evita el FK issue de Prisma con tabla sessions
+        const sessions = await prisma.$queryRawUnsafe<Array<{ id: string }>>(
+          `SELECT id FROM sessions
+           WHERE "userId" = $1
+             AND token = $2
+             AND "expiresAt" > NOW()
+           LIMIT 1`,
+          user.id,
+          credentials.otp
+        )
 
-        if (!session) return null
+        if (!sessions || sessions.length === 0) return null
 
-        await prisma.session.delete({ where: { id: session.id } })
+        await prisma.$executeRawUnsafe(
+          `DELETE FROM sessions WHERE id = $1`,
+          sessions[0].id
+        )
 
         return {
           id:            user.id,
@@ -85,5 +91,5 @@ export const authOptions: NextAuthOptions = {
     maxAge:   30 * 24 * 60 * 60,
   },
 
-  secret: process.env.AUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET,
 }
