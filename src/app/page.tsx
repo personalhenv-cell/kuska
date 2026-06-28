@@ -40,7 +40,7 @@ function LoadingScreen({ onDone }: { onDone: () => void }) {
         transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
         className="flex flex-col items-center gap-8"
       >
-        <Image src="/images/logo.jpeg" alt="Kuska" width={72} height={72} className="rounded-2xl shadow-2xl" priority />
+        <Image src="/logo.png" alt="Kuska" width={72} height={72} className="rounded-2xl shadow-2xl" priority />
         <div className="text-center">
           <h1 className="text-3xl font-bold text-[#F0EAE0]" style={{ fontFamily: 'Playfair Display, serif' }}>Kuska</h1>
           <p className="text-[#F0EAE0]/40 text-sm mt-1 tracking-widest uppercase">Plataforma Artesanal</p>
@@ -81,7 +81,7 @@ function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3 group">
-          <Image src="/images/logo.jpeg" alt="Kuska" width={36} height={36} className="rounded-xl" />
+          <Image src="/logo.png" alt="Kuska" width={36} height={36} className="rounded-xl" />
           <span className="text-[#F0EAE0] font-bold text-lg tracking-tight" style={{ fontFamily: 'Playfair Display, serif' }}>Kuska</span>
         </Link>
 
@@ -453,7 +453,7 @@ function Footer() {
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <Image src="/images/logo.jpeg" alt="Kuska" width={32} height={32} className="rounded-xl" />
+            <Image src="/logo.png" alt="Kuska" width={32} height={32} className="rounded-xl" />
             <span className="text-[#F0EAE0]/60 text-sm" style={{ fontFamily: 'Playfair Display, serif' }}>Kuska © 2026</span>
           </div>
           <div className="flex items-center gap-6">

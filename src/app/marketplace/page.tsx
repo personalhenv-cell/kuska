@@ -113,7 +113,7 @@ export default function MarketplacePage() {
       <div className="sticky top-0 z-40 glass-cream border-b border-[#F0EAE0]/[0.06] px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-            <Image src="/images/logo.jpeg" alt="Kuska" width={32} height={32} className="rounded-xl" />
+            <Image src="/logo.png" alt="Kuska" width={32} height={32} className="rounded-xl" />
             <span className="text-[#F0EAE0] font-bold hidden sm:block" style={{ fontFamily: 'Playfair Display, serif' }}>Kuska</span>
           </Link>
           <div className="flex-1 max-w-md">
@@ -161,7 +161,7 @@ export default function MarketplacePage() {
 
         {products.length === 0 && !loading && (
           <div className="text-center py-20">
-            <p className="text-5xl mb-4">🔍</p>
+            <Image src="/kusi.png" alt="Kusi" width={96} height={96} className="mx-auto mb-4 opacity-90" />
             <p className="text-[#F0EAE0]/40">No encontramos productos con esa búsqueda.</p>
             <button onClick={() => { setQ(''); setCategory('Todos') }}
               className="btn-press mt-4 text-sm text-[#C84B2F] hover:underline">

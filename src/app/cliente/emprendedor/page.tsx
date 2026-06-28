@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import Image from 'next/image'
 import toast from 'react-hot-toast'
 
 interface Message { role: 'user' | 'assistant'; content: string }
@@ -85,7 +86,7 @@ export default function EmprendedorPage() {
             <div className="flex-1 overflow-y-auto space-y-3 mb-4">
               {messages.length === 0 && (
                 <div className="text-center py-8">
-                  <div className="text-4xl mb-3">🚀</div>
+                  <Image src="/kusi.png" alt="Kusi" width={72} height={72} className="mx-auto mb-3" priority />
                   <p className="text-[#F0EAE0]/50 text-sm mb-6">Cuéntame tu idea de negocio y te ayudo a desarrollarla.</p>
                   <div className="flex flex-wrap justify-center gap-2">
                     {SUGGESTIONS.map(s => (

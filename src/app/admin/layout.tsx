@@ -32,7 +32,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div className="min-h-screen flex" style={{ background: '#0B0804' }}>
       <aside className="sticky top-0 h-screen w-60 flex flex-col border-r border-[#F0EAE0]/[0.06]" style={{ background: '#070503' }}>
         <div className="p-5 border-b border-[#F0EAE0]/[0.06] flex items-center gap-3">
-          <Image src="/images/logo.jpeg" alt="Kuska" width={32} height={32} className="rounded-xl" />
+          <Image src="/logo.png" alt="Kuska" width={32} height={32} className="rounded-xl" />
           <div>
             <div className="text-[#F0EAE0] font-bold text-sm" style={{ fontFamily: 'Playfair Display, serif' }}>Kuska</div>
             <div className="text-[#C84B2F] text-xs font-medium">Admin</div>

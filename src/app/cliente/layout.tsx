@@ -44,7 +44,7 @@ export default function ClienteLayout({ children }: { children: React.ReactNode 
       <aside className={`fixed md:sticky top-0 left-0 h-screen z-50 w-64 flex flex-col border-r border-[#F0EAE0]/[0.06] transition-transform duration-300 md:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
         style={{ background: '#070503' }}>
         <div className="p-5 border-b border-[#F0EAE0]/[0.06] flex items-center gap-3">
-          <Image src="/images/logo.jpeg" alt="Kuska" width={36} height={36} className="rounded-xl" />
+          <Image src="/logo.png" alt="Kuska" width={36} height={36} className="rounded-xl" />
           <div>
             <div className="text-[#F0EAE0] font-bold text-sm" style={{ fontFamily: 'Playfair Display, serif' }}>Kuska</div>
             <div className="text-[#F0EAE0]/35 text-xs">Panel Emprendedor</div>

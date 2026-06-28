@@ -63,7 +63,7 @@ export default function ArtesanoLayout({ children }: { children: React.ReactNode
         style={{ background: '#070503' }}>
         {/* Logo */}
         <div className="p-5 border-b border-[#F0EAE0]/[0.06] flex items-center gap-3">
-          <Image src="/images/logo.jpeg" alt="Kuska" width={36} height={36} className="rounded-xl" />
+          <Image src="/logo.png" alt="Kuska" width={36} height={36} className="rounded-xl" />
           <div>
             <div className="text-[#F0EAE0] font-bold text-sm" style={{ fontFamily: 'Playfair Display, serif' }}>Kuska</div>
             <div className="text-[#F0EAE0]/35 text-xs">Panel Artesano</div>

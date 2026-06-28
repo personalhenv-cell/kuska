@@ -67,7 +67,7 @@ export default function LoginPage() {
       >
         <div className="glass rounded-3xl overflow-hidden border border-[#F0EAE0]/10">
           <div className="px-8 pt-8 pb-6 text-center border-b border-[#F0EAE0]/[0.06]">
-            <Image src="/images/logo.jpeg" alt="Kuska" width={56} height={56} className="rounded-2xl mx-auto mb-4 shadow-xl" priority />
+            <Image src="/logo.png" alt="Kuska" width={56} height={56} className="rounded-2xl mx-auto mb-4 shadow-xl" priority />
             <h1 className="text-xl font-bold text-[#F0EAE0]" style={{ fontFamily: 'Playfair Display, serif' }}>Bienvenido a Kuska</h1>
             <p className="text-[#F0EAE0]/40 text-sm mt-1">
               {step === 'phone' ? 'Ingresa tu número de celular' : 'Ingresa el código que te enviamos'}

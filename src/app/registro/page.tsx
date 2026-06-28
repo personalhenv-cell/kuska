@@ -75,7 +75,7 @@ function RegistroForm() {
       >
         {/* Header */}
         <div className="text-center mb-8">
-          <Image src="/images/logo.jpeg" alt="Kuska" width={52} height={52} className="rounded-2xl mx-auto mb-4" priority />
+          <Image src="/logo.png" alt="Kuska" width={52} height={52} className="rounded-2xl mx-auto mb-4" priority />
           <h1 className="text-2xl font-bold text-[#F0EAE0]" style={{ fontFamily: 'Playfair Display, serif' }}>Únete a Kuska</h1>
           <p className="text-[#F0EAE0]/40 text-sm mt-1">Paso {step} de {role === 'ARTESANO' ? 4 : 3}</p>
         </div>

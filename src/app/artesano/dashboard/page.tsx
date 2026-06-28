@@ -3,6 +3,7 @@
 import { useSession } from 'next-auth/react'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 
 interface Stats {
@@ -42,11 +43,15 @@ export default function ArtesanoDashboard() {
   return (
     <div className="max-w-5xl mx-auto space-y-8">
       {/* Welcome */}
-      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}>
-        <h1 className="text-2xl font-bold text-[#F0EAE0]" style={{ fontFamily: 'Playfair Display, serif' }}>
-          Bienvenido de vuelta 👋
-        </h1>
-        <p className="text-[#F0EAE0]/40 text-sm mt-1">{session?.user.phone}</p>
+      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+        className="flex items-center gap-4">
+        <Image src="/kusi.png" alt="Kusi" width={56} height={56} className="rounded-2xl flex-shrink-0" priority />
+        <div>
+          <h1 className="text-2xl font-bold text-[#F0EAE0]" style={{ fontFamily: 'Playfair Display, serif' }}>
+            Bienvenido de vuelta 👋
+          </h1>
+          <p className="text-[#F0EAE0]/40 text-sm mt-1">{session?.user.phone}</p>
+        </div>
       </motion.div>
 
       {/* Stats */}

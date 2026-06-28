@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import Image from 'next/image'
 import toast from 'react-hot-toast'
 
 interface Message { role: 'user' | 'assistant'; content: string; ts: number }
@@ -104,7 +105,7 @@ export default function CfoPage() {
         {messages.length === 0 && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}
             className="text-center py-12">
-            <div className="text-4xl mb-4">💬</div>
+            <Image src="/kusi.png" alt="Kusi" width={80} height={80} className="mx-auto mb-4" priority />
             <h2 className="text-[#F0EAE0]/60 font-medium mb-2">¿En qué te puedo ayudar hoy?</h2>
             <p className="text-[#F0EAE0]/30 text-sm mb-8">Pregúntame sobre tus finanzas, ventas o estrategia de negocio.</p>
             <div className="flex flex-wrap justify-center gap-2">

@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import Link from 'next/link'
+import Image from 'next/image'
 
 const QUICK = [
   { href: '/marketplace',         icon: '🏪', label: 'Explorar', desc: 'Descubre artesanías únicas' },
@@ -13,9 +14,13 @@ const QUICK = [
 export default function ClienteDashboard() {
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}>
-        <h1 className="text-2xl font-bold text-[#F0EAE0]" style={{ fontFamily: 'Playfair Display, serif' }}>Bienvenido/a 👋</h1>
-        <p className="text-[#F0EAE0]/40 text-sm mt-1">Explora artesanías únicas y desarrolla tu emprendimiento con IA.</p>
+      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+        className="flex items-center gap-4">
+        <Image src="/kusi.png" alt="Kusi" width={56} height={56} className="rounded-2xl flex-shrink-0" priority />
+        <div>
+          <h1 className="text-2xl font-bold text-[#F0EAE0]" style={{ fontFamily: 'Playfair Display, serif' }}>Bienvenido/a 👋</h1>
+          <p className="text-[#F0EAE0]/40 text-sm mt-1">Explora artesanías únicas y desarrolla tu emprendimiento con IA.</p>
+        </div>
       </motion.div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
