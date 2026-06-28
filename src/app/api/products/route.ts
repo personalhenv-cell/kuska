@@ -35,6 +35,8 @@ export async function GET(req: Request) {
     if (region)   { where += ` AND r.code = $${paramIdx++}`; params.push(region) }
     if (q)        { where += ` AND (p.title ILIKE $${paramIdx} OR p.description ILIKE $${paramIdx})`; params.push(`%${q}%`); paramIdx++ }
 
+    const limitIdx  = paramIdx
+    const offsetIdx = paramIdx + 1
     params.push(pageSize, offset)
 
     const products = await prisma.$queryRawUnsafe<Array<{
@@ -57,7 +59,7 @@ export async function GET(req: Request) {
        ${region   ? 'JOIN regions r ON r.id = p."regionId"' : ''}
        WHERE ${where}
        ORDER BY p."createdAt" DESC
-       LIMIT $${paramIdx - 1} OFFSET $${paramIdx}`,
+       LIMIT $${limitIdx} OFFSET $${offsetIdx}`,
       ...params
     )
 
