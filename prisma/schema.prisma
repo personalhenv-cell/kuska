@@ -1,0 +1,510 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum UserRole {
+  artesano
+  cliente
+  admin
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  phone         String    @unique
+  email         String?   @unique
+  role          UserRole  @default(cliente)
+  avatar_url    String?
+  is_active     Boolean   @default(true)
+  language      String    @default("es")
+  points        Int       @default(0)
+  level         Int       @default(1)
+  referral_code String    @unique @default(cuid())
+  referred_by   String?
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+
+  artisan_profile    ArtisanProfile?
+  client_profile     ClientProfile?
+  otp_codes          OtpCode[]
+  messages_sent      Message[]         @relation("SentMessages")
+  messages_received  Message[]         @relation("ReceivedMessages")
+  notifications      Notification[]
+  reviews            Review[]
+  favorites          Favorite[]
+  orders             Order[]
+  posts              Post[]
+  badges             UserBadge[]
+  missions_completed MissionProgress[]
+  subscriptions      Subscription[]
+}
+
+model ArtisanProfile {
+  id               String   @id @default(cuid())
+  user_id          String   @unique
+  user             User     @relation(fields: [user_id], references: [id])
+  specialty        String
+  technique        String
+  region           String
+  community        String
+  years_experience Int      @default(0)
+  bio              String?
+  story            String?
+  story_audio_url  String?
+  workshop_photos  String[]
+  is_verified      Boolean  @default(false)
+  verification_qr  String?
+  whatsapp         String?
+  rating           Float    @default(0)
+  total_sales      Int      @default(0)
+  membership_tier  String   @default("semilla")
+  genealogy        String?
+  catalog_url      String?
+  share_qr         String?
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  products          Product[]
+  workshops         Workshop[]
+  fairs             FairParticipant[]
+  fund_applications FundApplication[]
+}
+
+model ClientProfile {
+  id               String   @id @default(cuid())
+  user_id          String   @unique
+  user             User     @relation(fields: [user_id], references: [id])
+  interests        String[]
+  regions_interest String[]
+  is_entrepreneur  Boolean  @default(false)
+  business_name    String?
+  impact_score     Int      @default(0)
+  membership_tier  String   @default("explorador")
+  subscription_box Boolean  @default(false)
+  newsletter       Boolean  @default(false)
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+}
+
+model OtpCode {
+  id         String   @id @default(cuid())
+  user_id    String
+  user       User     @relation(fields: [user_id], references: [id])
+  code       String
+  expires_at DateTime
+  used       Boolean  @default(false)
+  attempts   Int      @default(0)
+  created_at DateTime @default(now())
+}
+
+model Product {
+  id              String         @id @default(cuid())
+  artisan_id      String
+  artisan         ArtisanProfile @relation(fields: [artisan_id], references: [id])
+  name            String
+  slug            String         @unique
+  description     String
+  price           Float
+  stock           Int            @default(1)
+  category        String
+  technique       String
+  region          String
+  materials       String[]
+  images          String[]
+  dominant_colors String[]
+  is_available    Boolean        @default(true)
+  is_custom_order Boolean        @default(false)
+  is_featured     Boolean        @default(false)
+  is_boosted      Boolean        @default(false)
+  views           Int            @default(0)
+  sales_count     Int            @default(0)
+  rating          Float          @default(0)
+  seo_title       String?
+  seo_description String?
+  price_history   Json[]         @default([])
+  created_at      DateTime       @default(now())
+  updated_at      DateTime       @updatedAt
+
+  reviews         Review[]
+  favorites       Favorite[]
+  order_items     OrderItem[]
+  custom_requests CustomRequest[]
+  coupons         ProductCoupon[]
+}
+
+model Order {
+  id               String      @id @default(cuid())
+  client_id        String
+  client           User        @relation(fields: [client_id], references: [id])
+  status           String      @default("pendiente")
+  total            Float
+  payment_method   String?
+  payment_status   String      @default("pendiente")
+  shipping_address Json?
+  tracking_status  String      @default("confirmado")
+  gift_message     String?
+  gift_recipient   String?
+  coupon_code      String?
+  discount         Float       @default(0)
+  impact_score     Int         @default(0)
+  receipt_url      String?
+  created_at       DateTime    @default(now())
+  updated_at       DateTime    @updatedAt
+
+  items OrderItem[]
+}
+
+model OrderItem {
+  id         String  @id @default(cuid())
+  order_id   String
+  order      Order   @relation(fields: [order_id], references: [id])
+  product_id String
+  product    Product @relation(fields: [product_id], references: [id])
+  quantity   Int
+  price      Float
+  is_custom  Boolean @default(false)
+}
+
+model Review {
+  id          String   @id @default(cuid())
+  product_id  String
+  product     Product  @relation(fields: [product_id], references: [id])
+  reviewer_id String
+  reviewer    User     @relation(fields: [reviewer_id], references: [id])
+  rating      Int
+  comment     String
+  is_verified Boolean  @default(false)
+  video_url   String?
+  created_at  DateTime @default(now())
+}
+
+model Message {
+  id          String   @id @default(cuid())
+  sender_id   String
+  sender      User     @relation("SentMessages", fields: [sender_id], references: [id])
+  receiver_id String
+  receiver    User     @relation("ReceivedMessages", fields: [receiver_id], references: [id])
+  content     String
+  is_read     Boolean  @default(false)
+  is_kusi_bot Boolean  @default(false)
+  created_at  DateTime @default(now())
+}
+
+model Post {
+  id         String     @id @default(cuid())
+  author_id  String
+  author     User       @relation(fields: [author_id], references: [id])
+  content    String
+  images     String[]
+  video_url  String?
+  type       String     @default("post")
+  expires_at DateTime?
+  views      Int        @default(0)
+  created_at DateTime   @default(now())
+  updated_at DateTime   @updatedAt
+
+  reactions Reaction[]
+  comments  Comment[]
+}
+
+model Reaction {
+  id         String   @id @default(cuid())
+  post_id    String
+  post       Post     @relation(fields: [post_id], references: [id])
+  user_id    String
+  type       String
+  created_at DateTime @default(now())
+
+  @@unique([post_id, user_id])
+}
+
+model Comment {
+  id         String   @id @default(cuid())
+  post_id    String
+  post       Post     @relation(fields: [post_id], references: [id])
+  author_id  String
+  content    String
+  created_at DateTime @default(now())
+}
+
+model Notification {
+  id         String   @id @default(cuid())
+  user_id    String
+  user       User     @relation(fields: [user_id], references: [id])
+  title      String
+  message    String
+  type       String
+  is_read    Boolean  @default(false)
+  link       String?
+  created_at DateTime @default(now())
+}
+
+model Favorite {
+  id         String   @id @default(cuid())
+  user_id    String
+  user       User     @relation(fields: [user_id], references: [id])
+  product_id String
+  product    Product  @relation(fields: [product_id], references: [id])
+  created_at DateTime @default(now())
+
+  @@unique([user_id, product_id])
+}
+
+model Workshop {
+  id                   String   @id @default(cuid())
+  artisan_id           String
+  artisan              ArtisanProfile @relation(fields: [artisan_id], references: [id])
+  title                String
+  description          String
+  date                 DateTime
+  capacity             Int
+  price                Float    @default(0)
+  is_virtual           Boolean  @default(true)
+  materials_url        String?
+  certificate_template String?
+  created_at           DateTime @default(now())
+
+  participants WorkshopParticipant[]
+}
+
+model WorkshopParticipant {
+  id              String   @id @default(cuid())
+  workshop_id     String
+  workshop        Workshop @relation(fields: [workshop_id], references: [id])
+  user_id         String
+  completed       Boolean  @default(false)
+  certificate_url String?
+  joined_at       DateTime @default(now())
+}
+
+model DigitalFair {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  theme       String
+  start_date  DateTime
+  end_date    DateTime
+  is_active   Boolean  @default(false)
+  banner_url  String?
+  created_at  DateTime @default(now())
+
+  participants FairParticipant[]
+}
+
+model FairParticipant {
+  id           String         @id @default(cuid())
+  fair_id      String
+  fair         DigitalFair    @relation(fields: [fair_id], references: [id])
+  artisan_id   String
+  artisan      ArtisanProfile @relation(fields: [artisan_id], references: [id])
+  stand_config Json?
+  joined_at    DateTime       @default(now())
+}
+
+model FundOpportunity {
+  id           String   @id @default(cuid())
+  title        String
+  institution  String
+  amount       Float
+  deadline     DateTime
+  requirements String[]
+  link         String?
+  is_active    Boolean  @default(true)
+  created_at   DateTime @default(now())
+
+  applications FundApplication[]
+}
+
+model FundApplication {
+  id             String          @id @default(cuid())
+  artisan_id     String
+  artisan        ArtisanProfile  @relation(fields: [artisan_id], references: [id])
+  opportunity_id String
+  opportunity    FundOpportunity @relation(fields: [opportunity_id], references: [id])
+  status         String          @default("en_revision")
+  documents      String[]
+  created_at     DateTime        @default(now())
+}
+
+model Subscription {
+  id         String   @id @default(cuid())
+  user_id    String
+  user       User     @relation(fields: [user_id], references: [id])
+  plan       String
+  role       String
+  status     String   @default("active")
+  price      Float
+  created_at DateTime @default(now())
+  expires_at DateTime
+}
+
+model Badge {
+  id          String      @id @default(cuid())
+  name        String
+  description String
+  icon        String
+  condition   String
+  points      Int         @default(0)
+  users       UserBadge[]
+}
+
+model UserBadge {
+  id        String   @id @default(cuid())
+  user_id   String
+  user      User     @relation(fields: [user_id], references: [id])
+  badge_id  String
+  badge     Badge    @relation(fields: [badge_id], references: [id])
+  earned_at DateTime @default(now())
+
+  @@unique([user_id, badge_id])
+}
+
+model Mission {
+  id          String            @id @default(cuid())
+  title       String
+  description String
+  points      Int
+  type        String
+  target      Int
+  role        String
+  progress    MissionProgress[]
+}
+
+model MissionProgress {
+  id           String    @id @default(cuid())
+  user_id      String
+  user         User      @relation(fields: [user_id], references: [id])
+  mission_id   String
+  mission      Mission   @relation(fields: [mission_id], references: [id])
+  current      Int       @default(0)
+  completed    Boolean   @default(false)
+  completed_at DateTime?
+
+  @@unique([user_id, mission_id])
+}
+
+model Coupon {
+  id         String    @id @default(cuid())
+  code       String    @unique
+  artisan_id String?
+  discount   Float
+  type       String    @default("percentage")
+  expires_at DateTime?
+  max_uses   Int       @default(1)
+  used_count Int       @default(0)
+  created_at DateTime  @default(now())
+
+  products ProductCoupon[]
+}
+
+model ProductCoupon {
+  coupon_id  String
+  coupon     Coupon  @relation(fields: [coupon_id], references: [id])
+  product_id String
+  product    Product @relation(fields: [product_id], references: [id])
+
+  @@id([coupon_id, product_id])
+}
+
+model CustomRequest {
+  id          String    @id @default(cuid())
+  product_id  String
+  product     Product   @relation(fields: [product_id], references: [id])
+  client_id   String
+  description String
+  colors      String[]
+  size        String?
+  budget      Float?
+  deadline    DateTime?
+  status      String    @default("pendiente")
+  quote       Float?
+  created_at  DateTime  @default(now())
+}
+
+model BlogPost {
+  id           String    @id @default(cuid())
+  title        String
+  slug         String    @unique
+  content      String
+  excerpt      String
+  cover_url    String?
+  author       String
+  tags         String[]
+  views        Int       @default(0)
+  is_published Boolean   @default(false)
+  published_at DateTime?
+  created_at   DateTime  @default(now())
+}
+
+model BusinessPlan {
+  id         String   @id @default(cuid())
+  user_id    String
+  title      String
+  data       Json
+  pdf_url    String?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model ArtisanGroup {
+  id            String    @id @default(cuid())
+  name          String
+  description   String?
+  creator_id    String
+  region        String?
+  fair_date     DateTime?
+  fair_location String?
+  stand_map     Json?
+  created_at    DateTime  @default(now())
+
+  members  GroupMember[]
+  messages GroupMessage[]
+}
+
+model GroupMember {
+  group_id     String
+  group        ArtisanGroup @relation(fields: [group_id], references: [id])
+  user_id      String
+  role         String       @default("member")
+  stand_number Int?
+  joined_at    DateTime     @default(now())
+
+  @@id([group_id, user_id])
+}
+
+model GroupMessage {
+  id         String       @id @default(cuid())
+  group_id   String
+  group      ArtisanGroup @relation(fields: [group_id], references: [id])
+  sender_id  String
+  content    String
+  created_at DateTime     @default(now())
+}
+
+model SolidarityFund {
+  id          String   @id @default(cuid())
+  order_id    String?
+  amount      Float
+  donor_id    String?
+  beneficiary String?
+  status      String   @default("collected")
+  created_at  DateTime @default(now())
+}
+
+model WeeklyReport {
+  id          String    @id @default(cuid())
+  artisan_id  String
+  week_start  DateTime
+  sales       Float
+  visits      Int
+  messages    Int
+  top_product String?
+  sent_at     DateTime?
+  created_at  DateTime  @default(now())
+}
