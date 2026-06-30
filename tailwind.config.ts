@@ -87,6 +87,18 @@ const config: Config = {
           '0%': { transform: 'scaleX(0)' },
           '100%': { transform: 'scaleX(1)' },
         },
+        'mountain-far': {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-50%)' },
+        },
+        'mountain-mid': {
+          '0%': { transform: 'translateX(-10%)' },
+          '100%': { transform: 'translateX(-60%)' },
+        },
+        'mountain-near': {
+          '0%': { transform: 'translateX(-5%)' },
+          '100%': { transform: 'translateX(-55%)' },
+        },
       },
       animation: {
         'kusi-float': 'kusi-float 3.5s ease-in-out infinite',
@@ -97,6 +109,9 @@ const config: Config = {
         'kusi-idle': 'kusi-idle 4s ease-in-out infinite',
         'kusi-sleep': 'kusi-sleep 5s ease-in-out infinite',
         'shimmer': 'shimmer 2.5s linear infinite',
+        'mountain-far': 'mountain-far 40s linear infinite',
+        'mountain-mid': 'mountain-mid 28s linear infinite',
+        'mountain-near': 'mountain-near 18s linear infinite',
       },
     },
   },

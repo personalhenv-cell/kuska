@@ -21,6 +21,9 @@ const FRASES = [
   'Llamkay kallpa — La fuerza del trabajo',
 ]
 
+// Material Design standard easing
+const EASE: [number, number, number, number] = [0.4, 0, 0.2, 1]
+
 interface Bubble {
   left: number
   size: number
@@ -36,7 +39,6 @@ export function LoadingScreen() {
   const [progress, setProgress] = useState(0)
   const [fraseIndex, setFraseIndex] = useState(0)
   const [displayed, setDisplayed] = useState('')
-  const [showSubtitle, setShowSubtitle] = useState(false)
   const [burst, setBurst] = useState(false)
   const [flash, setFlash] = useState(false)
 
@@ -64,25 +66,25 @@ export function LoadingScreen() {
     if (localStorage.getItem(STORAGE_KEY)) return
     setVisible(true)
 
-    // Typewriter starts at 2.2s, ~100ms per letter
+    // Typewriter starts at 2.2s
     const twTimer = setTimeout(() => {
       let i = 0
-      const interval = setInterval(() => {
+      const iv = setInterval(() => {
         setDisplayed(TYPEWRITER_TEXT.slice(0, i + 1))
         i++
-        if (i === TYPEWRITER_TEXT.length) {
-          clearInterval(interval)
-          setTimeout(() => setShowSubtitle(true), 300)
-        }
+        if (i === TYPEWRITER_TEXT.length) clearInterval(iv)
       }, 100)
     }, 2200)
 
-    // Progress bar
+    // Progress bar tick
     const start = Date.now()
     const tick = setInterval(() => {
       const pct = Math.min(100, ((Date.now() - start) / DURATION_MS) * 100)
       setProgress(pct)
-      if (pct >= 100) setBurst(true)
+      if (pct >= 100) {
+        clearInterval(tick)
+        setBurst(true)
+      }
     }, 40)
 
     // Rotate phrases every 1.3s
@@ -91,7 +93,7 @@ export function LoadingScreen() {
       1300,
     )
 
-    // Gold flash at 6.6s then exit at 7.0s
+    // Gold flash at 6.6s → exit at 7.0s
     const flashTimer = setTimeout(() => {
       setFlash(true)
       setTimeout(() => {
@@ -115,10 +117,10 @@ export function LoadingScreen() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0, filter: 'blur(16px)' }}
-          transition={{ duration: 0.5 }}
-          className="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden"
+          transition={{ duration: 0.5, ease: EASE }}
+          className="fixed inset-0 z-[100] overflow-hidden"
         >
-          {/* Animated gradient background (z-0) */}
+          {/* Layer 0 — Animated gradient */}
           <motion.div
             className="absolute inset-0 z-0"
             animate={{
@@ -132,55 +134,61 @@ export function LoadingScreen() {
             transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
           />
 
-          {/* Mountains — 3 solid planes with parallax (z-[1], above gradient, below content) */}
-          <div className="absolute bottom-0 left-0 w-full overflow-hidden z-[1]" aria-hidden>
-            {/* Back plane — moves right */}
-            <motion.div
-              className="absolute bottom-0 w-[200%]"
-              style={{ left: '-50%', filter: 'drop-shadow(0 0 12px rgba(212,146,10,0.6))' }}
-              animate={{ x: ['0%', '25%', '0%'] }}
-              transition={{ duration: 40, repeat: Infinity, ease: 'linear' }}
+          {/* Layer 1 — Mountains (CSS keyframes, seamless loops via 200%-wide SVGs) */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none z-[1]" aria-hidden>
+            {/* Far — #1a4a42 — 40s */}
+            <svg
+              className="absolute bottom-0 animate-mountain-far"
+              style={{
+                width: '200%',
+                height: '40%',
+                filter: 'drop-shadow(0 0 12px rgba(212,146,10,0.6))',
+              }}
+              viewBox="0 0 3840 400"
+              preserveAspectRatio="none"
             >
-              <svg viewBox="0 0 2880 260" preserveAspectRatio="none" className="w-full">
-                <path
-                  d="M0 200 L240 80 L480 190 L720 50 L960 180 L1200 70 L1440 200 L1680 80 L1920 190 L2160 50 L2400 180 L2640 70 L2880 200 L2880 260 L0 260 Z"
-                  fill="#1a4a42"
-                />
-              </svg>
-            </motion.div>
+              <path
+                d="M0 400 L0 250 L240 80 L480 190 L720 50 L960 180 L1200 70 L1440 190 L1680 80 L1920 250 L2160 80 L2400 190 L2640 50 L2880 180 L3120 70 L3360 190 L3600 80 L3840 250 L3840 400 Z"
+                fill="#1a4a42"
+              />
+            </svg>
 
-            {/* Mid plane — moves left */}
-            <motion.div
-              className="absolute bottom-0 w-[180%]"
-              style={{ left: '-15%', filter: 'drop-shadow(0 0 12px rgba(212,146,10,0.5))' }}
-              animate={{ x: ['0%', '-22%', '0%'] }}
-              transition={{ duration: 28, repeat: Infinity, ease: 'linear' }}
+            {/* Mid — #2E7A6E — 28s (starts offset -10%) */}
+            <svg
+              className="absolute bottom-0 animate-mountain-mid"
+              style={{
+                width: '200%',
+                height: '32%',
+                filter: 'drop-shadow(0 0 10px rgba(212,146,10,0.5))',
+              }}
+              viewBox="0 0 3840 320"
+              preserveAspectRatio="none"
             >
-              <svg viewBox="0 0 2592 220" preserveAspectRatio="none" className="w-full">
-                <path
-                  d="M0 160 L300 90 L600 155 L900 70 L1200 155 L1500 90 L1800 160 L2100 90 L2400 155 L2592 100 L2592 220 L0 220 Z"
-                  fill="#2E7A6E"
-                />
-              </svg>
-            </motion.div>
+              <path
+                d="M0 320 L0 200 L300 90 L600 155 L900 70 L1200 155 L1500 90 L1920 200 L2220 90 L2520 155 L2820 70 L3120 155 L3420 90 L3840 200 L3840 320 Z"
+                fill="#2E7A6E"
+              />
+            </svg>
 
-            {/* Front plane — moves right slowly */}
-            <motion.div
-              className="absolute bottom-0 w-[110%]"
-              style={{ left: '-5%', filter: 'drop-shadow(0 0 14px rgba(212,146,10,0.7))' }}
-              animate={{ x: ['0%', '6%', '0%'] }}
-              transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
+            {/* Near — #3D1C02 — 18s (starts offset -5%) */}
+            <svg
+              className="absolute bottom-0 animate-mountain-near"
+              style={{
+                width: '200%',
+                height: '22%',
+                filter: 'drop-shadow(0 0 14px rgba(212,146,10,0.7))',
+              }}
+              viewBox="0 0 3840 220"
+              preserveAspectRatio="none"
             >
-              <svg viewBox="0 0 1584 180" preserveAspectRatio="none" className="w-full">
-                <path
-                  d="M0 140 L180 105 L360 132 L540 88 L720 128 L900 92 L1080 135 L1260 96 L1440 138 L1584 100 L1584 180 L0 180 Z"
-                  fill="#3D1C02"
-                />
-              </svg>
-            </motion.div>
+              <path
+                d="M0 220 L0 140 L250 90 L450 130 L700 60 L900 120 L1150 80 L1400 130 L1920 140 L2170 90 L2370 130 L2620 60 L2820 120 L3070 80 L3320 130 L3840 140 L3840 220 Z"
+                fill="#3D1C02"
+              />
+            </svg>
           </div>
 
-          {/* Bubbles (z-[2]) */}
+          {/* Layer 2 — Bubbles */}
           {bubbles.map((b, i) => (
             <motion.span
               key={i}
@@ -206,13 +214,13 @@ export function LoadingScreen() {
             />
           ))}
 
-          {/* Center content (z-10) */}
-          <div className="relative z-10 flex flex-col items-center gap-8">
-            {/* Logo with screen blend */}
+          {/* Layer 10 — Main content: Logo → Typewriter → Frases → Barra */}
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-8 px-6">
+            {/* Logo */}
             <motion.div
               initial={{ scale: 0.3, opacity: 0, filter: 'blur(24px)' }}
               animate={{ scale: 1, opacity: 1, filter: 'blur(0px)' }}
-              transition={{ duration: 1.2, delay: 1.0, ease: [0.34, 1.56, 0.64, 1] }}
+              transition={{ duration: 0.7, delay: 1.0, ease: EASE }}
               className="relative"
             >
               <div className="h-28 w-28 overflow-hidden rounded-full">
@@ -237,88 +245,72 @@ export function LoadingScreen() {
               />
             </motion.div>
 
-            {/* Typewriter + subtitle */}
-            <div className="text-center min-h-[90px] flex flex-col items-center gap-3">
-              <div
-                className="font-display text-6xl font-bold tracking-[0.45em] text-kuska-cream"
-                style={{ textShadow: '0 0 48px rgba(212,146,10,0.55)' }}
-              >
-                {displayed}
-                {displayed.length < TYPEWRITER_TEXT.length && (
-                  <motion.span
-                    animate={{ opacity: [1, 0] }}
-                    transition={{ duration: 0.5, repeat: Infinity, repeatType: 'reverse' }}
-                    className="text-kuska-gold ml-1"
-                  >
-                    |
-                  </motion.span>
-                )}
-              </div>
+            {/* Typewriter KUSKA */}
+            <div
+              className="font-display text-6xl font-bold tracking-[0.45em] text-kuska-cream min-h-[80px] text-center"
+              style={{ textShadow: '0 0 48px rgba(212,146,10,0.55)' }}
+            >
+              {displayed}
+              {displayed.length < TYPEWRITER_TEXT.length && (
+                <motion.span
+                  animate={{ opacity: [1, 0] }}
+                  transition={{ duration: 0.5, repeat: Infinity, repeatType: 'reverse' }}
+                  className="text-kuska-gold ml-1"
+                >
+                  |
+                </motion.span>
+              )}
+            </div>
 
-              <AnimatePresence>
-                {showSubtitle && (
-                  <motion.p
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.7 }}
-                    className="font-nunito text-xs tracking-[0.25em] uppercase text-kuska-gold"
-                  >
-                    Primera Plataforma Artesanal del Perú
-                  </motion.p>
-                )}
+            {/* Frases quechua — gap-6 above barra */}
+            <div className="min-h-[24px] text-center">
+              <AnimatePresence mode="wait">
+                <motion.p
+                  key={fraseIndex}
+                  initial={{ opacity: 0, y: 8, filter: 'blur(4px)' }}
+                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                  exit={{ opacity: 0, y: -8, filter: 'blur(4px)' }}
+                  transition={{ duration: 0.4, ease: 'easeInOut' }}
+                  className="font-nunito text-sm text-kuska-cream/80"
+                >
+                  {FRASES[fraseIndex]}
+                </motion.p>
               </AnimatePresence>
             </div>
-          </div>
 
-          {/* Bottom: progress bar + frase quechua */}
-          <div className="absolute bottom-16 left-0 right-0 z-10 flex flex-col items-center gap-4">
-            {/* Progress bar — multicolor gradient + burst at 100% */}
-            <div className="relative h-1.5 w-72 overflow-visible rounded-full bg-white/10">
-              <motion.div
+            {/* Progress bar — multicolor + burst at 100% */}
+            <div className="relative h-2 w-72 rounded-full bg-white/10 overflow-visible">
+              <div
                 className="h-full rounded-full"
                 style={{
                   width: `${progress}%`,
+                  transition: 'width 75ms linear',
                   background:
                     'linear-gradient(90deg, #C84B2F 0%, #D4920A 33%, #2E7A6E 66%, #D4920A 100%)',
                   backgroundSize: '300% 100%',
+                  backgroundPosition: `${100 - progress}% 0%`,
+                  boxShadow: burst
+                    ? '0 0 60px 20px rgba(212,146,10,1), 0 0 120px 40px rgba(200,75,47,0.6)'
+                    : 'none',
                 }}
-                animate={{
-                  backgroundPosition: ['100% 0%', '0% 0%'],
-                  ...(burst
-                    ? {
-                        boxShadow: [
-                          '0 0 0px rgba(212,146,10,0)',
-                          '0 0 40px 10px rgba(212,146,10,0.9), 0 0 80px 20px rgba(200,75,47,0.5)',
-                          '0 0 0px rgba(212,146,10,0)',
-                        ],
-                        scaleY: [1, 1.8, 1],
-                      }
-                    : {}),
-                }}
-                transition={
-                  burst
-                    ? { duration: 0.4, ease: 'easeOut' }
-                    : { duration: 7, ease: 'linear' }
-                }
               />
+              {/* Radial burst expanding from bar */}
+              {burst && (
+                <motion.div
+                  className="absolute inset-0 rounded-full pointer-events-none"
+                  initial={{ scale: 0, opacity: 1 }}
+                  animate={{ scale: 4, opacity: 0 }}
+                  transition={{ duration: 0.5, ease: 'easeOut' }}
+                  style={{
+                    background:
+                      'radial-gradient(ellipse, rgba(212,146,10,0.9) 0%, rgba(200,75,47,0.5) 40%, transparent 70%)',
+                  }}
+                />
+              )}
             </div>
-
-            {/* Frase quechua — crossfade con blur */}
-            <AnimatePresence mode="wait">
-              <motion.p
-                key={fraseIndex}
-                initial={{ opacity: 0, y: 8, filter: 'blur(4px)' }}
-                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                exit={{ opacity: 0, y: -8, filter: 'blur(4px)' }}
-                transition={{ duration: 0.4, ease: 'easeInOut' }}
-                className="font-nunito text-sm text-kuska-cream/80"
-              >
-                {FRASES[fraseIndex]}
-              </motion.p>
-            </AnimatePresence>
           </div>
 
-          {/* Gold flash overlay */}
+          {/* Layer 20 — Gold flash */}
           {flash && (
             <motion.div
               className="absolute inset-0 z-20 pointer-events-none"
