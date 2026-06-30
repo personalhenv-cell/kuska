@@ -1,14 +1,16 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import toast from 'react-hot-toast'
 import { signIn } from 'next-auth/react'
-import { Input } from '@/components/ui/Input'
+import { AnimatePresence, motion } from 'framer-motion'
 import { Button } from '@/components/ui/Button'
 import { Kusi } from '@/components/ui/Kusi'
+import { AuthBackground } from '@/components/auth/AuthBackground'
+import { AuthCard } from '@/components/auth/AuthCard'
 
 type Step = 'phone' | 'otp'
 
@@ -20,6 +22,12 @@ export default function LoginPage() {
   const [devCode, setDevCode] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string>()
+  const [kusiAnim, setKusiAnim] = useState<'bounce' | 'idle'>('bounce')
+
+  useEffect(() => {
+    const t = setTimeout(() => setKusiAnim('idle'), 900)
+    return () => clearTimeout(t)
+  }, [])
 
   async function sendOtp(e: React.FormEvent) {
     e.preventDefault()
@@ -49,11 +57,7 @@ export default function LoginPage() {
     setError(undefined)
     setLoading(true)
     try {
-      const result = await signIn('credentials', {
-        phone,
-        otp,
-        redirect: false,
-      })
+      const result = await signIn('credentials', { phone, otp, redirect: false })
       if (result?.error) {
         setError('Código inválido o expirado')
         return
@@ -66,128 +70,118 @@ export default function LoginPage() {
     }
   }
 
+  const dir = step === 'otp' ? 1 : -1
+
   return (
-    <main className="grid min-h-screen bg-kuska-cream lg:grid-cols-2">
-      {/* Lado visual andino */}
-      <div
-        className="relative hidden flex-col justify-between overflow-hidden p-12 text-kuska-cream lg:flex"
-        style={{
-          background:
-            'linear-gradient(135deg, #3D1C02 0%, #2E7A6E 70%, #1a3a35 100%)',
-        }}
-      >
-        <Link href="/" className="flex items-center gap-2">
-          <Image
-            src="/logo.png"
-            alt="Kuska"
-            width={44}
-            height={44}
-            className="h-11 w-11 object-contain"
-          />
-          <span className="font-display text-2xl font-bold">Kuska</span>
-        </Link>
-        <svg
-          className="absolute bottom-0 left-0 w-full opacity-40"
-          viewBox="0 0 1440 320"
-          preserveAspectRatio="none"
-          aria-hidden
-        >
-          <path
-            fill="rgba(212,146,10,0.3)"
-            d="M0 240 L360 120 L720 220 L1080 110 L1440 210 L1440 320 L0 320 Z"
-          />
-        </svg>
-        <div className="relative z-10 max-w-sm">
-          <h2 className="font-display text-3xl font-bold leading-snug">
-            Bienvenido de vuelta a la comunidad
-          </h2>
-          <p className="mt-3 font-body text-kuska-cream/75">
-            Tu arte, tu historia y tu gente te esperan.
-          </p>
+    <AuthBackground>
+      <AuthCard>
+        {/* Logo */}
+        <div className="flex justify-center mb-5">
+          <Link href="/" className="flex items-center gap-2">
+            <Image src="/logo.png" alt="Kuska" width={32} height={32} className="h-8 w-8 object-contain" />
+            <span className="font-display text-lg font-bold text-kuska-cream">Kuska</span>
+          </Link>
         </div>
-      </div>
 
-      {/* Formulario */}
-      <div className="flex items-center justify-center px-6 py-16">
-        <div className="w-full max-w-sm">
-          <div className="mb-6 flex flex-col items-center gap-2 text-center">
-            <Kusi size="md" animation={step === 'otp' ? 'think' : 'wave'} />
-            <h1 className="font-display text-3xl font-bold text-kuska-text">
-              Ingresar
-            </h1>
-            <p className="font-body text-sm text-kuska-text-mid">
-              {step === 'phone'
-                ? 'Te enviaremos un código a tu celular'
-                : `Ingresa el código enviado a ${phone}`}
-            </p>
-          </div>
+        {/* Kusi bounce → idle */}
+        <div className="flex justify-center mb-4">
+          <Kusi size="sm" animation={kusiAnim} />
+        </div>
 
-          {step === 'phone' ? (
-            <form onSubmit={sendOtp} className="space-y-4">
-              <Input
-                label="Número de celular"
-                inputMode="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                error={error}
-                required
-              />
-              <Button
-                type="submit"
-                size="lg"
-                className="w-full"
-                disabled={loading}
-              >
-                {loading ? 'Enviando...' : 'Enviar código'}
-              </Button>
-            </form>
-          ) : (
-            <form onSubmit={verify} className="space-y-4">
-              {devCode && (
-                <div className="liquid-glass-gold rounded-card p-4 text-center">
-                  <p className="font-nunito text-xs text-kuska-text-mid">
-                    Código (modo demo)
-                  </p>
-                  <p className="font-display text-3xl font-bold tracking-[0.3em] text-kuska-gold">
-                    {devCode}
+        {/* Step slides */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={step}
+            initial={{ opacity: 0, x: dir * 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -dir * 40 }}
+            transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+          >
+            {step === 'phone' ? (
+              <div className="space-y-5">
+                <div className="text-center">
+                  <h1 className="font-display text-2xl font-bold text-kuska-cream">Ingresar</h1>
+                  <p className="mt-1 font-body text-sm text-kuska-cream/65">
+                    Te enviamos un código a tu celular
                   </p>
                 </div>
-              )}
-              <Input
-                label="Código de 6 dígitos"
-                inputMode="numeric"
-                maxLength={6}
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                error={error}
-                required
-              />
-              <Button
-                type="submit"
-                size="lg"
-                className="w-full"
-                disabled={loading}
-              >
-                {loading ? 'Verificando...' : 'Ingresar'}
-              </Button>
-              <button
-                type="button"
-                onClick={() => setStep('phone')}
-                className="w-full font-body text-sm text-kuska-text-mid hover:text-kuska-red"
-              >
-                Cambiar número
-              </button>
-            </form>
-          )}
+                <form onSubmit={sendOtp} className="space-y-4">
+                  <div>
+                    <label className="block mb-1.5 font-nunito text-xs font-bold uppercase tracking-wide text-kuska-cream/60">
+                      Número de celular
+                    </label>
+                    <input
+                      type="tel"
+                      inputMode="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="999 888 777"
+                      required
+                      className="w-full rounded-btn border border-white/20 bg-white/8 px-4 py-3 font-body text-kuska-cream placeholder:text-kuska-cream/35 focus:border-kuska-gold focus:outline-none focus:ring-2 focus:ring-kuska-gold/30 transition-all"
+                    />
+                    {error && (
+                      <p className="mt-1.5 font-body text-xs text-red-400">{error}</p>
+                    )}
+                  </div>
+                  <Button type="submit" size="lg" className="w-full" disabled={loading}>
+                    {loading ? 'Enviando…' : 'Enviar código'}
+                  </Button>
+                </form>
+              </div>
+            ) : (
+              <div className="space-y-5">
+                <div className="text-center">
+                  <h1 className="font-display text-2xl font-bold text-kuska-cream">Verifica tu número</h1>
+                  <p className="mt-1 font-body text-sm text-kuska-cream/65">Código enviado a {phone}</p>
+                </div>
+                {devCode && (
+                  <div className="rounded-card border border-kuska-gold/40 bg-kuska-gold/10 p-4 text-center">
+                    <p className="font-nunito text-xs text-kuska-cream/60">Código OTP (modo demo)</p>
+                    <p className="font-display text-3xl font-bold tracking-[0.3em] text-kuska-gold">{devCode}</p>
+                  </div>
+                )}
+                <form onSubmit={verify} className="space-y-4">
+                  <div>
+                    <label className="block mb-1.5 font-nunito text-xs font-bold uppercase tracking-wide text-kuska-cream/60">
+                      Código de 6 dígitos
+                    </label>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={6}
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value)}
+                      placeholder="000000"
+                      required
+                      className="w-full rounded-btn border border-white/20 bg-white/8 px-4 py-3 font-body text-kuska-cream placeholder:text-kuska-cream/35 focus:border-kuska-gold focus:outline-none focus:ring-2 focus:ring-kuska-gold/30 text-center tracking-[0.4em] text-lg transition-all"
+                    />
+                    {error && (
+                      <p className="mt-1.5 font-body text-xs text-red-400">{error}</p>
+                    )}
+                  </div>
+                  <Button type="submit" size="lg" className="w-full" disabled={loading}>
+                    {loading ? 'Verificando…' : 'Ingresar'}
+                  </Button>
+                  <button
+                    type="button"
+                    onClick={() => { setStep('phone'); setError(undefined) }}
+                    className="w-full font-body text-sm text-kuska-cream/55 hover:text-kuska-cream transition-colors"
+                  >
+                    ← Cambiar número
+                  </button>
+                </form>
+              </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
 
-          <p className="mt-6 text-center font-body text-sm text-kuska-text-mid">
-            ¿No tienes cuenta?{' '}
-            <Link href="/registro" className="font-semibold text-kuska-red">
-              Regístrate
-            </Link>
-          </p>
-        </div>
-      </div>
-    </main>
+        <p className="mt-6 text-center font-body text-sm text-kuska-cream/55">
+          ¿No tienes cuenta?{' '}
+          <Link href="/registro" className="font-semibold text-kuska-gold hover:text-kuska-gold/80 transition-colors">
+            Regístrate
+          </Link>
+        </p>
+      </AuthCard>
+    </AuthBackground>
   )
 }
