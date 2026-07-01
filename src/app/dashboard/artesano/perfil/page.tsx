@@ -1,0 +1,81 @@
+import { getServerSession } from 'next-auth'
+import { redirect } from 'next/navigation'
+import { authOptions } from '@/auth/config'
+import { prisma } from '@/lib/prisma'
+import { updateArtisanProfile } from './actions'
+
+export default async function ArtisanProfilePage() {
+  const session = await getServerSession(authOptions)
+  if (!session || session.user.role !== 'artesano' || !session.user.artisan_profile_id) {
+    redirect('/login')
+  }
+
+  const profile = await prisma.artisanProfile.findUniqueOrThrow({
+    where: { id: session.user.artisan_profile_id },
+  })
+
+  const inputClass =
+    'w-full rounded-btn border border-kuska-border bg-white px-4 py-3 font-body text-kuska-text focus:border-kuska-gold focus:outline-none focus:ring-2 focus:ring-kuska-gold/30 transition-all'
+  const labelClass = 'block mb-1.5 font-nunito text-xs font-bold uppercase tracking-wide text-kuska-text-mid'
+
+  return (
+    <div className="p-6 lg:p-10 max-w-2xl space-y-6">
+      <div>
+        <h1 className="font-display text-2xl font-bold text-kuska-text">Mi perfil</h1>
+        <p className="mt-1 font-body text-sm text-kuska-text-mid">
+          Esta información aparece en tu tienda y le da confianza a tus clientes.
+        </p>
+      </div>
+
+      <form action={updateArtisanProfile} className="space-y-5 rounded-card border border-kuska-border bg-white p-6">
+        <div className="grid gap-5 sm:grid-cols-3">
+          <div>
+            <label className={labelClass}>Especialidad</label>
+            <input name="specialty" defaultValue={profile.specialty} className={inputClass} required />
+          </div>
+          <div>
+            <label className={labelClass}>Técnica</label>
+            <input name="technique" defaultValue={profile.technique} className={inputClass} required />
+          </div>
+          <div>
+            <label className={labelClass}>Región</label>
+            <input name="region" defaultValue={profile.region} className={inputClass} required />
+          </div>
+        </div>
+
+        <div>
+          <label className={labelClass}>WhatsApp</label>
+          <input name="whatsapp" defaultValue={profile.whatsapp ?? ''} placeholder="999 888 777" className={inputClass} />
+        </div>
+
+        <div>
+          <label className={labelClass}>Biografía corta</label>
+          <textarea
+            name="bio"
+            defaultValue={profile.bio ?? ''}
+            maxLength={280}
+            className={`${inputClass} h-20 resize-none`}
+            placeholder="Una frase que te describa como artesano…"
+          />
+        </div>
+
+        <div>
+          <label className={labelClass}>Tu historia</label>
+          <textarea
+            name="story"
+            defaultValue={profile.story ?? ''}
+            className={`${inputClass} h-40 resize-none`}
+            placeholder="Cuéntanos cómo aprendiste tu arte…"
+          />
+        </div>
+
+        <button
+          type="submit"
+          className="rounded-btn bg-kuska-red px-6 py-3 font-body text-sm font-bold text-white transition-transform hover:-translate-y-0.5"
+        >
+          Guardar cambios
+        </button>
+      </form>
+    </div>
+  )
+}
