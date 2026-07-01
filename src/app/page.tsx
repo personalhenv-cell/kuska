@@ -4,12 +4,14 @@ import { LoadingScreen } from '@/components/LoadingScreen'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { Hero } from '@/components/landing/Hero'
+import { FeatureGrid } from '@/components/landing/FeatureGrid'
 import { AndeanDivider } from '@/components/AndeanDivider'
 import { TiltCard } from '@/components/ui/TiltCard'
 import { Counter } from '@/components/ui/Counter'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Kusi } from '@/components/ui/Kusi'
+import { QueEsKuskaSection } from '@/components/landing/QueEsKuskaSection'
 
 const pasos = [
   {
@@ -75,55 +77,11 @@ export default function HomePage() {
 
         <AndeanDivider />
 
-        {/* ¿Qué es Kuska? — diseño asimétrico */}
-        <section className="mx-auto max-w-6xl px-6 py-20">
-          <div className="grid items-center gap-12 lg:grid-cols-[1fr_1.1fr]">
-            <div className="relative">
-              <div className="liquid-glass-gold aspect-[4/5] overflow-hidden rounded-glass">
-                <div className="andean-texture flex h-full w-full items-center justify-center opacity-100">
-                  <span className="font-display text-[120px] opacity-70">
-                    🦙
-                  </span>
-                </div>
-              </div>
-              <div className="absolute -bottom-6 -right-4 rounded-card bg-kuska-brown px-5 py-4 text-kuska-cream shadow-xl">
-                <p className="font-nunito text-xs uppercase tracking-wide text-kuska-gold">
-                  Kuska significa
-                </p>
-                <p className="font-display text-2xl font-bold">«Juntos»</p>
-              </div>
-            </div>
+        <FeatureGrid />
 
-            <div>
-              <Badge variant="region" className="mb-4">
-                ¿Qué es Kuska?
-              </Badge>
-              <h2 className="font-display text-h3 leading-tight text-kuska-text sm:text-h2">
-                Más que un marketplace: un ecosistema para el artesano peruano.
-              </h2>
-              <p className="mt-5 font-body text-lg leading-relaxed text-kuska-text-mid">
-                Reunimos comercio, comunidad, formación y tecnología en un solo
-                lugar. Cada compra sostiene a una familia, preserva una técnica
-                ancestral y lleva un pedazo del Perú al mundo.
-              </p>
-              <ul className="mt-6 space-y-3">
-                {[
-                  'Marketplace con historias reales detrás de cada pieza',
-                  'Academia y ferias digitales para crecer',
-                  'CFO-bot con IA y acceso a fondos de capitalización',
-                ].map((item) => (
-                  <li
-                    key={item}
-                    className="flex items-start gap-3 font-body text-kuska-text"
-                  >
-                    <span className="mt-1 inline-block h-2.5 w-2.5 flex-shrink-0 rotate-45 bg-kuska-gold" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </section>
+        <AndeanDivider />
+
+        <QueEsKuskaSection />
 
         <AndeanDivider />
 

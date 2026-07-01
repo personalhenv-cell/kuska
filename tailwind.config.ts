@@ -99,6 +99,14 @@ const config: Config = {
           '0%': { transform: 'translateX(-5%)' },
           '100%': { transform: 'translateX(-55%)' },
         },
+        'ripple-glow-spin': {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' },
+        },
+        'ripple-expand': {
+          '0%': { transform: 'scale(0)', opacity: '0.55' },
+          '100%': { transform: 'scale(1)', opacity: '0' },
+        },
       },
       animation: {
         'kusi-float': 'kusi-float 3.5s ease-in-out infinite',
@@ -112,6 +120,8 @@ const config: Config = {
         'mountain-far': 'mountain-far 40s linear infinite',
         'mountain-mid': 'mountain-mid 28s linear infinite',
         'mountain-near': 'mountain-near 18s linear infinite',
+        'ripple-glow-spin': 'ripple-glow-spin 3s linear infinite',
+        'ripple-expand': 'ripple-expand 0.6s ease-out forwards',
       },
     },
   },

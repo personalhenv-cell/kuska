@@ -9,6 +9,7 @@ import toast from 'react-hot-toast'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Button } from '@/components/ui/Button'
 import { Kusi } from '@/components/ui/Kusi'
+import { RippleButton } from '@/components/ui/RippleButton'
 import { AuthBackground } from '@/components/auth/AuthBackground'
 
 type Step = 1 | 2 | 3 | 4 | 5
@@ -162,7 +163,12 @@ export default function RegistroArtesanoPage() {
               <span className="font-display text-base font-bold text-kuska-cream">Kuska</span>
             </Link>
             <div className="flex items-center gap-2">
-              <Kusi size="sm" animation={animation} />
+              <motion.div
+                animate={{ opacity: [0.85, 1, 0.85] }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+              >
+                <Kusi size="sm" animation={animation} />
+              </motion.div>
               <span className="hidden font-body text-xs text-kuska-cream/65 sm:block">{msg}</span>
             </div>
           </div>
@@ -205,9 +211,11 @@ export default function RegistroArtesanoPage() {
                       required
                     />
                   </div>
-                  <Button size="lg" className="w-full" onClick={() => form.name && form.phone && setStep(2)}>
-                    Continuar →
-                  </Button>
+                  <RippleButton className="block w-full">
+                    <Button size="lg" className="w-full" onClick={() => form.name && form.phone && setStep(2)}>
+                      Continuar →
+                    </Button>
+                  </RippleButton>
                   <p className="text-center font-body text-sm text-kuska-cream/55">
                     ¿Ya tienes cuenta?{' '}
                     <Link href="/login" className="font-semibold text-kuska-gold hover:text-kuska-gold/80 transition-colors">
@@ -257,9 +265,11 @@ export default function RegistroArtesanoPage() {
                   {error && <p className="font-body text-xs text-red-400">{error}</p>}
                   <div className="flex gap-3">
                     <Button variant="ghost" size="lg" className="flex-1" onClick={() => setStep(1)}>← Atrás</Button>
-                    <Button size="lg" className="flex-1" onClick={submit} disabled={loading || !form.specialty || !form.region}>
-                      {loading ? 'Creando…' : 'Crear cuenta'}
-                    </Button>
+                    <RippleButton className="block flex-1">
+                      <Button size="lg" className="w-full" onClick={submit} disabled={loading || !form.specialty || !form.region}>
+                        {loading ? 'Creando…' : 'Crear cuenta'}
+                      </Button>
+                    </RippleButton>
                   </div>
                 </div>
               )}
@@ -290,9 +300,11 @@ export default function RegistroArtesanoPage() {
                     />
                     {error && <p className="mt-1.5 font-body text-xs text-red-400">{error}</p>}
                   </div>
-                  <Button type="submit" size="lg" className="w-full" disabled={loading}>
-                    {loading ? 'Verificando…' : 'Verificar'}
-                  </Button>
+                  <RippleButton className="block w-full">
+                    <Button type="submit" size="lg" className="w-full" disabled={loading}>
+                      {loading ? 'Verificando…' : 'Verificar'}
+                    </Button>
+                  </RippleButton>
                 </form>
               )}
 
@@ -322,7 +334,9 @@ export default function RegistroArtesanoPage() {
                     <h1 className="font-display text-2xl font-bold text-kuska-cream">¡Bienvenido, artesano!</h1>
                     <p className="mt-2 font-body text-sm text-kuska-cream/65">Tu cuenta está lista. Ahora sube tu primera colección.</p>
                   </div>
-                  <Button size="lg" className="w-full" onClick={finish}>Ir a mi panel →</Button>
+                  <RippleButton className="block w-full">
+                    <Button size="lg" className="w-full" onClick={finish}>Ir a mi panel →</Button>
+                  </RippleButton>
                 </div>
               )}
             </motion.div>

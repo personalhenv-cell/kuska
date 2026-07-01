@@ -88,6 +88,9 @@ export function Footer() {
             Kuska teqsimuyu — Juntos al mundo
           </p>
         </div>
+        <p className="mt-4 text-center font-body text-xs text-kuska-cream/45">
+          Creado por Agencia CEIPE
+        </p>
       </div>
     </footer>
   )

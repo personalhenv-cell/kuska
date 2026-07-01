@@ -142,7 +142,7 @@ export function LoadingScreen() {
               style={{
                 width: '200%',
                 height: '40%',
-                filter: 'drop-shadow(0 0 12px rgba(212,146,10,0.6))',
+                filter: 'drop-shadow(0 0 16px rgba(212,146,10,0.75))',
               }}
               viewBox="0 0 3840 400"
               preserveAspectRatio="none"
@@ -150,6 +150,8 @@ export function LoadingScreen() {
               <path
                 d="M0 400 L0 250 L240 80 L480 190 L720 50 L960 180 L1200 70 L1440 190 L1680 80 L1920 250 L2160 80 L2400 190 L2640 50 L2880 180 L3120 70 L3360 190 L3600 80 L3840 250 L3840 400 Z"
                 fill="#1a4a42"
+                stroke="rgba(212,146,10,0.35)"
+                strokeWidth="2"
               />
             </svg>
 
@@ -159,7 +161,7 @@ export function LoadingScreen() {
               style={{
                 width: '200%',
                 height: '32%',
-                filter: 'drop-shadow(0 0 10px rgba(212,146,10,0.5))',
+                filter: 'drop-shadow(0 0 14px rgba(212,146,10,0.65))',
               }}
               viewBox="0 0 3840 320"
               preserveAspectRatio="none"
@@ -167,6 +169,8 @@ export function LoadingScreen() {
               <path
                 d="M0 320 L0 200 L300 90 L600 155 L900 70 L1200 155 L1500 90 L1920 200 L2220 90 L2520 155 L2820 70 L3120 155 L3420 90 L3840 200 L3840 320 Z"
                 fill="#2E7A6E"
+                stroke="rgba(212,146,10,0.4)"
+                strokeWidth="2"
               />
             </svg>
 
@@ -176,7 +180,7 @@ export function LoadingScreen() {
               style={{
                 width: '200%',
                 height: '22%',
-                filter: 'drop-shadow(0 0 14px rgba(212,146,10,0.7))',
+                filter: 'drop-shadow(0 0 18px rgba(212,146,10,0.85))',
               }}
               viewBox="0 0 3840 220"
               preserveAspectRatio="none"
@@ -184,6 +188,8 @@ export function LoadingScreen() {
               <path
                 d="M0 220 L0 140 L250 90 L450 130 L700 60 L900 120 L1150 80 L1400 130 L1920 140 L2170 90 L2370 130 L2620 60 L2820 120 L3070 80 L3320 130 L3840 140 L3840 220 Z"
                 fill="#3D1C02"
+                stroke="rgba(212,146,10,0.5)"
+                strokeWidth="2.5"
               />
             </svg>
           </div>
@@ -294,18 +300,30 @@ export function LoadingScreen() {
                     : 'none',
                 }}
               />
-              {/* Radial burst expanding from bar */}
+              {/* Radial burst expanding from bar — doble pulso */}
               {burst && (
-                <motion.div
-                  className="absolute inset-0 rounded-full pointer-events-none"
-                  initial={{ scale: 0, opacity: 1 }}
-                  animate={{ scale: 4, opacity: 0 }}
-                  transition={{ duration: 0.5, ease: 'easeOut' }}
-                  style={{
-                    background:
-                      'radial-gradient(ellipse, rgba(212,146,10,0.9) 0%, rgba(200,75,47,0.5) 40%, transparent 70%)',
-                  }}
-                />
+                <>
+                  <motion.div
+                    className="absolute inset-0 rounded-full pointer-events-none"
+                    initial={{ scale: 0, opacity: 1 }}
+                    animate={{ scale: 4, opacity: 0 }}
+                    transition={{ duration: 0.5, ease: 'easeOut' }}
+                    style={{
+                      background:
+                        'radial-gradient(ellipse, rgba(212,146,10,0.9) 0%, rgba(200,75,47,0.5) 40%, transparent 70%)',
+                    }}
+                  />
+                  <motion.div
+                    className="absolute inset-0 rounded-full pointer-events-none"
+                    initial={{ scale: 0, opacity: 0.8 }}
+                    animate={{ scale: 7, opacity: 0 }}
+                    transition={{ duration: 0.8, delay: 0.15, ease: 'easeOut' }}
+                    style={{
+                      background:
+                        'radial-gradient(ellipse, rgba(212,146,10,0.7) 0%, rgba(46,122,110,0.35) 45%, transparent 70%)',
+                    }}
+                  />
+                </>
               )}
             </div>
           </div>

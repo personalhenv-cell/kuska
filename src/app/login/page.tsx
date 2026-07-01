@@ -9,6 +9,7 @@ import { signIn } from 'next-auth/react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Button } from '@/components/ui/Button'
 import { Kusi } from '@/components/ui/Kusi'
+import { RippleButton } from '@/components/ui/RippleButton'
 import { AuthBackground } from '@/components/auth/AuthBackground'
 import { AuthCard } from '@/components/auth/AuthCard'
 
@@ -83,10 +84,14 @@ export default function LoginPage() {
           </Link>
         </div>
 
-        {/* Kusi bounce → idle */}
-        <div className="flex justify-center mb-4">
+        {/* Kusi bounce → idle, con pulse continuo */}
+        <motion.div
+          className="flex justify-center mb-4"
+          animate={{ opacity: [0.85, 1, 0.85] }}
+          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+        >
           <Kusi size="sm" animation={kusiAnim} />
-        </div>
+        </motion.div>
 
         {/* Step slides */}
         <AnimatePresence mode="wait">
@@ -123,9 +128,11 @@ export default function LoginPage() {
                       <p className="mt-1.5 font-body text-xs text-red-400">{error}</p>
                     )}
                   </div>
-                  <Button type="submit" size="lg" className="w-full" disabled={loading}>
-                    {loading ? 'Enviando…' : 'Enviar código'}
-                  </Button>
+                  <RippleButton className="block w-full">
+                    <Button type="submit" size="lg" className="w-full" disabled={loading}>
+                      {loading ? 'Enviando…' : 'Enviar código'}
+                    </Button>
+                  </RippleButton>
                 </form>
               </div>
             ) : (
@@ -159,9 +166,11 @@ export default function LoginPage() {
                       <p className="mt-1.5 font-body text-xs text-red-400">{error}</p>
                     )}
                   </div>
-                  <Button type="submit" size="lg" className="w-full" disabled={loading}>
-                    {loading ? 'Verificando…' : 'Ingresar'}
-                  </Button>
+                  <RippleButton className="block w-full">
+                    <Button type="submit" size="lg" className="w-full" disabled={loading}>
+                      {loading ? 'Verificando…' : 'Ingresar'}
+                    </Button>
+                  </RippleButton>
                   <button
                     type="button"
                     onClick={() => { setStep('phone'); setError(undefined) }}
