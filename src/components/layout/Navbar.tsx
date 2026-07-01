@@ -30,14 +30,14 @@ export function Navbar() {
     <header className="fixed inset-x-0 top-0 z-50 px-4 pt-3 sm:px-6">
       <nav
         className={cn(
-          'liquid-glass-dark mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-2.5 sm:px-6',
+          'liquid-glass-dark mx-auto flex max-w-6xl items-center justify-between gap-2 px-3 py-2.5 sm:gap-4 sm:px-6',
           'transition-all duration-300',
           scrolled ? 'shadow-2xl' : '',
         )}
       >
-        <Link href="/" className="flex items-center gap-2">
-          <Logo size={36} />
-          <span className="font-display text-xl font-bold text-kuska-cream">
+        <Link href="/" className="flex min-w-0 items-center gap-2">
+          <Logo size={32} className="sm:!h-9 sm:!w-9" />
+          <span className="truncate font-display text-base font-bold text-kuska-cream sm:text-xl">
             Kuska
           </span>
           <span className="hidden sm:block">
@@ -57,8 +57,10 @@ export function Navbar() {
           ))}
         </div>
 
-        <div className="flex items-center gap-3">
-          <LanguageToggle dark />
+        <div className="flex flex-shrink-0 items-center gap-2 sm:gap-3">
+          <span className="hidden sm:block">
+            <LanguageToggle dark />
+          </span>
           <Link
             href="/login"
             className="hidden font-body text-sm font-semibold text-kuska-cream/85 hover:text-kuska-gold sm:block"
@@ -67,7 +69,7 @@ export function Navbar() {
           </Link>
           <Link
             href="/registro"
-            className="rounded-btn bg-kuska-gold px-4 py-2 font-body text-sm font-bold text-kuska-brown transition-transform hover:-translate-y-0.5"
+            className="whitespace-nowrap rounded-btn bg-kuska-gold px-3 py-2 font-body text-xs font-bold text-kuska-brown transition-transform hover:-translate-y-0.5 sm:px-4 sm:text-sm"
           >
             {t('register')}
           </Link>
