@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import Image from 'next/image'
 import { Logo } from '@/components/ui/Logo'
+import { Kusi } from '@/components/ui/Kusi'
 
 const STORAGE_KEY = 'kuska_loaded_v8'
 const DURATION_MS = 7000
@@ -42,6 +43,8 @@ export function LoadingScreen() {
   const [displayed, setDisplayed] = useState('')
   const [burst, setBurst] = useState(false)
   const [flash, setFlash] = useState(false)
+  const [kusiLanded, setKusiLanded] = useState(false)
+  const [kusiAnim, setKusiAnim] = useState<'idle' | 'bounce'>('idle')
 
   const bubbles = useMemo<Bubble[]>(
     () =>
@@ -103,11 +106,19 @@ export function LoadingScreen() {
       }, 400)
     }, 6600)
 
+    // Kusi aterriza con bounce ~1.7s luego de que entra la barra, luego pasa a idle
+    const kusiTimer = setTimeout(() => {
+      setKusiLanded(true)
+      setKusiAnim('bounce')
+      setTimeout(() => setKusiAnim('idle'), 900)
+    }, 3400)
+
     return () => {
       clearTimeout(twTimer)
       clearInterval(tick)
       clearInterval(fraseTimer)
       clearTimeout(flashTimer)
+      clearTimeout(kusiTimer)
     }
   }, [])
 
@@ -342,6 +353,15 @@ export function LoadingScreen() {
                 </>
               )}
             </div>
+
+            {/* Kusi — entra con bounce desde abajo tras la barra */}
+            <motion.div
+              initial={{ y: 60, opacity: 0 }}
+              animate={kusiLanded ? { y: 0, opacity: 1 } : {}}
+              transition={{ type: 'spring', bounce: 0.6, duration: 0.9 }}
+            >
+              <Kusi size="sm" animation={kusiAnim} />
+            </motion.div>
           </div>
 
           {/* Layer 20 — Gold flash */}
