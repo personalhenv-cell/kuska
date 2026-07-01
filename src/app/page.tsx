@@ -1,10 +1,10 @@
-import Image from 'next/image'
 import Link from 'next/link'
 import { LoadingScreen } from '@/components/LoadingScreen'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { Hero } from '@/components/landing/Hero'
 import { FeatureGrid } from '@/components/landing/FeatureGrid'
+import { AlianzasSection } from '@/components/landing/AlianzasSection'
 import { AndeanDivider } from '@/components/AndeanDivider'
 import { TiltCard } from '@/components/ui/TiltCard'
 import { Counter } from '@/components/ui/Counter'
@@ -53,18 +53,6 @@ const artesanos = [
     technique: 'Retablos',
     emoji: '🎨',
   },
-]
-
-const alianzas = [
-  'scale',
-  'wichay',
-  'utec',
-  'emprendeup',
-  'proinnovate',
-  'bcp',
-  'intercorp',
-  'romero',
-  'wiese',
 ]
 
 export default function HomePage() {
@@ -197,28 +185,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Alianzas */}
-        <section className="mx-auto max-w-6xl px-6 py-20">
-          <p className="text-center font-nunito text-sm font-bold uppercase tracking-wide text-kuska-text-mid">
-            Respaldados por el ecosistema de innovación del Perú
-          </p>
-          <div className="mt-10 grid grid-cols-3 items-center gap-8 sm:grid-cols-3 md:grid-cols-5">
-            {alianzas.map((logo) => (
-              <div
-                key={logo}
-                className="flex items-center justify-center grayscale transition-all duration-300 hover:grayscale-0"
-              >
-                <Image
-                  src={`/alianzas/${logo}.png`}
-                  alt={logo}
-                  width={120}
-                  height={60}
-                  className="h-12 w-auto object-contain opacity-80"
-                />
-              </div>
-            ))}
-          </div>
-        </section>
+        <AlianzasSection />
 
         <AndeanDivider />
 
