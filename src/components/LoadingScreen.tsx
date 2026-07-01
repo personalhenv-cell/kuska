@@ -134,6 +134,31 @@ export function LoadingScreen() {
             transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
           />
 
+          {/* Layer 0.5 — Textura fotográfica de montañas reales, integrada al tono nocturno */}
+          <motion.div
+            className="absolute inset-0 overflow-hidden pointer-events-none z-0"
+            animate={{ y: [0, 14, 0] }}
+            transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
+            aria-hidden
+          >
+            <div className="absolute bottom-0 h-[48%] w-full opacity-[0.22] mix-blend-luminosity">
+              <Image
+                src="/mountains-peru-view.png"
+                alt=""
+                fill
+                className="object-cover"
+                style={{ objectPosition: '50% 35%' }}
+              />
+            </div>
+            <div
+              className="absolute inset-0"
+              style={{
+                background:
+                  'linear-gradient(180deg, transparent 0%, rgba(26,20,16,0.7) 55%, #1a1410 100%)',
+              }}
+            />
+          </motion.div>
+
           {/* Layer 1 — Mountains (CSS keyframes, seamless loops via 200%-wide SVGs) */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none z-[1]" aria-hidden>
             {/* Far — #1a4a42 — 40s */}

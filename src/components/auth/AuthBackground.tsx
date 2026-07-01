@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import type { ReactNode } from 'react'
 
 const PARTICLES = Array.from({ length: 24 }, (_, i) => ({
@@ -16,6 +17,25 @@ export function AuthBackground({ children }: { children: ReactNode }) {
         className="absolute inset-0 z-0"
         style={{ background: 'linear-gradient(135deg, #1a1410 0%, #3D1C02 50%, #2E7A6E 100%)' }}
       />
+
+      {/* Textura fotográfica de montañas reales, integrada al tono nocturno */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0" aria-hidden>
+        <div className="absolute bottom-0 h-[45%] w-full opacity-[0.2] mix-blend-luminosity">
+          <Image
+            src="/mountains-peru-view.png"
+            alt=""
+            fill
+            className="object-cover"
+            style={{ objectPosition: '50% 35%' }}
+          />
+        </div>
+        <div
+          className="absolute inset-0"
+          style={{
+            background: 'linear-gradient(180deg, transparent 0%, rgba(26,20,16,0.7) 55%, #1a1410 100%)',
+          }}
+        />
+      </div>
 
       {/* Mountains — 3 planes (same as loading screen) */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-[1]" aria-hidden>
