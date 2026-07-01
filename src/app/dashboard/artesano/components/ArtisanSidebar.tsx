@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
 import { Kusi } from '@/components/ui/Kusi'
+import { Logo } from '@/components/ui/Logo'
 import type { Session } from 'next-auth'
 
 type User = Session['user']
@@ -28,7 +29,7 @@ export function ArtisanSidebar({ user }: { user: User }) {
     <aside className="hidden lg:flex flex-col w-64 min-h-screen border-r border-kuska-border bg-white sticky top-0">
       <div className="flex items-center gap-2 px-6 py-5 border-b border-kuska-border">
         <Link href="/" className="flex items-center gap-2">
-          <Image src="/logo.png" alt="Kuska" width={32} height={32} className="h-8 w-8 object-contain" />
+          <Logo size={32} variant="light" />
           <span className="font-display text-xl font-bold text-kuska-text">Kuska</span>
         </Link>
       </div>

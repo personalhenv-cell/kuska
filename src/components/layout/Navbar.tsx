@@ -1,11 +1,11 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LanguageToggle } from '@/components/ui/LanguageToggle'
 import { Kusi } from '@/components/ui/Kusi'
+import { Logo } from '@/components/ui/Logo'
 import { cn } from '@/lib/utils'
 
 export function Navbar() {
@@ -36,13 +36,7 @@ export function Navbar() {
         )}
       >
         <Link href="/" className="flex items-center gap-2">
-          <Image
-            src="/logo.png"
-            alt="Kuska"
-            width={40}
-            height={40}
-            className="h-9 w-9 object-contain"
-          />
+          <Logo size={36} />
           <span className="font-display text-xl font-bold text-kuska-cream">
             Kuska
           </span>

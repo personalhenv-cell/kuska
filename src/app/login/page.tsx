@@ -3,12 +3,12 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import Image from 'next/image'
 import toast from 'react-hot-toast'
 import { signIn } from 'next-auth/react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Button } from '@/components/ui/Button'
 import { Kusi } from '@/components/ui/Kusi'
+import { Logo } from '@/components/ui/Logo'
 import { RippleButton } from '@/components/ui/RippleButton'
 import { AuthBackground } from '@/components/auth/AuthBackground'
 import { AuthCard } from '@/components/auth/AuthCard'
@@ -79,7 +79,7 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="flex justify-center mb-5">
           <Link href="/" className="flex items-center gap-2">
-            <Image src="/logo.png" alt="Kuska" width={32} height={32} className="h-8 w-8 object-contain" />
+            <Logo size={32} />
             <span className="font-display text-lg font-bold text-kuska-cream">Kuska</span>
           </Link>
         </div>

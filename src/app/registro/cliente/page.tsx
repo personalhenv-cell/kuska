@@ -3,12 +3,12 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import Image from 'next/image'
 import { signIn } from 'next-auth/react'
 import toast from 'react-hot-toast'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Button } from '@/components/ui/Button'
 import { Kusi } from '@/components/ui/Kusi'
+import { Logo } from '@/components/ui/Logo'
 import { RippleButton } from '@/components/ui/RippleButton'
 import { AuthBackground } from '@/components/auth/AuthBackground'
 
@@ -126,7 +126,7 @@ export default function RegistroClientePage() {
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <Link href="/" className="flex items-center gap-2">
-              <Image src="/logo.png" alt="Kuska" width={28} height={28} className="h-7 w-7 object-contain" />
+              <Logo size={28} />
               <span className="font-display text-base font-bold text-kuska-cream">Kuska</span>
             </Link>
             <div className="flex items-center gap-2">

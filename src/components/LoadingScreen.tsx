@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import Image from 'next/image'
+import { Logo } from '@/components/ui/Logo'
 
 const STORAGE_KEY = 'kuska_loaded_v8'
 const DURATION_MS = 7000
@@ -254,17 +255,7 @@ export function LoadingScreen() {
               transition={{ duration: 0.7, delay: 1.0, ease: EASE }}
               className="relative"
             >
-              <div className="h-28 w-28 overflow-hidden rounded-full">
-                <Image
-                  src="/logo.png"
-                  alt="Kuska"
-                  width={112}
-                  height={112}
-                  priority
-                  className="h-full w-full object-contain"
-                  style={{ mixBlendMode: 'screen' }}
-                />
-              </div>
+              <Logo size={112} variant="dark" priority />
               <motion.div
                 className="absolute inset-0 rounded-full"
                 style={{

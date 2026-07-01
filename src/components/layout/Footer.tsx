@@ -1,8 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { Kusi } from '@/components/ui/Kusi'
+import { Logo } from '@/components/ui/Logo'
 
 const columns = [
   {
@@ -41,13 +41,7 @@ export function Footer() {
         <div className="grid gap-10 md:grid-cols-[1.4fr_repeat(3,1fr)]">
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <Image
-                src="/logo.png"
-                alt="Kuska"
-                width={44}
-                height={44}
-                className="h-11 w-11 object-contain"
-              />
+              <Logo size={44} />
               <span className="font-display text-2xl font-bold">Kuska</span>
             </div>
             <p className="max-w-xs font-body text-sm text-kuska-cream/70">
