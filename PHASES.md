@@ -48,11 +48,28 @@ Estado: ✅ hecho · 🟡 en progreso · ⬜ pendiente
 
 ---
 
-## ⬜ FASE 4 — Auth + Registro (UI multi-paso)
-## ⬜ FASE 5 — Marketplace
-## ⬜ FASE 6 — Checkout y pagos (simulados)
-## ⬜ FASE 7 — Dashboard artesano
-## ⬜ FASE 8 — Dashboard cliente
+## ✅ FASE 4 — Auth + Registro (UI multi-paso)
+- [x] Login OTP con card glass centrada sobre fondo andino
+- [x] Registro artesano (5 pasos) y cliente (4 pasos) con slide horizontal
+
+## ✅ FASE 5 — Marketplace
+- [x] Grid con filtros, búsqueda, favoritos, scroll infinito
+- [x] Detalle de producto con galería, historia del artesano y reseñas
+
+## ✅ FASE 6 — Checkout y pagos (simulados)
+- [x] `POST /api/checkout` (Zod, transacción Order+OrderItem, stock, SolidarityFund)
+- [x] `/checkout` un paso: Yape (QR animado), Plin, Visa (flip 3D), donación opcional
+- [x] Éxito con Kusi celebrate + confetti
+- [ ] Validar flujo completo contra la DB real en Vercel
+
+## ✅ FASE 7 — Dashboard artesano
+- [x] Inicio (stats, pedidos recientes, insignias, misiones), productos,
+      pedidos, estadísticas (recharts), perfil editable (Server Action)
+- [ ] Mensajes: placeholder — requiere chat en tiempo real (Fase 10/11)
+
+## ✅ FASE 8 — Dashboard cliente
+- [x] Sidebar, inicio (feed destacados), mis pedidos, favoritos
+
 ## ⬜ FASE 9 — Módulos IA (streaming Claude)
 ## ⬜ FASE 10 — Integraciones (Resend, Mux, OneSignal, Sentry, GA4, PWA)
 ## ⬜ FASE 11 — Admin + módulos extra
