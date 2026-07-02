@@ -79,7 +79,14 @@ Estado: ✅ hecho · 🟡 en progreso · ⬜ pendiente
       y crea Subscription (30 días) para planes pagados
 - [x] Plan y nivel visibles en los banners de ambos dashboards
 
-## ⬜ FASE 9 — Módulos IA (streaming Claude)
+## 🟡 FASE 9 — Módulos IA (streaming Claude)
+- [x] src/lib/anthropic.ts — cliente singleton, modelo claude-sonnet-4-6
+- [x] CFO-Bot IA (/dashboard/artesano/cfo-bot): chat con streaming real,
+      contexto de ventas/stock/vistas real del artesano, gate Maestro
+- [x] Descripciones de producto IA (/dashboard/artesano/productos/ia-descripcion):
+      streaming, gate Pro+
+- [ ] Emprendedor IA (plan de negocio en PDF) — módulo aparte, pendiente
+- [ ] Match artesano-emprendedor vía IA (Maestro) — pendiente
 ## ⬜ FASE 10 — Integraciones (Resend, Mux, OneSignal, Sentry, GA4, PWA)
 ## ⬜ FASE 11 — Admin + módulos extra
 ## ⬜ FASE 12 — Polish final y verificación

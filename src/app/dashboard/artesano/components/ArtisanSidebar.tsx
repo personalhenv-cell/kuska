@@ -16,6 +16,7 @@ const navItems = [
   { href: '/dashboard/artesano/pedidos', label: 'Pedidos', icon: '📦', exact: false },
   { href: '/dashboard/artesano/mensajes', label: 'Mensajes', icon: '💬', exact: false },
   { href: '/dashboard/artesano/estadisticas', label: 'Estadísticas', icon: '📊', exact: false },
+  { href: '/dashboard/artesano/cfo-bot', label: 'CFO-Bot IA', icon: '🤖', exact: false },
   { href: '/dashboard/artesano/perfil', label: 'Mi perfil', icon: '👤', exact: false },
 ]
 

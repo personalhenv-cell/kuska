@@ -25,12 +25,20 @@ export default async function ArtisanProductsPage() {
           <h1 className="font-display text-2xl font-bold text-kuska-text">Mis productos</h1>
           <p className="mt-1 font-body text-sm text-kuska-text-mid">{products.length} productos en tu taller</p>
         </div>
-        <Link
-          href="/marketplace"
-          className="rounded-btn bg-kuska-red px-4 py-2.5 font-body text-sm font-bold text-white transition-transform hover:-translate-y-0.5"
-        >
-          Ver en marketplace →
-        </Link>
+        <div className="flex gap-3">
+          <Link
+            href="/dashboard/artesano/productos/ia-descripcion"
+            className="rounded-btn border border-kuska-gold bg-kuska-gold/10 px-4 py-2.5 font-body text-sm font-bold text-[#9a6a07] transition-transform hover:-translate-y-0.5"
+          >
+            ✨ Descripción con IA
+          </Link>
+          <Link
+            href="/marketplace"
+            className="rounded-btn bg-kuska-red px-4 py-2.5 font-body text-sm font-bold text-white transition-transform hover:-translate-y-0.5"
+          >
+            Ver en marketplace →
+          </Link>
+        </div>
       </div>
 
       {products.length === 0 ? (
