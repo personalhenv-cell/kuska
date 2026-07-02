@@ -165,12 +165,11 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
           )}
 
           <div className="flex flex-col gap-3 sm:flex-row">
-            <Button variant="primary" size="lg" className="flex-1">
-              Comprar ahora
-            </Button>
-            <Button variant="ghost" size="lg" className="flex-1">
-              Añadir al carrito
-            </Button>
+            <Link href={`/checkout?producto=${product.slug}`} className="flex-1">
+              <Button variant="primary" size="lg" className="w-full">
+                Comprar ahora
+              </Button>
+            </Link>
           </div>
 
           {waLink && (
