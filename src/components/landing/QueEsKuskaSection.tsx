@@ -1,7 +1,8 @@
 'use client'
 
 import Image from 'next/image'
-import { motion } from 'framer-motion'
+import { useEffect, useRef, useState } from 'react'
+import { motion, useInView } from 'framer-motion'
 import { Badge } from '@/components/ui/Badge'
 import { Kusi } from '@/components/ui/Kusi'
 
@@ -11,9 +12,32 @@ const BULLETS = [
   'CFO-bot con IA y acceso a fondos de capitalización',
 ]
 
+const TITLE = 'Un ecosistema, no solo una tienda'
+const KUSI_MESSAGE = 'Cada pieza tiene una historia. Yo te la cuento 🦙'
+
+function useTypewriter(text: string, active: boolean, speedMs = 30) {
+  const [displayed, setDisplayed] = useState('')
+  useEffect(() => {
+    if (!active) return
+    let i = 0
+    const iv = setInterval(() => {
+      i++
+      setDisplayed(text.slice(0, i))
+      if (i >= text.length) clearInterval(iv)
+    }, speedMs)
+    return () => clearInterval(iv)
+  }, [active, text, speedMs])
+  return displayed
+}
+
 export function QueEsKuskaSection() {
+  const sectionRef = useRef<HTMLDivElement>(null)
+  const inView = useInView(sectionRef, { once: true, amount: 0.35 })
+  const titleText = useTypewriter(TITLE, inView, 32)
+  const kusiText = useTypewriter(KUSI_MESSAGE, inView, 22)
+
   return (
-    <section className="mx-auto max-w-6xl px-6 py-20">
+    <section ref={sectionRef} className="mx-auto max-w-6xl px-6 py-20">
       <div className="grid items-center gap-12 lg:grid-cols-[1fr_1.1fr]">
         <motion.div
           initial={{ opacity: 0, x: -24 }}
@@ -31,16 +55,25 @@ export function QueEsKuskaSection() {
               className="object-cover"
               style={{ objectPosition: '50% 72%' }}
             />
-            <div
-              className="absolute inset-0"
-              style={{ background: 'linear-gradient(180deg, transparent 40%, rgba(61,28,2,0.55) 100%)' }}
-              aria-hidden
-            />
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2">
+
+            {/* Kusi + burbuja typewriter, esquina inferior izquierda */}
+            <div className="absolute bottom-4 left-4 flex flex-col items-start gap-2">
+              {kusiText && (
+                <div className="max-w-[200px] rounded-2xl border border-kuska-gold/30 bg-white px-4 py-2 shadow-sm">
+                  <p className="font-nunito text-sm text-kuska-text">
+                    {kusiText}
+                    {kusiText.length < KUSI_MESSAGE.length && (
+                      <span className="ml-0.5 inline-block w-1 animate-pulse text-kuska-gold">|</span>
+                    )}
+                  </p>
+                </div>
+              )}
               <Kusi size="lg" animation="float" />
             </div>
           </div>
-          <div className="absolute -bottom-6 -right-4 rounded-card bg-kuska-brown px-5 py-4 text-kuska-cream shadow-xl">
+
+          {/* Badge, esquina inferior derecha — dentro de los límites de la imagen */}
+          <div className="absolute bottom-4 right-4 rounded-card bg-kuska-brown px-5 py-4 text-kuska-cream shadow-xl">
             <p className="font-nunito text-xs uppercase tracking-wide text-kuska-gold">
               Kuska significa
             </p>
@@ -52,15 +85,12 @@ export function QueEsKuskaSection() {
           <Badge variant="region" className="mb-4">
             ¿Qué es Kuska?
           </Badge>
-          <motion.h2
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-            className="font-display text-h3 leading-tight text-kuska-text sm:text-h2"
-          >
-            Más que un marketplace: un ecosistema para el artesano peruano.
-          </motion.h2>
+          <h2 className="font-display text-h3 leading-tight text-kuska-text sm:text-h2 min-h-[1.2em]">
+            {titleText}
+            {titleText.length < TITLE.length && (
+              <span className="ml-1 inline-block w-2 animate-pulse text-kuska-gold">|</span>
+            )}
+          </h2>
           <motion.p
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -68,9 +98,9 @@ export function QueEsKuskaSection() {
             transition={{ duration: 0.5, delay: 0.1, ease: [0.4, 0, 0.2, 1] }}
             className="mt-5 font-body text-lg leading-relaxed text-kuska-text-mid"
           >
-            Reunimos comercio, comunidad, formación y tecnología en un solo
-            lugar. Cada compra sostiene a una familia, preserva una técnica
-            ancestral y lleva un pedazo del Perú al mundo.
+            Comercio, comunidad, formación y tecnología trabajando juntos.
+            Cada compra sostiene una familia, preserva una técnica ancestral
+            y conecta el Perú con el mundo.
           </motion.p>
           <motion.ul
             className="mt-6 space-y-3"

@@ -35,20 +35,27 @@ export function MarketplaceClient() {
   const sentinelRef = useRef<HTMLDivElement>(null)
   const activeFilters = useRef<FiltersState>(EMPTY_FILTERS)
   const currentPage = useRef(1)
+  // Contador de secuencia: si llega una respuesta vieja después de una más
+  // nueva (filtros cambiados rápido, sin debounce, o scroll rápido), se
+  // descarta en vez de pisar el estado — esto era lo que dejaba la UI en un
+  // estado híbrido (skeleton + estado vacío mezclados) al filtrar rápido.
+  const requestSeq = useRef(0)
 
   const fetchProducts = useCallback(
     async (appliedFilters: FiltersState, nextPage: number, replace = false) => {
+      const seq = ++requestSeq.current
       setLoading(true)
       try {
         const res = await fetch(buildUrl(appliedFilters, nextPage))
-        if (!res.ok) return
+        if (seq !== requestSeq.current || !res.ok) return
         const data: ProductsResponse = await res.json()
+        if (seq !== requestSeq.current) return
         setProducts((prev) => (replace ? data.products : [...prev, ...data.products]))
         setHasMore(nextPage < data.meta.pages)
         setPage(nextPage)
         currentPage.current = nextPage
       } finally {
-        setLoading(false)
+        if (seq === requestSeq.current) setLoading(false)
       }
     },
     [],
@@ -74,7 +81,7 @@ export function MarketplaceClient() {
     if (!sentinel) return
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasMore && !loading) {
+        if (entries[0].isIntersecting && hasMore && !loading && products.length > 0) {
           fetchProducts(activeFilters.current, currentPage.current + 1)
         }
       },
@@ -82,7 +89,7 @@ export function MarketplaceClient() {
     )
     observer.observe(sentinel)
     return () => observer.disconnect()
-  }, [hasMore, loading, fetchProducts])
+  }, [hasMore, loading, fetchProducts, products.length])
 
   const resetFilters = useCallback(() => setFilters(EMPTY_FILTERS), [])
 

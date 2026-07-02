@@ -39,6 +39,7 @@ export function AuthBackground({ children }: { children: ReactNode }) {
               src="/mountains-peru-view.png"
               alt=""
               fill
+              priority
               className="object-cover"
               style={{ objectPosition: '50% 30%' }}
             />

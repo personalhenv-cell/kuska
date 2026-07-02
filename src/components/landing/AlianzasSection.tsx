@@ -34,7 +34,7 @@ export function AlianzasSection() {
   return (
     <section className="mx-auto max-w-6xl px-6 py-20">
       <p className="text-center font-nunito text-sm font-bold uppercase tracking-wide text-kuska-text-mid">
-        Respaldados por el ecosistema de innovación del Perú
+        Respaldados por quienes creen en el talento peruano
       </p>
 
       <motion.div

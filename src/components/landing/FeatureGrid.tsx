@@ -51,10 +51,10 @@ export function FeatureGrid() {
     <section className="mx-auto max-w-6xl px-6 py-20">
       <div className="mx-auto max-w-2xl text-center">
         <Badge variant="new" className="mb-4">
-          El ecosistema Kuska
+          Explora los módulos
         </Badge>
         <h2 className="font-display text-h3 text-kuska-text sm:text-h2">
-          Todo lo que el artesano peruano necesita, en un solo lugar
+          Todo lo que necesitas para crecer, en un solo lugar
         </h2>
         <p className="mt-4 font-body text-kuska-text-mid">
           Kuska, creada por Agencia CEIPE, es la innovación que valora y

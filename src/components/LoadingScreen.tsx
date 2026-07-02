@@ -38,7 +38,6 @@ interface Bubble {
 
 export function LoadingScreen() {
   const [visible, setVisible] = useState(false)
-  const [progress, setProgress] = useState(0)
   const [fraseIndex, setFraseIndex] = useState(0)
   const [displayed, setDisplayed] = useState('')
   const [burst, setBurst] = useState(false)
@@ -67,7 +66,11 @@ export function LoadingScreen() {
   )
 
   useEffect(() => {
-    if (localStorage.getItem(STORAGE_KEY)) return
+    // sessionStorage (no localStorage): el flag vive solo mientras dura la
+    // pestaña/sesión del navegador. Se resetea en cada recarga real (F5) o
+    // primera visita, pero NO al navegar entre rutas con el router de
+    // Next.js (esa navegación usa la PageTransition, no este loading screen).
+    if (sessionStorage.getItem(STORAGE_KEY)) return
     setVisible(true)
 
     // Typewriter starts at 2.2s
@@ -80,17 +83,6 @@ export function LoadingScreen() {
       }, 100)
     }, 2200)
 
-    // Progress bar tick
-    const start = Date.now()
-    const tick = setInterval(() => {
-      const pct = Math.min(100, ((Date.now() - start) / DURATION_MS) * 100)
-      setProgress(pct)
-      if (pct >= 100) {
-        clearInterval(tick)
-        setBurst(true)
-      }
-    }, 40)
-
     // Rotate phrases every 1.3s
     const fraseTimer = setInterval(
       () => setFraseIndex((i) => (i + 1) % FRASES.length),
@@ -101,7 +93,7 @@ export function LoadingScreen() {
     const flashTimer = setTimeout(() => {
       setFlash(true)
       setTimeout(() => {
-        localStorage.setItem(STORAGE_KEY, '1')
+        sessionStorage.setItem(STORAGE_KEY, '1')
         setVisible(false)
       }, 400)
     }, 6600)
@@ -115,7 +107,6 @@ export function LoadingScreen() {
 
     return () => {
       clearTimeout(twTimer)
-      clearInterval(tick)
       clearInterval(fraseTimer)
       clearTimeout(flashTimer)
       clearTimeout(kusiTimer)
@@ -164,17 +155,11 @@ export function LoadingScreen() {
                 src="/mountains-peru-view.png"
                 alt=""
                 fill
+                priority
                 className="object-cover"
                 style={{ objectPosition: '50% 30%' }}
               />
             </div>
-            <div
-              className="absolute inset-0"
-              style={{
-                background:
-                  'linear-gradient(180deg, rgba(26,20,16,0.6) 0%, rgba(61,28,2,0.3) 50%, rgba(26,20,16,0.9) 100%)',
-              }}
-            />
           </motion.div>
 
           {/* Layer 2 — Bubbles */}
@@ -257,22 +242,28 @@ export function LoadingScreen() {
               </AnimatePresence>
             </div>
 
-            {/* Progress bar — multicolor + burst at 100% */}
+            {/* Progress bar — multicolor + burst at 100%, disparado por onAnimationComplete */}
             <div className="relative h-2 w-72 rounded-full bg-white/10 overflow-visible">
-              <div
+              <motion.div
                 className="h-full rounded-full"
                 style={{
-                  width: `${progress}%`,
-                  transition: 'width 75ms linear',
                   background:
                     'linear-gradient(90deg, #C84B2F 0%, #D4920A 33%, #2E7A6E 66%, #D4920A 100%)',
                   backgroundSize: '300% 100%',
-                  backgroundPosition: `${100 - progress}% 0%`,
-                  boxShadow: burst
-                    ? '0 0 60px 20px rgba(212,146,10,1), 0 0 120px 40px rgba(200,75,47,0.6)'
-                    : 'none',
                 }}
+                initial={{ width: '0%', backgroundPosition: '100% 0%' }}
+                animate={{ width: '100%', backgroundPosition: '0% 0%' }}
+                transition={{ duration: DURATION_MS / 1000, ease: 'linear' }}
+                onAnimationComplete={() => setBurst(true)}
               />
+              {burst && (
+                <div
+                  className="pointer-events-none absolute inset-0 rounded-full"
+                  style={{
+                    boxShadow: '0 0 60px 20px rgba(212,146,10,1), 0 0 120px 40px rgba(200,75,47,0.6)',
+                  }}
+                />
+              )}
               {/* Radial burst expanding from bar — doble pulso */}
               {burst && (
                 <>

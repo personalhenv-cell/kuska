@@ -1,8 +1,22 @@
 'use client'
 
-import { type Dispatch, type SetStateAction } from 'react'
+import { useEffect, useState, type Dispatch, type SetStateAction } from 'react'
 import { cn } from '@/lib/utils'
 import type { FiltersState } from '@/types/marketplace'
+
+/** Retrasa la actualización del filtro hasta que el usuario deja de teclear —
+ *  sin esto, cada tecla disparaba un fetch nuevo al marketplace. */
+function useDebouncedInput(value: string, onCommit: (v: string) => void, delayMs = 400) {
+  const [local, setLocal] = useState(value)
+  useEffect(() => setLocal(value), [value])
+  useEffect(() => {
+    if (local === value) return
+    const t = setTimeout(() => onCommit(local), delayMs)
+    return () => clearTimeout(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [local])
+  return [local, setLocal] as const
+}
 
 const REGIONS = [
   'Cusco', 'Puno', 'Ayacucho', 'Junín', 'Lima', 'Arequipa',
@@ -74,6 +88,9 @@ export function FiltersSidebar({ filters, setFilters, onReset }: FiltersSidebarP
     (key: keyof FiltersState) => (value: string) =>
       setFilters((prev) => ({ ...prev, [key]: value }))
 
+  const [minPrice, setMinPrice] = useDebouncedInput(filters.minPrice, set('minPrice'))
+  const [maxPrice, setMaxPrice] = useDebouncedInput(filters.maxPrice, set('maxPrice'))
+
   const hasActiveFilters = Object.values(filters).some((v) => v !== '')
 
   return (
@@ -99,15 +116,15 @@ export function FiltersSidebar({ filters, setFilters, onReset }: FiltersSidebarP
           <input
             type="number"
             placeholder="Min"
-            value={filters.minPrice}
-            onChange={(e) => set('minPrice')(e.target.value)}
+            value={minPrice}
+            onChange={(e) => setMinPrice(e.target.value)}
             className="h-9 w-full rounded-btn border border-kuska-border px-3 font-body text-sm focus:border-kuska-gold focus:outline-none"
           />
           <input
             type="number"
             placeholder="Máx"
-            value={filters.maxPrice}
-            onChange={(e) => set('maxPrice')(e.target.value)}
+            value={maxPrice}
+            onChange={(e) => setMaxPrice(e.target.value)}
             className="h-9 w-full rounded-btn border border-kuska-border px-3 font-body text-sm focus:border-kuska-gold focus:outline-none"
           />
         </div>
