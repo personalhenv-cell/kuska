@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma'
 import { Kusi } from '@/components/ui/Kusi'
 import { Badge } from '@/components/ui/Badge'
 import { formatPrice, formatDate } from '@/lib/utils'
+import { getPlan, levelName } from '@/lib/memberships'
 
 export default async function ArtisanDashboardHome() {
   const session = await getServerSession(authOptions)
@@ -33,6 +34,12 @@ export default async function ArtisanDashboardHome() {
     }),
     prisma.user.findUnique({ where: { id: session.user.id }, select: { name: true, points: true, level: true } }),
   ])
+
+  const profile = await prisma.artisanProfile.findUnique({
+    where: { id: artisanId },
+    select: { membership_tier: true },
+  })
+  const plan = getPlan(profile?.membership_tier ?? 'semilla')
 
   const productIds = products.map((p) => p.id)
   const recentOrders = productIds.length
@@ -72,8 +79,18 @@ export default async function ArtisanDashboardHome() {
               ¡Hola, {user?.name ?? 'artesano'}! 🦙
             </h1>
             <p className="mt-1 font-body text-kuska-cream/75">
-              Nivel {user?.level ?? 1} · {user?.points ?? 0} puntos · Aquí está el resumen de tu taller.
+              Nivel {user?.level ?? 1} — {levelName(user?.level ?? 1)} · {user?.points ?? 0} puntos
             </p>
+            <div className="mt-2 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+              <span className="rounded-full border border-kuska-gold/40 bg-kuska-gold/15 px-3 py-1 font-nunito text-xs font-bold text-kuska-gold">
+                Plan: {plan?.name ?? 'Artesano Semilla'}
+              </span>
+              {plan?.id === 'semilla' && (
+                <Link href="/precios" className="font-body text-xs text-kuska-cream/60 underline-offset-2 hover:text-kuska-gold hover:underline">
+                  Mejorar plan →
+                </Link>
+              )}
+            </div>
           </div>
         </div>
       </div>

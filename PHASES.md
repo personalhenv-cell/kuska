@@ -70,6 +70,15 @@ Estado: ✅ hecho · 🟡 en progreso · ⬜ pendiente
 ## ✅ FASE 8 — Dashboard cliente
 - [x] Sidebar, inicio (feed destacados), mis pedidos, favoritos
 
+## ✅ MÓDULO 13 — Membresías
+- [x] `src/lib/memberships.ts` — 5 planes (Semilla/Pro S/29/Maestro S/79 ·
+      Explorador/Coleccionista S/19) + nombres de nivel de gamificación
+      (Aprendiz → Leyenda, sistema independiente, no comprable)
+- [x] `/precios` — página pública con toggle artesanos/clientes
+- [x] `POST /api/membresias` — activación simulada, actualiza membership_tier
+      y crea Subscription (30 días) para planes pagados
+- [x] Plan y nivel visibles en los banners de ambos dashboards
+
 ## ⬜ FASE 9 — Módulos IA (streaming Claude)
 ## ⬜ FASE 10 — Integraciones (Resend, Mux, OneSignal, Sentry, GA4, PWA)
 ## ⬜ FASE 11 — Admin + módulos extra

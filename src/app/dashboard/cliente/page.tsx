@@ -7,12 +7,13 @@ import { prisma } from '@/lib/prisma'
 import { Kusi } from '@/components/ui/Kusi'
 import { Badge } from '@/components/ui/Badge'
 import { formatPrice } from '@/lib/utils'
+import { getPlan, levelName } from '@/lib/memberships'
 
 export default async function ClientDashboardHome() {
   const session = await getServerSession(authOptions)
   if (!session || session.user.role !== 'cliente') redirect('/login')
 
-  const [user, orderCount, favoriteCount, featured] = await Promise.all([
+  const [user, orderCount, favoriteCount, featured, clientProfile] = await Promise.all([
     prisma.user.findUnique({ where: { id: session.user.id }, select: { name: true, points: true, level: true } }),
     prisma.order.count({ where: { client_id: session.user.id } }),
     prisma.favorite.count({ where: { user_id: session.user.id } }),
@@ -21,7 +22,13 @@ export default async function ClientDashboardHome() {
       orderBy: [{ is_featured: 'desc' }, { created_at: 'desc' }],
       take: 6,
     }),
+    prisma.clientProfile.findUnique({
+      where: { user_id: session.user.id },
+      select: { membership_tier: true },
+    }),
   ])
+
+  const plan = getPlan(clientProfile?.membership_tier ?? 'explorador')
 
   return (
     <div className="p-6 lg:p-10 space-y-8">
@@ -34,8 +41,18 @@ export default async function ClientDashboardHome() {
               ¡Hola, {user?.name ?? 'amigo'}! ✨
             </h1>
             <p className="mt-1 font-body text-kuska-cream/75">
-              Nivel {user?.level ?? 1} · {user?.points ?? 0} puntos · Descubre arte peruano único.
+              Nivel {user?.level ?? 1} — {levelName(user?.level ?? 1)} · {user?.points ?? 0} puntos
             </p>
+            <div className="mt-2 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+              <span className="rounded-full border border-kuska-gold/40 bg-kuska-gold/15 px-3 py-1 font-nunito text-xs font-bold text-kuska-gold">
+                Plan: {plan?.name ?? 'Cliente Explorador'}
+              </span>
+              {plan?.id === 'explorador' && (
+                <Link href="/precios" className="font-body text-xs text-kuska-cream/60 underline-offset-2 hover:text-kuska-gold hover:underline">
+                  Mejorar plan →
+                </Link>
+              )}
+            </div>
           </div>
         </div>
       </div>
