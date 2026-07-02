@@ -91,7 +91,7 @@ Estado: ✅ hecho · 🟡 en progreso · ⬜ pendiente
 - [x] Pusher — chat en tiempo real (src/lib/pusher.ts, pusher-client.ts,
       /api/messages, /api/messages/conversations, /api/pusher/auth,
       Inbox + ChatWindow en ambos dashboards, entry point desde producto)
-- [ ] Resend — email de bienvenida y notificaciones
+- [x] Resend — email de bienvenida (registro artesano/cliente)
 - [ ] Mux — video para Módulo Raíces / Academia
 - [ ] OneSignal — push notifications
 - [ ] Sentry — monitoreo de errores
