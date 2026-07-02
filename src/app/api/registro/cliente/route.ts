@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { normalizePeruPhone, generateOtp } from '@/lib/utils'
+import { sendWelcomeEmail } from '@/lib/resend'
 
 const schema = z.object({
   name: z.string().min(2).max(100),
@@ -49,6 +50,10 @@ export async function POST(req: Request) {
     code,
     expiresAt,
   )
+
+  // await (no fire-and-forget): en serverless (Vercel) una promesa sin
+  // esperar puede quedar truncada al terminar la función antes de enviarse.
+  await sendWelcomeEmail({ to: user.email, name: user.name, role: 'cliente' })
 
   const isDev = process.env.NODE_ENV !== 'production'
   return NextResponse.json({ ok: true, userId: user.id, devCode: isDev ? code : undefined }, { status: 201 })
