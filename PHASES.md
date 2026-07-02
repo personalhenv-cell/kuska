@@ -65,7 +65,7 @@ Estado: ✅ hecho · 🟡 en progreso · ⬜ pendiente
 ## ✅ FASE 7 — Dashboard artesano
 - [x] Inicio (stats, pedidos recientes, insignias, misiones), productos,
       pedidos, estadísticas (recharts), perfil editable (Server Action)
-- [ ] Mensajes: placeholder — requiere chat en tiempo real (Fase 10/11)
+- [x] Mensajes: chat real en tiempo real (Fase 10)
 
 ## ✅ FASE 8 — Dashboard cliente
 - [x] Sidebar, inicio (feed destacados), mis pedidos, favoritos
@@ -87,7 +87,16 @@ Estado: ✅ hecho · 🟡 en progreso · ⬜ pendiente
       streaming, gate Pro+
 - [ ] Emprendedor IA (plan de negocio en PDF) — módulo aparte, pendiente
 - [ ] Match artesano-emprendedor vía IA (Maestro) — pendiente
-## ⬜ FASE 10 — Integraciones (Resend, Mux, OneSignal, Sentry, GA4, PWA)
+## 🟡 FASE 10 — Integraciones (Resend, Mux, OneSignal, Sentry, GA4, PWA)
+- [x] Pusher — chat en tiempo real (src/lib/pusher.ts, pusher-client.ts,
+      /api/messages, /api/messages/conversations, /api/pusher/auth,
+      Inbox + ChatWindow en ambos dashboards, entry point desde producto)
+- [ ] Resend — email de bienvenida y notificaciones
+- [ ] Mux — video para Módulo Raíces / Academia
+- [ ] OneSignal — push notifications
+- [ ] Sentry — monitoreo de errores
+- [ ] GA4 — analítica
+- [ ] PWA
 ## ⬜ FASE 11 — Admin + módulos extra
 ## ⬜ FASE 12 — Polish final y verificación
 
