@@ -13,6 +13,7 @@ type User = Session['user']
 const navItems = [
   { href: '/dashboard/cliente', label: 'Inicio', icon: '🏠', exact: true },
   { href: '/dashboard/cliente/pedidos', label: 'Mis pedidos', icon: '📦', exact: false },
+  { href: '/dashboard/cliente/mensajes', label: 'Mensajes', icon: '💬', exact: false },
   { href: '/dashboard/cliente/favoritos', label: 'Favoritos', icon: '❤️', exact: false },
 ]
 

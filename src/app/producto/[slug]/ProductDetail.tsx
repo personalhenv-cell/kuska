@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
+import { useSession } from 'next-auth/react'
 import { formatPrice } from '@/lib/utils'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
@@ -96,6 +97,12 @@ interface ProductDetailClientProps {
 }
 
 export function ProductDetailClient({ product }: ProductDetailClientProps) {
+  const { data: session } = useSession()
+  const isOwnProduct = session?.user.id === product.artisan.user.id
+  const chatHref = !session
+    ? `/login?callbackUrl=/producto/${product.slug}`
+    : `/dashboard/cliente/mensajes?with=${product.artisan.user.id}`
+
   const waLink = product.artisan.whatsapp
     ? `https://wa.me/${product.artisan.whatsapp}?text=Hola, vi tu ${encodeURIComponent(product.name)} en Kuska y me interesa.`
     : null
@@ -171,6 +178,22 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
               </Button>
             </Link>
           </div>
+
+          {!isOwnProduct && (
+            <Link
+              href={chatHref}
+              className="flex items-center gap-2 rounded-btn border border-kuska-teal/30 bg-kuska-teal/10 px-4 py-3 font-body text-sm font-semibold text-kuska-teal transition-all hover:bg-kuska-teal/15"
+            >
+              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} aria-hidden>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.86 9.86 0 01-4-.8L3 20l1.05-3.15A7.95 7.95 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                />
+              </svg>
+              Chatear con {product.artisan.user.name.split(' ')[0]} en Kuska
+            </Link>
+          )}
 
           {waLink && (
             <a

@@ -31,7 +31,7 @@ export interface ProductDetail extends ProductListItem {
   is_custom_order: boolean
   views: number
   artisan: ProductArtisan & {
-    user: { name: string; avatar_url: string | null; phone: string | null }
+    user: { id: string; name: string; avatar_url: string | null; phone: string | null }
     bio?: string | null
     story?: string | null
     whatsapp?: string | null

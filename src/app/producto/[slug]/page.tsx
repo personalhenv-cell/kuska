@@ -38,7 +38,7 @@ export default async function ProductPage({ params }: PageProps) {
     include: {
       artisan: {
         include: {
-          user: { select: { name: true, avatar_url: true, phone: true } },
+          user: { select: { id: true, name: true, avatar_url: true, phone: true } },
         },
       },
       reviews: {
@@ -61,6 +61,7 @@ export default async function ProductPage({ params }: PageProps) {
     artisan: {
       ...raw.artisan,
       user: {
+        id: raw.artisan.user.id,
         name: raw.artisan.user.name,
         avatar_url: raw.artisan.user.avatar_url,
         phone: raw.artisan.user.phone ?? null,
