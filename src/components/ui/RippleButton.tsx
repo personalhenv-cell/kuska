@@ -34,14 +34,6 @@ export function RippleButton({ children, className, rounded = 'rounded-btn' }: R
 
   return (
     <div className={cn('group relative inline-block', className)} onClickCapture={handleClick}>
-      <div
-        className={cn(
-          'pointer-events-none absolute -inset-1 opacity-0 blur-md transition-opacity duration-300 group-hover:opacity-70 animate-ripple-glow-spin',
-          rounded,
-        )}
-        style={{ background: 'conic-gradient(from 0deg, #C84B2F, #D4920A, #2E7A6E, #C84B2F)' }}
-        aria-hidden
-      />
       <div className={cn('relative overflow-hidden', rounded)}>
         {children}
         {ripples.map((r) => (

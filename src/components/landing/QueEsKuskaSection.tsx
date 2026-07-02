@@ -1,19 +1,15 @@
 'use client'
 
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Badge } from '@/components/ui/Badge'
+import { Kusi } from '@/components/ui/Kusi'
 
 const BULLETS = [
   'Marketplace con historias reales detrás de cada pieza',
   'Academia y ferias digitales para crecer',
   'CFO-bot con IA y acceso a fondos de capitalización',
 ]
-
-const RHOMBUS_PATTERN = {
-  backgroundImage:
-    'repeating-linear-gradient(45deg, rgba(212,146,10,0.14) 0, rgba(212,146,10,0.14) 1px, transparent 1px, transparent 24px),' +
-    'repeating-linear-gradient(-45deg, rgba(212,146,10,0.14) 0, rgba(212,146,10,0.14) 1px, transparent 1px, transparent 24px)',
-}
 
 export function QueEsKuskaSection() {
   return (
@@ -26,10 +22,22 @@ export function QueEsKuskaSection() {
           transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
           className="relative"
         >
-          <div className="liquid-glass-gold relative aspect-[4/5] overflow-hidden rounded-glass">
-            <div className="absolute inset-0" style={RHOMBUS_PATTERN} aria-hidden />
-            <div className="relative flex h-full w-full items-center justify-center">
-              <span className="font-display text-[120px] opacity-70">🦙</span>
+          <div className="relative aspect-[4/5] overflow-hidden rounded-glass shadow-xl">
+            <Image
+              src="/mountains-peru-view.png"
+              alt="Montaña de Siete Colores, Andes del Perú"
+              fill
+              sizes="(max-width:1024px) 100vw, 45vw"
+              className="object-cover"
+              style={{ objectPosition: '50% 72%' }}
+            />
+            <div
+              className="absolute inset-0"
+              style={{ background: 'linear-gradient(180deg, transparent 40%, rgba(61,28,2,0.55) 100%)' }}
+              aria-hidden
+            />
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2">
+              <Kusi size="lg" animation="float" />
             </div>
           </div>
           <div className="absolute -bottom-6 -right-4 rounded-card bg-kuska-brown px-5 py-4 text-kuska-cream shadow-xl">

@@ -26,7 +26,7 @@ interface FormData {
   otp: string
 }
 
-const INPUT = 'w-full rounded-[12px] border border-white/20 bg-white/8 px-4 py-3 font-body text-kuska-cream placeholder:text-kuska-cream/35 focus:border-kuska-gold focus:outline-none focus:ring-2 focus:ring-kuska-gold/30 transition-all'
+const INPUT = 'w-full rounded-[12px] border border-white/30 bg-white px-4 py-3 font-body text-kuska-text placeholder:text-kuska-text-mid/50 focus:border-kuska-gold focus:outline-none focus:ring-2 focus:ring-kuska-gold/30 transition-all'
 const LABEL = 'block mb-1.5 font-nunito text-xs font-bold uppercase tracking-wide text-kuska-cream/60'
 
 function MultiSelectPill({

@@ -146,90 +146,36 @@ export function LoadingScreen() {
             transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
           />
 
-          {/* Layer 0.5 — Textura fotográfica de montañas reales, integrada al tono nocturno */}
+          {/* Layer 1 — Foto real de los Andes con parallax suave (sin montañas SVG genéricas) */}
           <motion.div
-            className="absolute inset-0 overflow-hidden pointer-events-none z-0"
+            className="absolute inset-0 overflow-hidden pointer-events-none z-[1]"
             animate={{ y: [0, 14, 0] }}
             transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
             aria-hidden
           >
-            <div className="absolute bottom-0 h-[48%] w-full opacity-[0.22] mix-blend-luminosity">
+            <div
+              className="absolute bottom-0 h-[58%] w-full opacity-[0.5]"
+              style={{
+                maskImage: 'linear-gradient(180deg, transparent 0%, black 30%)',
+                WebkitMaskImage: 'linear-gradient(180deg, transparent 0%, black 30%)',
+              }}
+            >
               <Image
                 src="/mountains-peru-view.png"
                 alt=""
                 fill
                 className="object-cover"
-                style={{ objectPosition: '50% 35%' }}
+                style={{ objectPosition: '50% 30%' }}
               />
             </div>
             <div
               className="absolute inset-0"
               style={{
                 background:
-                  'linear-gradient(180deg, transparent 0%, rgba(26,20,16,0.7) 55%, #1a1410 100%)',
+                  'linear-gradient(180deg, rgba(26,20,16,0.6) 0%, rgba(61,28,2,0.3) 50%, rgba(26,20,16,0.9) 100%)',
               }}
             />
           </motion.div>
-
-          {/* Layer 1 — Mountains (CSS keyframes, seamless loops via 200%-wide SVGs) */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none z-[1]" aria-hidden>
-            {/* Far — #1a4a42 — 40s */}
-            <svg
-              className="absolute bottom-0 animate-mountain-far"
-              style={{
-                width: '200%',
-                height: '40%',
-                filter: 'drop-shadow(0 0 16px rgba(212,146,10,0.75))',
-              }}
-              viewBox="0 0 3840 400"
-              preserveAspectRatio="none"
-            >
-              <path
-                d="M0 400 L0 250 L240 80 L480 190 L720 50 L960 180 L1200 70 L1440 190 L1680 80 L1920 250 L2160 80 L2400 190 L2640 50 L2880 180 L3120 70 L3360 190 L3600 80 L3840 250 L3840 400 Z"
-                fill="#1a4a42"
-                stroke="rgba(212,146,10,0.35)"
-                strokeWidth="2"
-              />
-            </svg>
-
-            {/* Mid — #2E7A6E — 28s (starts offset -10%) */}
-            <svg
-              className="absolute bottom-0 animate-mountain-mid"
-              style={{
-                width: '200%',
-                height: '32%',
-                filter: 'drop-shadow(0 0 14px rgba(212,146,10,0.65))',
-              }}
-              viewBox="0 0 3840 320"
-              preserveAspectRatio="none"
-            >
-              <path
-                d="M0 320 L0 200 L300 90 L600 155 L900 70 L1200 155 L1500 90 L1920 200 L2220 90 L2520 155 L2820 70 L3120 155 L3420 90 L3840 200 L3840 320 Z"
-                fill="#2E7A6E"
-                stroke="rgba(212,146,10,0.4)"
-                strokeWidth="2"
-              />
-            </svg>
-
-            {/* Near — #3D1C02 — 18s (starts offset -5%) */}
-            <svg
-              className="absolute bottom-0 animate-mountain-near"
-              style={{
-                width: '200%',
-                height: '22%',
-                filter: 'drop-shadow(0 0 18px rgba(212,146,10,0.85))',
-              }}
-              viewBox="0 0 3840 220"
-              preserveAspectRatio="none"
-            >
-              <path
-                d="M0 220 L0 140 L250 90 L450 130 L700 60 L900 120 L1150 80 L1400 130 L1920 140 L2170 90 L2370 130 L2620 60 L2820 120 L3070 80 L3320 130 L3840 140 L3840 220 Z"
-                fill="#3D1C02"
-                stroke="rgba(212,146,10,0.5)"
-                strokeWidth="2.5"
-              />
-            </svg>
-          </div>
 
           {/* Layer 2 — Bubbles */}
           {bubbles.map((b, i) => (
