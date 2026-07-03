@@ -21,8 +21,10 @@ Estado: ✅ hecho · 🟡 en progreso · ⬜ pendiente
 - [x] `src/types/next-auth.d.ts`
 - [x] `/api/health` → `{status, db}`
 - [x] `/api/auth/[...nextauth]`, `/api/auth/send-otp`, `/api/auth/verify-otp`
-- [ ] Ejecutar `prisma db push` contra Neon (requiere red a la DB)
-- [ ] Seed de datos demo
+- [x] Schema aplicado en Neon producción (34 tablas) — la DB nunca había
+      tenido el schema; se aplicó vía HTTP driver + `@@map` corregido
+      (ver Fase de verificación end-to-end abajo)
+- [x] Seed de datos demo (5 artesanos + 11 productos + badges + misiones)
 
 ## ✅ FASE 2 — Sistema de diseño
 - [x] `tailwind.config.ts` (paleta, fuentes, animaciones Kusi)
@@ -99,6 +101,41 @@ Estado: ✅ hecho · 🟡 en progreso · ⬜ pendiente
 - [ ] PWA
 ## ⬜ FASE 11 — Admin + módulos extra
 ## ⬜ FASE 12 — Polish final y verificación
+
+## ✅ Verificación end-to-end en producción (kuska-cyan.vercel.app)
+Prueba real completa: registro → email con OTP → login → dashboard,
+chat Pusher y CFO-bot IA. Bugs reales encontrados y corregidos:
+- **DB sin schema**: `prisma db push` nunca se había ejecutado contra
+  Neon — las 34 tablas no existían. Aplicado directamente en producción.
+- **Tablas huérfanas de un prototipo incompatible** (columnas camelCase,
+  sin relación con el schema actual) ya existían en la misma DB —
+  eliminadas (confirmado con el usuario antes de dropear).
+- **Mismatch de nombres de tabla**: el schema no tenía `@@map`, así que
+  Prisma usaba `"User"`/`"OtpCode"`/etc. (PascalCase) mientras el RAW SQL
+  de `auth/config.ts` consultaba `users`/`otp_codes` (minúsculas) —
+  nunca iban a coincidir. Se agregó `@@map` a los 4 modelos afectados.
+- **OTP nunca se entregaba en producción**: `send-otp` solo devolvía
+  `devCode` en desarrollo, sin ningún canal real. Se agregó email
+  obligatorio al registro + entrega real vía Resend.
+- **Middleware sin `secret`**: `withAuth()` no recibía `AUTH_SECRET`
+  explícito, caía a `NEXTAUTH_SECRET` (no configurada) — el JWT se
+  decodificaba bien en `/api/auth/session` pero el middleware fallaba,
+  redirigiendo TODO `/dashboard/*`, `/checkout/*` y `/admin/*` a
+  `/auth/error?error=Configuration`. Corregido.
+- **Chat Pusher**: confirmado funcionando de punta a punta (mensaje real
+  persistido, recuperable por ambos lados, trigger de Pusher sin error).
+- **CFO-Bot IA**: código correcto y gate de membresía funcionando: el
+  único bloqueo real es que la cuenta de Anthropic no tiene crédito
+  (`credit balance too low`) — acción pendiente del usuario, no es bug.
+
+### ⚠️ Pendiente de acción del usuario antes de la demo
+1. **Anthropic**: agregar crédito/billing a la cuenta — CFO-bot y
+   descripciones IA no funcionarán hasta entonces.
+2. **Resend**: verificar un dominio propio en resend.com/domains. Hoy
+   el remitente `onboarding@resend.dev` (modo prueba) solo puede enviar
+   a la propia cuenta de Resend (`personalhenv@gmail.com`) — un
+   inversionista real registrándose en vivo **no recibiría su código**
+   hasta que se verifique un dominio.
 
 > Las fases 4–12 están planificadas en detalle en el prompt maestro v8.0.
 > Cada fase debe cerrar con `npm run build` en 0 errores antes de avanzar.
