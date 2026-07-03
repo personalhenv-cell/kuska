@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Kusi } from '@/components/ui/Kusi'
 import { QueEsKuskaSection } from '@/components/landing/QueEsKuskaSection'
+import { MapaArtesanosSection } from '@/components/landing/MapaArtesanosSection'
 
 const pasos = [
   {
@@ -70,6 +71,10 @@ export default function HomePage() {
         <AndeanDivider />
 
         <QueEsKuskaSection />
+
+        <AndeanDivider />
+
+        <MapaArtesanosSection />
 
         <AndeanDivider />
 

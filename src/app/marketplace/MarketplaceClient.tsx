@@ -67,6 +67,14 @@ export function MarketplaceClient() {
     fetchProducts(EMPTY_FILTERS, 1, true)
   }, [fetchProducts])
 
+  // Semilla de filtros desde la URL (?region=...) — p.ej. al llegar desde el
+  // mapa de artesanos de la landing. Corre una sola vez tras montar; el guard
+  // de secuencia (requestSeq) descarta la respuesta inicial más vieja.
+  useEffect(() => {
+    const region = new URLSearchParams(window.location.search).get('region')
+    if (region) setFilters((prev) => ({ ...prev, region }))
+  }, [])
+
   // Cuando cambian los filtros, reiniciar
   useEffect(() => {
     activeFilters.current = filters

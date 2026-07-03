@@ -45,7 +45,11 @@ Estado: ✅ hecho · 🟡 en progreso · ⬜ pendiente
 - [x] Alianzas (logos)
 - [x] CTA final + dividers andinos
 - [x] SEO metadata + Open Graph
-- [ ] Mapa interactivo Perú (Leaflet) — pendiente
+- [x] Mapa interactivo Perú (Leaflet): sección "Artesanos en cada rincón
+      del país" con marcadores por región usando datos REALES de la DB
+      (`/api/artesanos/mapa` agrupa artesanos por región), popup con
+      nombres → perfil público y link al marketplace filtrado por región.
+      Carga dinámica ssr:false (regla #6). Marcadores de marca Kuska.
 - [ ] Hero parallax GSAP ScrollTrigger — pendiente (versión Framer entregada)
 
 ---
