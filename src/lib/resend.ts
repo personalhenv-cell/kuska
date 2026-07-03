@@ -82,7 +82,10 @@ export async function sendOtpEmail(params: {
   code: string
 }): Promise<{ ok: boolean; error?: string }> {
   const client = getResendClient()
-  if (!client) return { ok: false, error: 'RESEND_API_KEY no configurada' }
+  if (!client) {
+    console.error('[sendOtpEmail] RESEND_API_KEY no configurada')
+    return { ok: false, error: 'RESEND_API_KEY no configurada' }
+  }
 
   try {
     const { error } = await client.emails.send({
@@ -102,9 +105,13 @@ export async function sendOtpEmail(params: {
         </div>
       `,
     })
-    if (error) return { ok: false, error: error.message }
+    if (error) {
+      console.error('[sendOtpEmail] Resend API error:', JSON.stringify(error))
+      return { ok: false, error: error.message }
+    }
     return { ok: true }
   } catch (e) {
+    console.error('[sendOtpEmail] excepción:', e instanceof Error ? e.message : e)
     return { ok: false, error: e instanceof Error ? e.message : 'Error desconocido al enviar' }
   }
 }
