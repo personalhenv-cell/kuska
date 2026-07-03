@@ -18,6 +18,7 @@ export default withAuth(
     return NextResponse.next()
   },
   {
+    secret: process.env.AUTH_SECRET,
     callbacks: {
       authorized: ({ token }) => Boolean(token),
     },
