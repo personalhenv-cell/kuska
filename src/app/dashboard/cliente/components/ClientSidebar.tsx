@@ -17,6 +17,8 @@ const navItems = [
   { href: '/dashboard/cliente/favoritos', label: 'Favoritos', icon: '❤️', exact: false },
 ]
 
+const entrepreneurItem = { href: '/dashboard/cliente/emprendedor', label: 'Emprendedor IA', icon: '🚀', exact: false }
+
 export function ClientSidebar({ user }: { user: User }) {
   const pathname = usePathname()
 
@@ -49,7 +51,7 @@ export function ClientSidebar({ user }: { user: User }) {
       </div>
 
       <nav className="flex-1 px-3 py-4 space-y-1">
-        {navItems.map((item) => (
+        {(user.is_entrepreneur ? [...navItems, entrepreneurItem] : navItems).map((item) => (
           <Link
             key={item.href}
             href={item.href}
