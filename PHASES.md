@@ -145,6 +145,14 @@ chat Pusher y CFO-bot IA. Bugs reales encontrados y corregidos:
    a la propia cuenta de Resend (`personalhenv@gmail.com`) — un
    inversionista real registrándose en vivo **no recibiría su código**
    hasta que se verifique un dominio.
+3. **Vercel Blob en modo privado**: subir la foto de un producto real
+   falla con `Cannot use public access on a private store`. El código
+   del formulario de creación de producto (`/dashboard/artesano/productos/nuevo`)
+   está correcto y probado — el token de subida se genera bien
+   (`BLOB_READ_WRITE_TOKEN` configurado), pero el Store de Blob está
+   configurado en modo privado en el dashboard de Vercel. Hay que
+   cambiarlo a acceso público (Storage → el store de Blob → Settings)
+   para que las fotos de producto sean visibles en el marketplace.
 
 > Las fases 4–12 están planificadas en detalle en el prompt maestro v8.0.
 > Cada fase debe cerrar con `npm run build` en 0 errores antes de avanzar.

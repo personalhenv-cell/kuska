@@ -114,6 +114,8 @@ export function NewProductForm() {
       }
       router.push('/dashboard/artesano/productos')
       router.refresh()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'No se pudo subir la foto. Intenta de nuevo.')
     } finally {
       setUploading(false)
       setUploadProgress('')
