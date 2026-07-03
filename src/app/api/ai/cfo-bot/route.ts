@@ -89,7 +89,8 @@ Da respuestas breves (máximo 4-5 líneas), accionables, y si detectas alertas r
             controller.enqueue(encoder.encode(event.delta.text))
           }
         }
-      } catch {
+      } catch (e) {
+        console.error('[cfo-bot] error de streaming:', e instanceof Error ? e.message : e)
         controller.enqueue(encoder.encode('\n\n[Error de conexión con el CFO-Bot. Intenta de nuevo.]'))
       } finally {
         controller.close()
