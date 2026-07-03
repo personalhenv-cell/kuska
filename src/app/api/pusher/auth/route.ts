@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/auth/config'
 import { pusherServer } from '@/lib/pusher'
+import { prisma } from '@/lib/prisma'
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions)
@@ -17,9 +18,21 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Datos inválidos' }, { status: 400 })
   }
 
-  // Solo autoriza canales de conversación que incluyan al usuario actual —
-  // evita que alguien escuche una conversación ajena.
-  if (!channel.startsWith('private-conversation-') || !channel.includes(session.user.id)) {
+  if (channel.startsWith('private-conversation-')) {
+    // Solo autoriza canales de conversación que incluyan al usuario actual —
+    // evita que alguien escuche una conversación ajena.
+    if (!channel.includes(session.user.id)) {
+      return NextResponse.json({ error: 'Canal no autorizado' }, { status: 403 })
+    }
+  } else if (channel.startsWith('private-group-')) {
+    const groupId = channel.replace('private-group-', '')
+    const membership = await prisma.groupMember.findUnique({
+      where: { group_id_user_id: { group_id: groupId, user_id: session.user.id } },
+    })
+    if (!membership) {
+      return NextResponse.json({ error: 'Canal no autorizado' }, { status: 403 })
+    }
+  } else {
     return NextResponse.json({ error: 'Canal no autorizado' }, { status: 403 })
   }
 

@@ -21,3 +21,8 @@ export function conversationChannel(userIdA: string, userIdB: string): string {
   const [a, b] = [userIdA, userIdB].sort()
   return `private-conversation-${a}-${b}`
 }
+
+/** Nombre de canal privado para el chat de un grupo de artesanos (Red Agrupación). */
+export function groupChannel(groupId: string): string {
+  return `private-group-${groupId}`
+}
