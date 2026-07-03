@@ -108,7 +108,28 @@ Estado: ✅ hecho · 🟡 en progreso · ⬜ pendiente
 - [x] PWA — manifest.ts (app/manifest.ts → /manifest.webmanifest),
       service worker real (public/sw.js: cache stale-while-revalidate +
       fallback offline.html), instalable
-## ⬜ FASE 11 — Admin + módulos extra
+## ✅ FASE 11 — Admin + módulos extra
+- [x] Panel de administración (`/admin`): resumen con stats reales,
+      gestión de usuarios (activar/suspender), productos (publicar/
+      ocultar), pedidos (solo lectura), academia y ferias (CRUD),
+      capitalización (CRUD + revisión de postulaciones)
+- [x] Crear producto real desde el dashboard del artesano (gap crítico
+      encontrado y corregido — antes el dashboard era 100% solo
+      lectura), con subida de imágenes vía Vercel Blob (bloqueado por
+      configuración del store — ver arriba)
+- [x] Módulo Raíces: historia completa, audio, galería, árbol
+      genealógico (gated Pro+) + página pública `/artesano/[id]`
+- [x] Academia Kuska: lecciones/artículos reales (BlogPost) creados
+      desde `/admin/academia`, lectura gated Pro+
+- [x] Ferias Digitales: CRUD admin, listado público `/ferias`,
+      artesanos se unen con su stand desde el dashboard (gratis, todos
+      los planes)
+- [x] Red Cuéntame: feed social real (publicar, reaccionar, comentar),
+      compartido entre ambos dashboards
+- [x] Hub de Capitalización: convocatorias reales (gated Maestro),
+      postulación + revisión de estado desde admin
+- [x] Red Agrupación: grupos de artesanos + chat de grupo en tiempo
+      real vía Pusher (gratis, todos los planes)
 ## ⬜ FASE 12 — Polish final y verificación
 
 ## ✅ Verificación end-to-end en producción (kuska-cyan.vercel.app)
