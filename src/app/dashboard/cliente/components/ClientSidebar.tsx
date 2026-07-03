@@ -15,6 +15,7 @@ const navItems = [
   { href: '/dashboard/cliente/pedidos', label: 'Mis pedidos', icon: '📦', exact: false },
   { href: '/dashboard/cliente/mensajes', label: 'Mensajes', icon: '💬', exact: false },
   { href: '/dashboard/cliente/favoritos', label: 'Favoritos', icon: '❤️', exact: false },
+  { href: '/dashboard/cliente/talleres', label: 'Mis talleres', icon: '🧑‍🏫', exact: false },
   { href: '/dashboard/cliente/comunidad', label: 'Red Cuéntame', icon: '🗣️', exact: false },
 ]
 
