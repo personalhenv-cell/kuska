@@ -18,6 +18,7 @@ const navItems = [
   { href: '/dashboard/artesano/estadisticas', label: 'Estadísticas', icon: '📊', exact: false },
   { href: '/dashboard/artesano/raices', label: 'Raíces', icon: '🌳', exact: false },
   { href: '/dashboard/artesano/academia', label: 'Academia', icon: '🎓', exact: false },
+  { href: '/dashboard/artesano/ferias', label: 'Ferias Digitales', icon: '🎪', exact: false },
   { href: '/dashboard/artesano/cfo-bot', label: 'CFO-Bot IA', icon: '🤖', exact: false },
   { href: '/dashboard/artesano/match-ia', label: 'Match IA', icon: '🤝', exact: false },
   { href: '/dashboard/artesano/perfil', label: 'Mi perfil', icon: '👤', exact: false },

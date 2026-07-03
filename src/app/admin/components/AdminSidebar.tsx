@@ -14,6 +14,7 @@ const navItems = [
   { href: '/admin/productos', label: 'Productos', icon: '🎨', exact: false },
   { href: '/admin/pedidos', label: 'Pedidos', icon: '📦', exact: false },
   { href: '/admin/academia', label: 'Academia', icon: '🎓', exact: false },
+  { href: '/admin/ferias', label: 'Ferias Digitales', icon: '🎪', exact: false },
 ]
 
 export function AdminSidebar({ user }: { user: User }) {
