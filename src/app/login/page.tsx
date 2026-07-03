@@ -40,14 +40,14 @@ export default function LoginPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone }),
       })
-      const data: { devCode?: string; error?: string } = await res.json()
+      const data: { devCode?: string; error?: string; channel?: 'email' | 'none' } = await res.json()
       if (!res.ok) {
         setError(data.error ?? 'No se pudo enviar el código')
         return
       }
       setDevCode(data.devCode ?? null)
       setStep('otp')
-      toast.success('Código enviado')
+      toast.success(data.channel === 'email' ? 'Código enviado a tu correo' : 'Código enviado')
     } finally {
       setLoading(false)
     }
@@ -138,8 +138,8 @@ export default function LoginPage() {
             ) : (
               <div className="space-y-5">
                 <div className="text-center">
-                  <h1 className="font-display text-2xl font-bold text-kuska-cream">Verifica tu número</h1>
-                  <p className="mt-1 font-body text-sm text-kuska-cream/65">Código enviado a {phone}</p>
+                  <h1 className="font-display text-2xl font-bold text-kuska-cream">Verifica tu cuenta</h1>
+                  <p className="mt-1 font-body text-sm text-kuska-cream/65">Revisa el correo asociado a {phone}</p>
                 </div>
                 {devCode && (
                   <div className="rounded-card border border-kuska-gold/40 bg-kuska-gold/10 p-4 text-center">

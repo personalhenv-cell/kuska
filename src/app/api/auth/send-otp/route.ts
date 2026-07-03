@@ -3,11 +3,14 @@ import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { generateOtp, normalizePeruPhone } from '@/lib/utils'
 import { rateLimit } from '@/lib/rate-limit'
+import { sendOtpEmail } from '@/lib/resend'
 
 const schema = z.object({ phone: z.string().min(6) })
 
-interface UserIdRow {
+interface UserRow {
   id: string
+  name: string
+  email: string | null
 }
 
 export async function POST(req: Request) {
@@ -37,8 +40,8 @@ export async function POST(req: Request) {
     )
   }
 
-  const users = await prisma.$queryRawUnsafe<UserIdRow[]>(
-    `SELECT id FROM users WHERE phone = $1 LIMIT 1`,
+  const users = await prisma.$queryRawUnsafe<UserRow[]>(
+    `SELECT id, name, email FROM users WHERE phone = $1 LIMIT 1`,
     phone,
   )
   if (!users || users.length === 0) {
@@ -47,6 +50,7 @@ export async function POST(req: Request) {
       { status: 404 },
     )
   }
+  const user = users[0]
 
   const code = generateOtp()
   const expiresAt = new Date(Date.now() + 5 * 60 * 1000)
@@ -54,13 +58,32 @@ export async function POST(req: Request) {
   await prisma.$executeRawUnsafe(
     `INSERT INTO otp_codes (id, user_id, code, expires_at, used, attempts, created_at)
      VALUES (gen_random_uuid()::text, $1, $2, $3, false, 0, NOW())`,
-    users[0].id,
+    user.id,
     code,
     expiresAt,
   )
 
-  // TODO(fase-10): enviar el OTP por SMS/WhatsApp/Email (Resend).
-  // En desarrollo se devuelve en la respuesta para mostrarlo en pantalla.
   const isDev = process.env.NODE_ENV !== 'production'
-  return NextResponse.json({ ok: true, devCode: isDev ? code : undefined })
+
+  if (!user.email) {
+    return NextResponse.json(
+      { error: 'Tu cuenta no tiene un correo registrado para recibir el código.' },
+      { status: 422 },
+    )
+  }
+
+  // await (no fire-and-forget): sin esto el código nunca llega en serverless.
+  const emailResult = await sendOtpEmail({ to: user.email, name: user.name, code })
+  if (!emailResult.ok && !isDev) {
+    return NextResponse.json(
+      { error: 'No pudimos enviar el código. Intenta de nuevo en unos segundos.' },
+      { status: 502 },
+    )
+  }
+
+  return NextResponse.json({
+    ok: true,
+    channel: emailResult.ok ? 'email' : 'none',
+    devCode: isDev ? code : undefined,
+  })
 }

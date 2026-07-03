@@ -2,11 +2,12 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { normalizePeruPhone, generateOtp } from '@/lib/utils'
-import { sendWelcomeEmail } from '@/lib/resend'
+import { sendWelcomeEmail, sendOtpEmail } from '@/lib/resend'
 
 const schema = z.object({
   name: z.string().min(2).max(100),
   phone: z.string().min(6),
+  email: z.string().email(),
   specialty: z.string().min(2),
   technique: z.string().min(2),
   region: z.string().min(2),
@@ -27,17 +28,18 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Número peruano inválido' }, { status: 400 })
   }
 
-  const existing = await prisma.user.findUnique({ where: { phone } })
+  const existing = await prisma.user.findFirst({ where: { OR: [{ phone }, { email: parsed.data.email }] } })
   if (existing) {
-    return NextResponse.json({ error: 'Ya existe una cuenta con ese número' }, { status: 409 })
+    return NextResponse.json({ error: 'Ya existe una cuenta con ese número o correo' }, { status: 409 })
   }
 
-  const { name, specialty, technique, region, community, years_experience, story } = parsed.data
+  const { name, email, specialty, technique, region, community, years_experience, story } = parsed.data
 
   const user = await prisma.user.create({
     data: {
       name,
       phone,
+      email,
       role: 'artesano',
       artisan_profile: {
         create: { specialty, technique, region, community, years_experience, story },
@@ -46,7 +48,7 @@ export async function POST(req: Request) {
     include: { artisan_profile: true },
   })
 
-  // Generar OTP de bienvenida
+  // Generar OTP de verificación
   const code = generateOtp()
   const expiresAt = new Date(Date.now() + 5 * 60 * 1000)
   await prisma.$executeRawUnsafe(
@@ -59,12 +61,14 @@ export async function POST(req: Request) {
 
   // await (no fire-and-forget): en serverless (Vercel) una promesa sin
   // esperar puede quedar truncada al terminar la función antes de enviarse.
+  const otpResult = await sendOtpEmail({ to: user.email!, name: user.name, code })
   await sendWelcomeEmail({ to: user.email, name: user.name, role: 'artesano' })
 
   const isDev = process.env.NODE_ENV !== 'production'
   return NextResponse.json({
     ok: true,
     userId: user.id,
+    otpSent: otpResult.ok,
     devCode: isDev ? code : undefined,
   }, { status: 201 })
 }

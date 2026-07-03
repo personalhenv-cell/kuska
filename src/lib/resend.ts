@@ -11,13 +11,12 @@ function getResendClient(): Resend | null {
   return resendClient
 }
 
-const FROM = 'Kuska <bienvenida@kuska-cyan.vercel.app>'
+const FROM = 'Kuska <onboarding@resend.dev>'
 
 /**
  * Envía el email de bienvenida. No lanza si falla — el registro no debe
- * romperse por un problema de email, y hoy el registro no pide email
- * (solo teléfono), así que la mayoría de usuarios no tendrán uno; en ese
- * caso simplemente no se envía nada.
+ * romperse por un problema de email de cortesía (el canal crítico es el OTP,
+ * ver `sendOtpEmail`).
  */
 export async function sendWelcomeEmail(params: {
   to: string | null | undefined
@@ -68,5 +67,44 @@ export async function sendWelcomeEmail(params: {
   } catch {
     // El registro ya se completó exitosamente en la DB — un fallo de email
     // no debe convertirse en un error 500 para el usuario.
+  }
+}
+
+/**
+ * Envía el código OTP por correo — hoy es el único canal de entrega real
+ * (no hay proveedor de SMS/WhatsApp en el stack). A diferencia del email de
+ * bienvenida, un fallo aquí SÍ se reporta al llamador: sin este correo el
+ * usuario no tiene forma de iniciar sesión.
+ */
+export async function sendOtpEmail(params: {
+  to: string
+  name: string
+  code: string
+}): Promise<{ ok: boolean; error?: string }> {
+  const client = getResendClient()
+  if (!client) return { ok: false, error: 'RESEND_API_KEY no configurada' }
+
+  try {
+    const { error } = await client.emails.send({
+      from: FROM,
+      to: params.to,
+      subject: `${params.code} — Tu código de acceso a Kuska`,
+      html: `
+        <div style="font-family: Georgia, serif; background:#F5F0E8; padding:32px; color:#1A0A00;">
+          <div style="max-width:480px; margin:0 auto; background:#FFFFFF; border-radius:20px; padding:32px; border:1px solid rgba(61,28,2,0.12); text-align:center;">
+            <p style="font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:#D4920A; font-weight:bold; margin:0 0 8px;">Kuska</p>
+            <h1 style="font-size:20px; margin:0 0 16px;">Hola ${params.name}, este es tu código</h1>
+            <p style="font-size:36px; font-weight:bold; letter-spacing:0.3em; color:#C84B2F; margin:0 0 16px;">${params.code}</p>
+            <p style="font-size:14px; line-height:1.6; color:#6B4C35; margin:0;">
+              Vence en 5 minutos. Si no lo solicitaste, ignora este correo.
+            </p>
+          </div>
+        </div>
+      `,
+    })
+    if (error) return { ok: false, error: error.message }
+    return { ok: true }
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : 'Error desconocido al enviar' }
   }
 }

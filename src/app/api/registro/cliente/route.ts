@@ -2,11 +2,12 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import { normalizePeruPhone, generateOtp } from '@/lib/utils'
-import { sendWelcomeEmail } from '@/lib/resend'
+import { sendWelcomeEmail, sendOtpEmail } from '@/lib/resend'
 
 const schema = z.object({
   name: z.string().min(2).max(100),
   phone: z.string().min(6),
+  email: z.string().email(),
   interests: z.array(z.string()).default([]),
   regions_interest: z.array(z.string()).default([]),
   is_entrepreneur: z.boolean().default(false),
@@ -25,17 +26,18 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Número peruano inválido' }, { status: 400 })
   }
 
-  const existing = await prisma.user.findUnique({ where: { phone } })
+  const existing = await prisma.user.findFirst({ where: { OR: [{ phone }, { email: parsed.data.email }] } })
   if (existing) {
-    return NextResponse.json({ error: 'Ya existe una cuenta con ese número' }, { status: 409 })
+    return NextResponse.json({ error: 'Ya existe una cuenta con ese número o correo' }, { status: 409 })
   }
 
-  const { name, interests, regions_interest, is_entrepreneur, business_name } = parsed.data
+  const { name, email, interests, regions_interest, is_entrepreneur, business_name } = parsed.data
 
   const user = await prisma.user.create({
     data: {
       name,
       phone,
+      email,
       role: 'cliente',
       client_profile: { create: { interests, regions_interest, is_entrepreneur, business_name } },
     },
@@ -53,8 +55,14 @@ export async function POST(req: Request) {
 
   // await (no fire-and-forget): en serverless (Vercel) una promesa sin
   // esperar puede quedar truncada al terminar la función antes de enviarse.
+  const otpResult = await sendOtpEmail({ to: user.email!, name: user.name, code })
   await sendWelcomeEmail({ to: user.email, name: user.name, role: 'cliente' })
 
   const isDev = process.env.NODE_ENV !== 'production'
-  return NextResponse.json({ ok: true, userId: user.id, devCode: isDev ? code : undefined }, { status: 201 })
+  return NextResponse.json({
+    ok: true,
+    userId: user.id,
+    otpSent: otpResult.ok,
+    devCode: isDev ? code : undefined,
+  }, { status: 201 })
 }

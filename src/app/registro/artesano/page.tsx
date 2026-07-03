@@ -21,6 +21,7 @@ const SPECIALTIES = ['Textilería', 'Cerámica', 'Joyería', 'Retablos', 'Madera
 interface FormData {
   name: string
   phone: string
+  email: string
   specialty: string
   technique: string
   region: string
@@ -79,7 +80,7 @@ export default function RegistroArtesanoPage() {
   const [devCode, setDevCode] = useState<string | null>(null)
   const [error, setError] = useState<string>()
   const [form, setForm] = useState<FormData>({
-    name: '', phone: '', specialty: '', technique: '',
+    name: '', phone: '', email: '', specialty: '', technique: '',
     region: '', community: '', years_experience: 0, story: '', otp: '',
   })
 
@@ -94,17 +95,20 @@ export default function RegistroArtesanoPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: form.name, phone: form.phone, specialty: form.specialty,
+          name: form.name, phone: form.phone, email: form.email, specialty: form.specialty,
           technique: form.technique, region: form.region, community: form.community,
           years_experience: form.years_experience, story: form.story,
         }),
       })
-      const data: { ok?: boolean; devCode?: string; error?: string | object } = await res.json()
+      const data: { ok?: boolean; devCode?: string; error?: string | object; otpSent?: boolean } = await res.json()
       if (!res.ok) {
         setError(typeof data.error === 'string' ? data.error : 'Error al registrar. Verifica los datos.')
         return
       }
       setDevCode(data.devCode ?? null)
+      if (!data.otpSent && !data.devCode) {
+        setError('Tu cuenta se creó, pero no pudimos enviarte el código por correo. Revisa spam o vuelve a intentarlo desde "Ingresar".')
+      }
       setStep(3)
     } finally {
       setLoading(false)
@@ -211,8 +215,20 @@ export default function RegistroArtesanoPage() {
                       required
                     />
                   </div>
+                  <div>
+                    <label className={LABEL}>Correo electrónico</label>
+                    <input
+                      className={INPUT}
+                      type="email"
+                      value={form.email}
+                      onChange={(e) => set('email')(e.target.value)}
+                      placeholder="ana@correo.com"
+                      required
+                    />
+                    <p className="mt-1.5 font-body text-xs text-kuska-cream/45">Aquí te enviaremos tu código de acceso.</p>
+                  </div>
                   <RippleButton className="block w-full">
-                    <Button size="lg" className="w-full" onClick={() => form.name && form.phone && setStep(2)}>
+                    <Button size="lg" className="w-full" onClick={() => form.name && form.phone && form.email && setStep(2)}>
                       Continuar →
                     </Button>
                   </RippleButton>
@@ -277,8 +293,8 @@ export default function RegistroArtesanoPage() {
               {step === 3 && (
                 <form onSubmit={verifyOtp} className="space-y-4">
                   <div>
-                    <h1 className="font-display text-2xl font-bold text-kuska-cream">Verifica tu número</h1>
-                    <p className="mt-1 font-body text-sm text-kuska-cream/65">Código enviado a {form.phone}</p>
+                    <h1 className="font-display text-2xl font-bold text-kuska-cream">Verifica tu cuenta</h1>
+                    <p className="mt-1 font-body text-sm text-kuska-cream/65">Código enviado a {form.email}</p>
                   </div>
                   {devCode && (
                     <div className="rounded-[16px] border border-kuska-gold/40 bg-kuska-gold/10 p-4 text-center">
