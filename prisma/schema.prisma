@@ -43,6 +43,8 @@ model User {
   badges             UserBadge[]
   missions_completed MissionProgress[]
   subscriptions      Subscription[]
+
+  @@map("users")
 }
 
 model ArtisanProfile {
@@ -74,6 +76,8 @@ model ArtisanProfile {
   workshops         Workshop[]
   fairs             FairParticipant[]
   fund_applications FundApplication[]
+
+  @@map("artisan_profiles")
 }
 
 model ClientProfile {
@@ -90,6 +94,8 @@ model ClientProfile {
   newsletter       Boolean  @default(false)
   created_at       DateTime @default(now())
   updated_at       DateTime @updatedAt
+
+  @@map("client_profiles")
 }
 
 model OtpCode {
@@ -101,6 +107,8 @@ model OtpCode {
   used       Boolean  @default(false)
   attempts   Int      @default(0)
   created_at DateTime @default(now())
+
+  @@map("otp_codes")
 }
 
 model Product {
