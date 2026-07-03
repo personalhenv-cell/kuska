@@ -87,8 +87,11 @@ Estado: ✅ hecho · 🟡 en progreso · ⬜ pendiente
       contexto de ventas/stock/vistas real del artesano, gate Maestro
 - [x] Descripciones de producto IA (/dashboard/artesano/productos/ia-descripcion):
       streaming, gate Pro+
-- [ ] Emprendedor IA (plan de negocio en PDF) — módulo aparte, pendiente
-- [ ] Match artesano-emprendedor vía IA (Maestro) — pendiente
+- [x] Emprendedor IA (/dashboard/cliente/emprendedor): streaming, gate
+      is_entrepreneur=true, guarda en BusinessPlan, descarga PDF con
+      @react-pdf/renderer (dinámico, ssr:false)
+- [x] Match artesano-emprendedor vía IA (/dashboard/artesano/match-ia):
+      streaming, gate Maestro, usa ClientProfile reales (is_entrepreneur)
 ## 🟡 FASE 10 — Integraciones (Resend, Mux, OneSignal, Sentry, GA4, PWA)
 - [x] Pusher — chat en tiempo real (src/lib/pusher.ts, pusher-client.ts,
       /api/messages, /api/messages/conversations, /api/pusher/auth,
