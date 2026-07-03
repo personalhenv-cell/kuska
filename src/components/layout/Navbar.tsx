@@ -21,9 +21,10 @@ export function Navbar() {
 
   const links = [
     { href: '/marketplace', label: t('marketplace') },
+    { href: '/talleres', label: 'Talleres' },
     { href: '/comunidad', label: t('community') },
     { href: '/academia', label: t('academy') },
-    { href: '/alianzas', label: 'Alianzas' },
+    { href: '/#alianzas', label: 'Alianzas' },
   ]
 
   return (

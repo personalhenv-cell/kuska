@@ -18,16 +18,16 @@ const columns = [
     title: 'Artesanos',
     links: [
       { href: '/registro/artesano', label: 'Vende en Kuska' },
-      { href: '/impacto', label: 'Impacto social' },
-      { href: '/rutas', label: 'Rutas artesanales' },
-      { href: '/biblioteca', label: 'Biblioteca cultural' },
+      { href: '/talleres', label: 'Talleres en vivo' },
+      { href: '/ferias', label: 'Ferias digitales' },
+      { href: '/academia', label: 'Aprende y crece' },
     ],
   },
   {
     title: 'Kuska',
     links: [
-      { href: '/alianzas', label: 'Alianzas' },
-      { href: '/blog', label: 'Blog cultural' },
+      { href: '/#alianzas', label: 'Alianzas' },
+      { href: '/comunidad', label: 'Blog cultural' },
       { href: '/login', label: 'Ingresar' },
       { href: '/registro', label: 'Crear cuenta' },
     ],

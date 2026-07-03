@@ -32,7 +32,7 @@ const ALIANZAS: { slug: string; name: string; estado: EstadoAlianza }[] = [
 
 export function AlianzasSection() {
   return (
-    <section className="mx-auto max-w-6xl px-6 py-20">
+    <section id="alianzas" className="mx-auto max-w-6xl px-6 py-20 scroll-mt-24">
       <p className="text-center font-nunito text-sm font-bold uppercase tracking-wide text-kuska-text-mid">
         Respaldados por quienes creen en el talento peruano
       </p>

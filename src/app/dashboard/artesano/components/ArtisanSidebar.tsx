@@ -18,6 +18,7 @@ const navItems = [
   { href: '/dashboard/artesano/estadisticas', label: 'Estadísticas', icon: '📊', exact: false },
   { href: '/dashboard/artesano/raices', label: 'Raíces', icon: '🌳', exact: false },
   { href: '/dashboard/artesano/academia', label: 'Academia', icon: '🎓', exact: false },
+  { href: '/dashboard/artesano/talleres', label: 'Mis talleres', icon: '🧑‍🏫', exact: false },
   { href: '/dashboard/artesano/ferias', label: 'Ferias Digitales', icon: '🎪', exact: false },
   { href: '/dashboard/artesano/agrupacion', label: 'Red Agrupación', icon: '👥', exact: false },
   { href: '/dashboard/artesano/comunidad', label: 'Red Cuéntame', icon: '🗣️', exact: false },

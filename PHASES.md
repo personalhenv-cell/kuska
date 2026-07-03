@@ -134,6 +134,22 @@ Estado: ✅ hecho · 🟡 en progreso · ⬜ pendiente
       postulación + revisión de estado desde admin
 - [x] Red Agrupación: grupos de artesanos + chat de grupo en tiempo
       real vía Pusher (gratis, todos los planes)
+## ✅ MÓDULO Talleres (Workshop/WorkshopParticipant)
+- [x] Gap real: el schema tenía Workshop + WorkshopParticipant con CERO UI.
+- [x] API: POST/GET /api/talleres (crear taller — artesano; listar próximos),
+      POST /api/talleres/[id]/inscribir (cupo + duplicado, cualquier usuario).
+- [x] Público /talleres + /talleres/[id] (detalle + inscripción real).
+- [x] Dashboard /dashboard/artesano/talleres (crear + ver inscritos), datos
+      100% reales contra la DB.
+
+## ✅ Enlaces rotos de navegación corregidos (bug real en producción)
+- [x] Navbar apuntaba a /comunidad, /academia, /alianzas → los tres daban
+      404. Creadas páginas públicas reales /academia (BlogPost publicados)
+      y /comunidad (feed Red Cuéntame de solo lectura); /alianzas ahora
+      ancla a la sección real de la landing (#alianzas).
+- [x] Footer apuntaba a /impacto, /rutas, /biblioteca, /blog (todos 404) →
+      repuntados a rutas reales (talleres, ferias, academia, comunidad).
+
 ## ⬜ FASE 12 — Polish final y verificación
 
 ## ✅ Verificación end-to-end en producción (kuska-cyan.vercel.app)
