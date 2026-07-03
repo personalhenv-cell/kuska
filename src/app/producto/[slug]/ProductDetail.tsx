@@ -259,9 +259,12 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
           </div>
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <h3 className="font-display text-xl font-semibold text-kuska-text">
+              <Link
+                href={`/artesano/${product.artisan.id}`}
+                className="font-display text-xl font-semibold text-kuska-text hover:text-kuska-red"
+              >
                 {product.artisan.user.name}
-              </h3>
+              </Link>
               {product.artisan.is_verified && <Badge variant="verified">✓ Verificado</Badge>}
             </div>
             <p className="mt-0.5 font-body text-sm text-kuska-text-mid">
