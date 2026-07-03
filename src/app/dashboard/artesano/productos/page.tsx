@@ -27,6 +27,12 @@ export default async function ArtisanProductsPage() {
         </div>
         <div className="flex gap-3">
           <Link
+            href="/dashboard/artesano/productos/nuevo"
+            className="rounded-btn bg-kuska-teal px-4 py-2.5 font-body text-sm font-bold text-white transition-transform hover:-translate-y-0.5"
+          >
+            + Nuevo producto
+          </Link>
+          <Link
             href="/dashboard/artesano/productos/ia-descripcion"
             className="rounded-btn border border-kuska-gold bg-kuska-gold/10 px-4 py-2.5 font-body text-sm font-bold text-[#9a6a07] transition-transform hover:-translate-y-0.5"
           >
