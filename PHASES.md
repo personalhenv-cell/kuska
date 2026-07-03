@@ -97,11 +97,17 @@ Estado: ✅ hecho · 🟡 en progreso · ⬜ pendiente
       /api/messages, /api/messages/conversations, /api/pusher/auth,
       Inbox + ChatWindow en ambos dashboards, entry point desde producto)
 - [x] Resend — email de bienvenida (registro artesano/cliente)
-- [ ] Mux — video para Módulo Raíces / Academia
-- [ ] OneSignal — push notifications
-- [ ] Sentry — monitoreo de errores
-- [ ] GA4 — analítica
-- [ ] PWA
+- [ ] Mux — video para Módulo Raíces / Academia (bloqueado: falta
+      `MUX_TOKEN_SECRET` en el entorno, solo está `MUX_TOKEN_ID`)
+- [x] OneSignal — SDK web v16 inicializado (src/components/Integrations.tsx)
+      con `NEXT_PUBLIC_ONESIGNAL_APP_ID` real; envío server-side de push
+      queda pendiente de `ONESIGNAL_API_KEY` (no está en el entorno)
+- [ ] Sentry — monitoreo de errores (bloqueado: no hay `SENTRY_DSN` ni
+      `NEXT_PUBLIC_SENTRY_DSN` en el entorno)
+- [x] GA4 — gtag.js real con `NEXT_PUBLIC_GA_ID`
+- [x] PWA — manifest.ts (app/manifest.ts → /manifest.webmanifest),
+      service worker real (public/sw.js: cache stale-while-revalidate +
+      fallback offline.html), instalable
 ## ⬜ FASE 11 — Admin + módulos extra
 ## ⬜ FASE 12 — Polish final y verificación
 

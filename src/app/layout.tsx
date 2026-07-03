@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Playfair_Display, Inter, Nunito } from 'next/font/google'
 import './globals.css'
 import { Providers } from '@/components/Providers'
+import { Integrations } from '@/components/Integrations'
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -56,6 +57,7 @@ export const metadata: Metadata = {
     images: ['/logo.png'],
   },
   icons: { icon: '/logo.png' },
+  manifest: '/manifest.webmanifest',
 }
 
 export const viewport: Viewport = {
@@ -76,6 +78,7 @@ export default function RootLayout({
     >
       <body>
         <Providers>{children}</Providers>
+        <Integrations />
       </body>
     </html>
   )
