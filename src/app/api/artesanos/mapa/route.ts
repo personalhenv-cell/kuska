@@ -23,7 +23,7 @@ export async function GET() {
       id: true,
       region: true,
       specialty: true,
-      user: { select: { id: true, name: true } },
+      user: { select: { name: true } },
     },
     orderBy: { total_sales: 'desc' },
   })
@@ -40,9 +40,11 @@ export async function GET() {
       byRegion.set(coords.name, entry)
     }
     entry.count += 1
-    // Guardamos hasta 5 nombres por región para el popup (los más vendidos primero).
+    // Guardamos hasta 5 nombres por región para el popup (los más vendidos
+    // primero). `p.id` es el id del ArtisanProfile, que es justo lo que espera
+    // la ruta pública /artesano/[id] (busca por artisanProfile.id, NO user.id).
     if (entry.artisans.length < 5) {
-      entry.artisans.push({ id: p.user.id, name: p.user.name, specialty: p.specialty })
+      entry.artisans.push({ id: p.id, name: p.user.name, specialty: p.specialty })
     }
   }
 
