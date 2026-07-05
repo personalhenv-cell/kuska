@@ -1,13 +1,13 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import Image from 'next/image'
 import { Logo } from '@/components/ui/Logo'
 
-const STORAGE_KEY = 'kuska_loaded_v9'
+const STORAGE_KEY = 'kuska_loaded_v10'
 const LOAD_DURATION_MS = 7500
-const FLASH_DURATION_MS = 1400
+const FLASH_DURATION_MS = 1800
 const TYPEWRITER_TEXT = 'KUSKA'
 
 const FRASES = [
@@ -25,54 +25,14 @@ const FRASES = [
 
 const EASE: [number, number, number, number] = [0.4, 0, 0.2, 1]
 
-/** Una capa de montañas que se desplaza horizontalmente sin fin — dos copias
- *  idénticas lado a lado, animadas de 0% a -50% (el ancho de una copia),
- *  loop perfectamente continuo sin salto visible. */
-function MountainLayer({
-  durationS,
-  heightClass,
-  opacity,
-  blurPx,
-  filter,
-  objectPosition,
-}: {
+interface Bubble {
+  left: number
+  size: number
   durationS: number
-  heightClass: string
-  opacity: number
-  blurPx: number
-  filter: string
-  objectPosition: string
-}) {
-  return (
-    <div className={`absolute inset-x-0 bottom-0 ${heightClass} overflow-hidden`} style={{ opacity }} aria-hidden>
-      <motion.div
-        className="flex h-full"
-        style={{ width: '200%', filter: `blur(${blurPx}px) ${filter}` }}
-        animate={{ x: ['0%', '-50%'] }}
-        transition={{ duration: durationS, repeat: Infinity, ease: 'linear' }}
-      >
-        <div className="relative h-full w-1/2 flex-shrink-0">
-          <Image
-            src="/mountains-peru-view.png"
-            alt=""
-            fill
-            priority
-            className="object-cover"
-            style={{ objectPosition }}
-          />
-        </div>
-        <div className="relative h-full w-1/2 flex-shrink-0">
-          <Image
-            src="/mountains-peru-view.png"
-            alt=""
-            fill
-            className="object-cover"
-            style={{ objectPosition }}
-          />
-        </div>
-      </motion.div>
-    </div>
-  )
+  delayS: number
+  color: string
+  blur: string
+  xAmplitude: number
 }
 
 /** Bandera peruana (franjas rojo-blanco-rojo) con ondulación sutil tipo tela,
@@ -95,20 +55,48 @@ function PeruFlag() {
 }
 
 export function LoadingScreen() {
-  const [visible, setVisible] = useState(false)
+  // Empieza visible por defecto (tanto en el render del servidor como en el
+  // primer render del cliente, para que coincidan y no haya warning de
+  // hidratación): así la pantalla de carga es literalmente lo primero que
+  // se pinta, sin que la home real se alcance a ver un instante antes.
+  // El único chequeo de sessionStorage ocurre en el useEffect, ya en el
+  // cliente, y si ya se vio en esta sesión la oculta de inmediato.
+  const [visible, setVisible] = useState(true)
   const [fraseIndex, setFraseIndex] = useState(0)
   const [displayed, setDisplayed] = useState('')
   const [percent, setPercent] = useState(0)
   const [flash, setFlash] = useState(false)
   const rafRef = useRef<number>()
 
+  const bubbles = useMemo<Bubble[]>(
+    () =>
+      Array.from({ length: 34 }).map(() => {
+        const size = 5 + Math.random() * 22
+        return {
+          left: Math.random() * 100,
+          size,
+          durationS: 7 + Math.random() * 9,
+          delayS: Math.random() * 6,
+          color:
+            Math.random() > 0.45
+              ? `rgba(242,194,48,${(0.25 + Math.random() * 0.35).toFixed(2)})`
+              : `rgba(245,240,232,${(0.15 + Math.random() * 0.25).toFixed(2)})`,
+          blur: size < 9 ? '1px' : '0px',
+          xAmplitude: 18 + Math.random() * 36,
+        }
+      }),
+    [],
+  )
+
   useEffect(() => {
     // sessionStorage (no localStorage): el flag vive solo mientras dura la
     // pestaña/sesión del navegador. Se resetea en cada recarga real (F5) o
     // primera visita, pero NO al navegar entre rutas con el router de
     // Next.js (esa navegación usa la PageTransition, no este loading screen).
-    if (sessionStorage.getItem(STORAGE_KEY)) return
-    setVisible(true)
+    if (sessionStorage.getItem(STORAGE_KEY)) {
+      setVisible(false)
+      return
+    }
 
     // Typewriter starts at 1.5s
     const twTimer = setTimeout(() => {
@@ -145,7 +133,7 @@ export function LoadingScreen() {
       setTimeout(() => {
         sessionStorage.setItem(STORAGE_KEY, '1')
         setVisible(false)
-      }, FLASH_DURATION_MS - 500)
+      }, FLASH_DURATION_MS - 450)
     }, LOAD_DURATION_MS)
 
     return () => {
@@ -160,77 +148,72 @@ export function LoadingScreen() {
     <AnimatePresence>
       {visible && (
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0, filter: 'blur(20px)', scale: 1.04 }}
-          transition={{ duration: 0.6, ease: EASE }}
-          className="fixed inset-0 z-[100] overflow-hidden bg-[#1a1410]"
+          initial={false}
+          exit={{ opacity: 0, filter: 'blur(24px)', scale: 1.05 }}
+          transition={{ duration: 0.9, ease: EASE }}
+          className="fixed inset-0 z-[100] overflow-hidden"
+          style={{ background: 'linear-gradient(160deg, #3D1C02 0%, #2a1305 55%, #190b02 100%)' }}
         >
-          {/* Layer 0 — Cielo cálido de fondo. Estático a propósito: animar un
-              gradiente completo como string vía Framer Motion `animate` no
-              interpola de forma confiable (puede quedar transparente) — el
-              movimiento ya lo dan las montañas, no hace falta animar esto. */}
-          <div
-            className="absolute inset-0 z-0"
-            style={{ background: 'linear-gradient(180deg, #4a2a12 0%, #1a1410 60%, #0d0805 100%)' }}
-          />
+          {/* Burbujas cálidas flotando — fondo simple de un solo color, sin
+              montañas ni fotos, tal como se pidió. */}
+          {bubbles.map((b, i) => (
+            <motion.span
+              key={i}
+              className="pointer-events-none absolute rounded-full"
+              style={{
+                left: `${b.left}%`,
+                bottom: '-30px',
+                width: b.size,
+                height: b.size,
+                background: b.color,
+                filter: `blur(${b.blur})`,
+                boxShadow: `0 0 ${b.size}px ${b.color}`,
+              }}
+              animate={{
+                y: [0, -1300],
+                x: [0, b.xAmplitude, -(b.xAmplitude / 2), b.xAmplitude / 3, 0],
+              }}
+              transition={{
+                duration: b.durationS,
+                delay: b.delayS,
+                repeat: Infinity,
+                ease: 'linear',
+              }}
+            />
+          ))}
 
-          {/* Layer 1-3 — Montañas andinas, 3 capas de profundidad con parallax
-              horizontal infinito. La capa "cercana" es más rápida, nítida y
-              cálida; la "lejana" es más lenta, difusa y tenue — sensación de
-              profundidad real con un solo asset. */}
-          <MountainLayer
-            durationS={42}
-            heightClass="h-[52%]"
-            opacity={0.35}
-            blurPx={3}
-            filter="saturate(0.7) brightness(0.75) sepia(0.15)"
-            objectPosition="50% 15%"
-          />
-          <MountainLayer
-            durationS={24}
-            heightClass="h-[62%]"
-            opacity={0.55}
-            blurPx={1}
-            filter="saturate(0.95) brightness(0.85) sepia(0.1)"
-            objectPosition="50% 35%"
-          />
-          <MountainLayer
-            durationS={13}
-            heightClass="h-[72%]"
-            opacity={0.85}
-            blurPx={0}
-            filter="saturate(1.15) brightness(0.95) sepia(0.08)"
-            objectPosition="50% 55%"
-          />
-
-          {/* Viñeta cálida inferior para fundir las montañas con el contenido */}
-          <div
-            className="pointer-events-none absolute inset-x-0 bottom-0 z-[4] h-1/2"
-            style={{ background: 'linear-gradient(180deg, transparent 0%, rgba(13,8,5,0.85) 100%)' }}
-            aria-hidden
-          />
-
-          {/* Layer 10 — Contenido principal: Logo → Typewriter → Frases → Barra */}
-          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-7 px-6">
+          {/* Contenido principal: Logo con halo → KUSKA grande → % → Barra → Frases */}
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-6 px-6">
             <motion.div
               initial={{ scale: 0.3, opacity: 0, filter: 'blur(24px)' }}
               animate={{ scale: 1, opacity: 1, filter: 'blur(0px)' }}
-              transition={{ duration: 0.7, delay: 0.5, ease: EASE }}
+              transition={{ duration: 0.7, delay: 0.3, ease: EASE }}
               className="relative"
             >
-              <Logo size={104} variant="dark" priority />
+              {/* Halo dorado — anillo con destello rotando + pulso, "rodeando" el logo */}
               <motion.div
-                className="absolute inset-0 rounded-full"
-                style={{ boxShadow: '0 0 32px 10px rgba(212,146,10,0.30), 0 0 64px 24px rgba(212,146,10,0.10)' }}
-                animate={{ opacity: [0.6, 1, 0.6] }}
-                transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+                className="absolute -inset-5 rounded-full"
+                style={{
+                  background:
+                    'conic-gradient(from 0deg, transparent 0%, rgba(242,194,48,0.9) 12%, transparent 28%, transparent 100%)',
+                }}
+                animate={{ rotate: 360 }}
+                transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
               />
+              <motion.div
+                className="absolute -inset-3 rounded-full"
+                style={{ boxShadow: '0 0 40px 14px rgba(212,146,10,0.45), 0 0 80px 30px rgba(212,146,10,0.18)' }}
+                animate={{ opacity: [0.6, 1, 0.6], scale: [1, 1.06, 1] }}
+                transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+              />
+              <div className="relative rounded-full ring-2 ring-kuska-gold/60">
+                <Logo size={112} variant="dark" priority />
+              </div>
             </motion.div>
 
             <div
-              className="font-display text-6xl font-bold tracking-[0.45em] text-kuska-cream min-h-[80px] text-center"
-              style={{ textShadow: '0 0 48px rgba(212,146,10,0.55)' }}
+              className="font-display text-7xl font-bold tracking-[0.4em] text-kuska-cream min-h-[100px] text-center sm:text-8xl"
+              style={{ textShadow: '0 0 56px rgba(212,146,10,0.6)' }}
             >
               {displayed}
               {displayed.length < TYPEWRITER_TEXT.length && displayed.length > 0 && (
@@ -244,23 +227,7 @@ export function LoadingScreen() {
               )}
             </div>
 
-            {/* Frases — cursiva elegante, fade in/out, sin rectángulos */}
-            <div className="min-h-[28px] text-center">
-              <AnimatePresence mode="wait">
-                <motion.p
-                  key={fraseIndex}
-                  initial={{ opacity: 0, y: 10, filter: 'blur(5px)' }}
-                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                  exit={{ opacity: 0, y: -10, filter: 'blur(5px)' }}
-                  transition={{ duration: 0.5, ease: 'easeInOut' }}
-                  className="font-display text-base italic text-kuska-cream/80"
-                >
-                  {FRASES[fraseIndex]}
-                </motion.p>
-              </AnimatePresence>
-            </div>
-
-            {/* Porcentaje en tiempo real */}
+            {/* Porcentaje — arriba de la barra */}
             <p
               className="font-nunito text-sm font-bold tabular-nums tracking-[0.2em] text-kuska-gold"
               style={{ textShadow: '0 0 20px rgba(212,146,10,0.6)' }}
@@ -279,6 +246,22 @@ export function LoadingScreen() {
                   boxShadow: '0 0 16px 2px rgba(242,135,46,0.5)',
                 }}
               />
+            </div>
+
+            {/* Frases — cursiva elegante, debajo de la barra, fade in/out */}
+            <div className="min-h-[28px] text-center">
+              <AnimatePresence mode="wait">
+                <motion.p
+                  key={fraseIndex}
+                  initial={{ opacity: 0, y: 10, filter: 'blur(5px)' }}
+                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                  exit={{ opacity: 0, y: -10, filter: 'blur(5px)' }}
+                  transition={{ duration: 0.5, ease: 'easeInOut' }}
+                  className="font-display text-base italic text-kuska-cream/80"
+                >
+                  {FRASES[fraseIndex]}
+                </motion.p>
+              </AnimatePresence>
             </div>
           </div>
 
@@ -317,15 +300,16 @@ export function LoadingScreen() {
             </motion.div>
           </div>
 
-          {/* Layer 20 — Destello de luz final: ilumina toda la pantalla y
-              transiciona suavemente hacia la página principal. */}
+          {/* Destello de luz final: ilumina toda la pantalla con una
+              transición fluida (easeInOut de doble tramo + blur creciente)
+              hacia la página principal. */}
           {flash && (
             <>
               <motion.div
                 className="absolute inset-0 z-20 pointer-events-none"
                 initial={{ opacity: 0 }}
-                animate={{ opacity: [0, 1, 0] }}
-                transition={{ duration: FLASH_DURATION_MS / 1000, ease: 'easeInOut' }}
+                animate={{ opacity: [0, 1, 1, 0] }}
+                transition={{ duration: FLASH_DURATION_MS / 1000, times: [0, 0.4, 0.6, 1], ease: 'easeInOut' }}
                 style={{
                   background:
                     'radial-gradient(circle at 50% 50%, #FFF6E0 0%, #F2C230 35%, #F2872E 65%, transparent 100%)',
@@ -334,8 +318,8 @@ export function LoadingScreen() {
               <motion.div
                 className="absolute inset-0 z-20 pointer-events-none"
                 initial={{ scale: 0, opacity: 1 }}
-                animate={{ scale: 3.2, opacity: 0 }}
-                transition={{ duration: FLASH_DURATION_MS / 1000, ease: 'easeOut' }}
+                animate={{ scale: 3.6, opacity: 0 }}
+                transition={{ duration: FLASH_DURATION_MS / 1000, ease: [0.16, 1, 0.3, 1] }}
                 style={{
                   background:
                     'radial-gradient(ellipse, rgba(255,246,224,0.95) 0%, rgba(242,135,46,0.6) 45%, transparent 72%)',
