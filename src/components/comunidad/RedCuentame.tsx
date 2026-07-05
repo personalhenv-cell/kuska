@@ -97,9 +97,9 @@ function PostCard({ post, onReact }: { post: PostItem; onReact: (id: string) => 
 
       {post.images.length > 0 && (
         <div className="mt-3 grid grid-cols-2 gap-2">
-          {post.images.map((url) => (
+          {post.images.map((url, idx) => (
             <div key={url} className="relative aspect-square overflow-hidden rounded-btn">
-              <Image src={url} alt="" fill className="object-cover" />
+              <Image src={url} alt={`Imagen del post por ${post.author.name} (${idx + 1})`} fill className="object-cover" />
             </div>
           ))}
         </div>

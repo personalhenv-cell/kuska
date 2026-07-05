@@ -66,7 +66,7 @@ export default async function ComunidadPublicaPage() {
 
                 {p.images[0] && (
                   <div className="relative mt-3 h-64 w-full overflow-hidden rounded-card">
-                    <Image src={p.images[0]} alt="" fill className="object-cover" />
+                    <Image src={p.images[0]} alt={`Imagen del post por ${p.author.name}`} fill className="object-cover" />
                   </div>
                 )}
 
