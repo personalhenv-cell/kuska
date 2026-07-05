@@ -1,7 +1,7 @@
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/auth/config'
 import { prisma } from '@/lib/prisma'
-import { anthropic, KUSKA_AI_MODEL } from '@/lib/anthropic'
+import { streamGemini } from '@/lib/gemini'
 
 export async function POST() {
   const session = await getServerSession(authOptions)
@@ -55,29 +55,10 @@ ${entrepreneurList}
 
 Sugiere los 2-3 emprendedores con mejor potencial de colaboración con este artesano, explicando brevemente por qué en cada caso (1-2 líneas). Si ninguno encaja bien, dilo honestamente.`
 
-  const stream = anthropic.messages.stream({
-    model: KUSKA_AI_MODEL,
-    max_tokens: 500,
-    system: systemPrompt,
+  const readable = streamGemini({
+    systemPrompt,
     messages: [{ role: 'user', content: userPrompt }],
-  })
-
-  const encoder = new TextEncoder()
-  const readable = new ReadableStream({
-    async start(controller) {
-      try {
-        for await (const event of stream) {
-          if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
-            controller.enqueue(encoder.encode(event.delta.text))
-          }
-        }
-      } catch (e) {
-        console.error('[match-emprendedores] error de streaming:', e instanceof Error ? e.message : e)
-        controller.enqueue(encoder.encode('\n\n[Error buscando matches. Intenta de nuevo.]'))
-      } finally {
-        controller.close()
-      }
-    },
+    maxOutputTokens: 500,
   })
 
   return new Response(readable, {

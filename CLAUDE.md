@@ -24,7 +24,7 @@ pagos son UI simulada; todo lo demás es funcional.
 | Auth | Auth.js v4 (NextAuth) — **RAW SQL para `sessions` y `otp_codes`** |
 | Estilos | Tailwind CSS + CSS custom properties |
 | Animación | Framer Motion 11.3.8 (+ GSAP donde aplique) |
-| IA | Anthropic `claude-sonnet-4-6` (streaming) |
+| IA | Google Gemini `gemini-2.5-flash` (streaming SSE, ver `src/lib/gemini.ts`). Marca visible al usuario: "Kuska IA" — sin nombrar el proveedor de backend en la UI. |
 | Tiempo real | Pusher |
 | Imágenes | Vercel Blob |
 | Email | Resend · Video | Mux · Errores | Sentry · Push | OneSignal |

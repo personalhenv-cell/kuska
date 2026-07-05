@@ -2,7 +2,7 @@ import { getServerSession } from 'next-auth'
 import { z } from 'zod'
 import { authOptions } from '@/auth/config'
 import { prisma } from '@/lib/prisma'
-import { anthropic, KUSKA_AI_MODEL } from '@/lib/anthropic'
+import { streamGemini } from '@/lib/gemini'
 
 const MessageSchema = z.object({
   messages: z
@@ -73,29 +73,10 @@ Datos del taller del artesano:
 
 Da respuestas breves (máximo 4-5 líneas), accionables, y si detectas alertas reales en los datos (stock bajo, productos sin ventas) menciónalas proactivamente.`
 
-  const stream = anthropic.messages.stream({
-    model: KUSKA_AI_MODEL,
-    max_tokens: 500,
-    system: systemPrompt,
+  const readable = streamGemini({
+    systemPrompt,
     messages: parsed.data.messages,
-  })
-
-  const encoder = new TextEncoder()
-  const readable = new ReadableStream({
-    async start(controller) {
-      try {
-        for await (const event of stream) {
-          if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
-            controller.enqueue(encoder.encode(event.delta.text))
-          }
-        }
-      } catch (e) {
-        console.error('[cfo-bot] error de streaming:', e instanceof Error ? e.message : e)
-        controller.enqueue(encoder.encode('\n\n[Error de conexión con el CFO-Bot. Intenta de nuevo.]'))
-      } finally {
-        controller.close()
-      }
-    },
+    maxOutputTokens: 500,
   })
 
   return new Response(readable, {

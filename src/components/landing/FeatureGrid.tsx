@@ -1,10 +1,13 @@
 'use client'
 
 import Link from 'next/link'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Badge } from '@/components/ui/Badge'
 import { Kusi } from '@/components/ui/Kusi'
 import { TiltCard } from '@/components/ui/TiltCard'
+import { cn } from '@/lib/utils'
+import { AiFeatureModal, type AiFeatureDetail } from './AiFeatureModal'
 
 type Role = 'Artesano' | 'Cliente' | 'Emprendedor'
 type Accent = 'red' | 'gold' | 'teal'
@@ -17,12 +20,51 @@ interface Feature {
   accent: Accent
   subFeatures: [string, string]
   big?: boolean
+  /** Si está presente, la card abre un modal de detalle de IA en vez de solo hover. */
+  aiDetail?: AiFeatureDetail
+}
+
+const AI_DETAILS: Record<'cfo-bot' | 'emprendedor', AiFeatureDetail> = {
+  'cfo-bot': {
+    icon: '🤖',
+    title: 'CFO-Bot IA',
+    tagline: 'Tu asesor financiero personal, disponible 24/7',
+    description:
+      'El CFO-Bot analiza en tiempo real las ventas, el stock y las visitas de tus productos para darte recomendaciones concretas — no genéricas. Chatea con él como con un asesor de confianza, en español y con datos reales de tu taller.',
+    highlights: [
+      'Alertas automáticas de stock bajo y productos sin ventas',
+      'Recomendaciones basadas en tus datos reales, nunca inventadas',
+      'Chat con streaming en tiempo real, disponible cuando lo necesites',
+      'Exclusivo del plan Artesano Maestro',
+    ],
+    gateLabel: 'Plan Maestro',
+    ctaLabel: 'Ver planes para artesanos',
+    ctaHref: '/precios',
+    accent: 'gold',
+  },
+  emprendedor: {
+    icon: '💡',
+    title: 'Emprendedor IA',
+    tagline: 'Tu plan de negocio, listo en minutos',
+    description:
+      'Cuéntale a Kuska IA tu idea de negocio — rubro, mercado, presupuesto — y recibe un plan de negocio completo y accionable, con análisis de mercado, propuesta de valor y proyecciones financieras. Descárgalo en PDF y preséntalo donde lo necesites.',
+    highlights: [
+      'Plan de negocio estructurado en segundos, no en semanas',
+      'Análisis de mercado y propuesta de valor personalizados',
+      'Descarga en PDF, listo para compartir con inversionistas',
+      'Disponible para clientes marcados como emprendedores',
+    ],
+    gateLabel: 'Clientes Emprendedores',
+    ctaLabel: 'Crear mi cuenta de cliente',
+    ctaHref: '/registro/cliente',
+    accent: 'teal',
+  },
 }
 
 const FEATURES: Feature[] = [
   { icon: '🛍️', title: 'Marketplace', text: 'Vende tu arte al Perú y al mundo', role: 'Artesano', accent: 'red', subFeatures: ['Tienda personalizada', 'Pagos simulados'], big: true },
-  { icon: '🤖', title: 'CFO-Bot IA', text: 'Tu asesor financiero personal con IA', role: 'Artesano', accent: 'gold', subFeatures: ['Chat financiero 24/7', 'Reportes automáticos'], big: true },
-  { icon: '💡', title: 'Emprendedor IA', text: 'Planes de negocio generados por IA', role: 'Emprendedor', accent: 'teal', subFeatures: ['Plan de negocio en PDF', 'Proyecciones de venta'] },
+  { icon: '🤖', title: 'CFO-Bot IA', text: 'Tu asesor financiero personal con IA', role: 'Artesano', accent: 'gold', subFeatures: ['Chat financiero 24/7', 'Reportes automáticos'], big: true, aiDetail: AI_DETAILS['cfo-bot'] },
+  { icon: '💡', title: 'Emprendedor IA', text: 'Planes de negocio generados por IA', role: 'Emprendedor', accent: 'teal', subFeatures: ['Plan de negocio en PDF', 'Proyecciones de venta'], aiDetail: AI_DETAILS['emprendedor'] },
   { icon: '🎓', title: 'Academia Kuska', text: 'Aprende y certifícate en tu oficio', role: 'Artesano', accent: 'gold', subFeatures: ['Cursos por video', 'Certificado con QR'] },
   { icon: '🖥️', title: 'Ferias Digitales', text: 'Exhibe en eventos virtuales temáticos', role: 'Artesano', accent: 'teal', subFeatures: ['Stand virtual 3D', 'Calendario de eventos'] },
   { icon: '🧵', title: 'Talleres', text: 'Enseña y comparte tu técnica ancestral', role: 'Artesano', accent: 'red', subFeatures: ['Clases en vivo', 'Material descargable'] },
@@ -47,6 +89,8 @@ const ROLE_BADGE: Record<Role, string> = {
 }
 
 export function FeatureGrid() {
+  const [activeFeature, setActiveFeature] = useState<AiFeatureDetail | null>(null)
+
   return (
     <section className="mx-auto max-w-6xl px-6 py-20">
       <div className="mx-auto max-w-2xl text-center">
@@ -82,7 +126,25 @@ export function FeatureGrid() {
             className={f.big ? 'col-span-2' : ''}
           >
             <TiltCard className="group h-full min-h-[280px] rounded-card">
-              <div className="flex h-full min-h-[280px] flex-col rounded-card border border-kuska-border bg-white p-6 transition-shadow duration-300 group-hover:shadow-[0_18px_40px_rgba(61,28,2,0.12),0_0_24px_rgba(212,146,10,0.15)]">
+              <div
+                className={cn(
+                  'flex h-full min-h-[280px] flex-col rounded-card border border-kuska-border bg-white p-6 transition-shadow duration-300 group-hover:shadow-[0_18px_40px_rgba(61,28,2,0.12),0_0_24px_rgba(212,146,10,0.15)]',
+                  f.aiDetail && 'cursor-pointer',
+                )}
+                role={f.aiDetail ? 'button' : undefined}
+                tabIndex={f.aiDetail ? 0 : undefined}
+                onClick={f.aiDetail ? () => setActiveFeature(f.aiDetail!) : undefined}
+                onKeyDown={
+                  f.aiDetail
+                    ? (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault()
+                          setActiveFeature(f.aiDetail!)
+                        }
+                      }
+                    : undefined
+                }
+              >
                 <div className="flex items-start justify-between gap-2">
                   <div
                     className="flex h-14 w-14 items-center justify-center rounded-full text-2xl shadow-sm"
@@ -110,6 +172,11 @@ export function FeatureGrid() {
                     </li>
                   ))}
                 </ul>
+                {f.aiDetail && (
+                  <span className="mt-3 inline-flex items-center gap-1 font-nunito text-xs font-bold text-kuska-gold opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                    Ver detalle →
+                  </span>
+                )}
               </div>
             </TiltCard>
           </motion.div>
@@ -151,6 +218,8 @@ export function FeatureGrid() {
           </TiltCard>
         </motion.div>
       </motion.div>
+
+      <AiFeatureModal feature={activeFeature} onClose={() => setActiveFeature(null)} />
     </section>
   )
 }

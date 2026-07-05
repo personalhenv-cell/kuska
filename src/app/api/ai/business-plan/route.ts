@@ -1,7 +1,7 @@
 import { getServerSession } from 'next-auth'
 import { z } from 'zod'
 import { authOptions } from '@/auth/config'
-import { anthropic, KUSKA_AI_MODEL } from '@/lib/anthropic'
+import { streamGemini } from '@/lib/gemini'
 
 const PlanSchema = z.object({
   business_name: z.string().min(2).max(120),
@@ -43,29 +43,10 @@ export async function POST(req: Request) {
 - Presupuesto inicial: S/ ${initial_budget}
 - Región: ${region}`
 
-  const stream = anthropic.messages.stream({
-    model: KUSKA_AI_MODEL,
-    max_tokens: 900,
-    system: systemPrompt,
+  const readable = streamGemini({
+    systemPrompt,
     messages: [{ role: 'user', content: userPrompt }],
-  })
-
-  const encoder = new TextEncoder()
-  const readable = new ReadableStream({
-    async start(controller) {
-      try {
-        for await (const event of stream) {
-          if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
-            controller.enqueue(encoder.encode(event.delta.text))
-          }
-        }
-      } catch (e) {
-        console.error('[business-plan] error de streaming:', e instanceof Error ? e.message : e)
-        controller.enqueue(encoder.encode('\n\n[Error generando el plan. Intenta de nuevo.]'))
-      } finally {
-        controller.close()
-      }
-    },
+    maxOutputTokens: 1300,
   })
 
   return new Response(readable, {

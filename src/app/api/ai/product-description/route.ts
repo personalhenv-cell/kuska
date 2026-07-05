@@ -2,7 +2,7 @@ import { getServerSession } from 'next-auth'
 import { z } from 'zod'
 import { authOptions } from '@/auth/config'
 import { prisma } from '@/lib/prisma'
-import { anthropic, KUSKA_AI_MODEL } from '@/lib/anthropic'
+import { streamGemini } from '@/lib/gemini'
 
 const DescriptionSchema = z.object({
   name: z.string().min(1).max(120),
@@ -52,28 +52,10 @@ export async function POST(req: Request) {
 ${materials ? `- Materiales: ${materials}` : ''}
 ${notes ? `- Notas del artesano: ${notes}` : ''}`
 
-  const stream = anthropic.messages.stream({
-    model: KUSKA_AI_MODEL,
-    max_tokens: 400,
-    system: systemPrompt,
+  const readable = streamGemini({
+    systemPrompt,
     messages: [{ role: 'user', content: userPrompt }],
-  })
-
-  const encoder = new TextEncoder()
-  const readable = new ReadableStream({
-    async start(controller) {
-      try {
-        for await (const event of stream) {
-          if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
-            controller.enqueue(encoder.encode(event.delta.text))
-          }
-        }
-      } catch {
-        controller.enqueue(encoder.encode('\n\n[Error generando la descripción. Intenta de nuevo.]'))
-      } finally {
-        controller.close()
-      }
-    },
+    maxOutputTokens: 400,
   })
 
   return new Response(readable, {
