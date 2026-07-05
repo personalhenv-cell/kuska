@@ -9,7 +9,10 @@ export default async function AdminCapitalizacionPage() {
     orderBy: { deadline: 'asc' },
     include: {
       applications: {
-        include: { artisan: { include: { user: { select: { name: true } } } } },
+        include: {
+          artisan: { include: { user: { select: { name: true } } } },
+          client: { include: { user: { select: { name: true } } } },
+        },
       },
     },
   })
@@ -41,14 +44,20 @@ export default async function AdminCapitalizacionPage() {
                 <table className="w-full text-left">
                   <thead>
                     <tr>
-                      <th className="py-1.5 font-nunito text-xs font-bold uppercase text-kuska-text-mid">Artesano</th>
+                      <th className="py-1.5 font-nunito text-xs font-bold uppercase text-kuska-text-mid">Postulante</th>
+                      <th className="py-1.5 font-nunito text-xs font-bold uppercase text-kuska-text-mid">Tipo</th>
                       <th className="py-1.5 font-nunito text-xs font-bold uppercase text-kuska-text-mid">Estado</th>
                     </tr>
                   </thead>
                   <tbody>
                     {f.applications.map((a) => (
                       <tr key={a.id}>
-                        <td className="py-1.5 font-body text-sm text-kuska-text">{a.artisan.user.name}</td>
+                        <td className="py-1.5 font-body text-sm text-kuska-text">
+                          {a.artisan?.user.name ?? a.client?.user.name ?? '—'}
+                        </td>
+                        <td className="py-1.5 font-nunito text-xs text-kuska-text-mid">
+                          {a.artisan ? '🎨 Artesano' : '🚀 Emprendedor'}
+                        </td>
                         <td className="py-1.5">
                           <ApplicationStatusSelect applicationId={a.id} status={a.status} />
                         </td>

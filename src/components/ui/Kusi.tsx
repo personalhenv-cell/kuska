@@ -13,9 +13,21 @@ type KusiAnimation =
   | 'idle'
   | 'sleep'
 
+/** Expresiones ilustradas reales (no el sprite base con CSS) — para estados
+ *  emocionales concretos: vacíos, errores, confirmaciones, onboarding. */
+type KusiExpression =
+  | 'triste'
+  | 'molesto'
+  | 'explicando'
+  | 'dudoso'
+  | 'sorprendido'
+  | 'asustado'
+
 interface KusiProps {
   size?: KusiSize
   animation?: KusiAnimation
+  /** Si se pasa, reemplaza /kusi.png por la ilustración de esa expresión. */
+  expression?: KusiExpression
   message?: string
   messagePosition?: 'top' | 'bottom'
   className?: string
@@ -40,6 +52,15 @@ const animationClass: Record<KusiAnimation, string> = {
   sleep: 'animate-kusi-sleep',
 }
 
+const expressionSrc: Record<KusiExpression, string> = {
+  triste: '/kusi/kusi-triste.png',
+  molesto: '/kusi/kusi-molesto.png',
+  explicando: '/kusi/kusi-explicando.png',
+  dudoso: '/kusi/kusi-dudoso.png',
+  sorprendido: '/kusi/kusi-sorprendido.png',
+  asustado: '/kusi/kusi-asustado.png',
+}
+
 function Bubble({ message }: { message: string }) {
   return (
     <div
@@ -54,19 +75,22 @@ function Bubble({ message }: { message: string }) {
 export function Kusi({
   size = 'md',
   animation = 'idle',
+  expression,
   message,
   messagePosition = 'top',
   className,
   priority = false,
 }: KusiProps) {
   const px = sizeMap[size]
+  const src = expression ? expressionSrc[expression] : '/kusi.png'
+  const alt = expression ? `Kusi, la mascota alpaca de Kuska, ${expression}` : 'Kusi, la mascota alpaca de Kuska'
 
   return (
     <div className={cn('flex flex-col items-center gap-3', className)}>
       {message && messagePosition === 'top' && <Bubble message={message} />}
       <Image
-        src="/kusi.png"
-        alt="Kusi, la mascota alpaca de Kuska"
+        src={src}
+        alt={alt}
         width={px}
         height={px}
         priority={priority}

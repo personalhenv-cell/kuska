@@ -95,6 +95,8 @@ model ClientProfile {
   created_at       DateTime @default(now())
   updated_at       DateTime @updatedAt
 
+  fund_applications FundApplication[]
+
   @@map("client_profiles")
 }
 
@@ -274,6 +276,10 @@ model Workshop {
   capacity             Int
   price                Float    @default(0)
   is_virtual           Boolean  @default(true)
+  /// Dirección física — obligatoria si is_virtual=false, ej. "Jr. Los Andes 123, Chinchero, Cusco"
+  location             String?
+  /// Enlace de videollamada (Zoom/Meet/etc.) — solo si is_virtual=true
+  meeting_url          String?
   materials_url        String?
   certificate_template String?
   created_at           DateTime @default(now())
@@ -331,8 +337,14 @@ model FundOpportunity {
 
 model FundApplication {
   id             String          @id @default(cuid())
-  artisan_id     String
-  artisan        ArtisanProfile  @relation(fields: [artisan_id], references: [id])
+  /// Exactamente uno de artisan_id / client_id está presente — el Hub de
+  /// Capitalización lo pueden usar tanto artesanos (plan Maestro) como
+  /// clientes marcados como emprendedores. Se valida en la Server Action,
+  /// no a nivel de DB (Prisma no soporta CHECK constraints declarativos).
+  artisan_id     String?
+  artisan        ArtisanProfile?  @relation(fields: [artisan_id], references: [id])
+  client_id      String?
+  client         ClientProfile?   @relation(fields: [client_id], references: [id])
   opportunity_id String
   opportunity    FundOpportunity @relation(fields: [opportunity_id], references: [id])
   status         String          @default("en_revision")
