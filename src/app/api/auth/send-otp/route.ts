@@ -63,27 +63,17 @@ export async function POST(req: Request) {
     expiresAt,
   )
 
-  const isDev = process.env.NODE_ENV !== 'production'
-
-  if (!user.email) {
-    return NextResponse.json(
-      { error: 'Tu cuenta no tiene un correo registrado para recibir el código.' },
-      { status: 422 },
-    )
-  }
-
-  // await (no fire-and-forget): sin esto el código nunca llega en serverless.
-  const emailResult = await sendOtpEmail({ to: user.email, name: user.name, code })
-  if (!emailResult.ok && !isDev) {
-    return NextResponse.json(
-      { error: 'No pudimos enviar el código. Intenta de nuevo en unos segundos.' },
-      { status: 502 },
-    )
-  }
+  // El código siempre se devuelve en la respuesta y se muestra en pantalla:
+  // Resend está en modo de prueba (solo entrega a la cuenta propia del
+  // remitente) hasta que se verifique un dominio propio, así que mostrar el
+  // código es el canal de entrega real hoy, no solo un fallback de desarrollo.
+  const emailResult = user.email
+    ? await sendOtpEmail({ to: user.email, name: user.name, code })
+    : { ok: false }
 
   return NextResponse.json({
     ok: true,
     channel: emailResult.ok ? 'email' : 'none',
-    devCode: isDev ? code : undefined,
+    devCode: code,
   })
 }

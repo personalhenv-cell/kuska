@@ -64,11 +64,13 @@ export async function POST(req: Request) {
   const otpResult = await sendOtpEmail({ to: user.email!, name: user.name, code })
   await sendWelcomeEmail({ to: user.email, name: user.name, role: 'artesano' })
 
-  const isDev = process.env.NODE_ENV !== 'production'
+  // El código siempre se devuelve: Resend está en modo de prueba (solo
+  // entrega a la cuenta propia del remitente) hasta verificar un dominio
+  // propio, así que mostrarlo en pantalla es el canal de entrega real hoy.
   return NextResponse.json({
     ok: true,
     userId: user.id,
     otpSent: otpResult.ok,
-    devCode: isDev ? code : undefined,
+    devCode: code,
   }, { status: 201 })
 }

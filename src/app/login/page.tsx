@@ -139,11 +139,11 @@ export default function LoginPage() {
               <div className="space-y-5">
                 <div className="text-center">
                   <h1 className="font-display text-2xl font-bold text-kuska-cream">Verifica tu cuenta</h1>
-                  <p className="mt-1 font-body text-sm text-kuska-cream/65">Revisa el correo asociado a {phone}</p>
+                  <p className="mt-1 font-body text-sm text-kuska-cream/65">Ingresa el código para {phone}</p>
                 </div>
                 {devCode && (
                   <div className="rounded-card border border-kuska-gold/40 bg-kuska-gold/10 p-4 text-center">
-                    <p className="font-nunito text-xs text-kuska-cream/60">Código OTP (modo demo)</p>
+                    <p className="font-nunito text-xs text-kuska-cream/60">Tu código de acceso</p>
                     <p className="font-display text-3xl font-bold tracking-[0.3em] text-kuska-gold">{devCode}</p>
                   </div>
                 )}
