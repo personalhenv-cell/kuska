@@ -63,17 +63,20 @@ export async function POST(req: Request) {
     expiresAt,
   )
 
-  // El código siempre se devuelve en la respuesta y se muestra en pantalla:
-  // Resend está en modo de prueba (solo entrega a la cuenta propia del
-  // remitente) hasta que se verifique un dominio propio, así que mostrar el
-  // código es el canal de entrega real hoy, no solo un fallback de desarrollo.
   const emailResult = user.email
     ? await sendOtpEmail({ to: user.email, name: user.name, code })
     : { ok: false }
 
+  // El código NUNCA se devuelve aquí (a diferencia del registro): este
+  // endpoint es público y solo recibe un teléfono — si devolviera el código
+  // de una cuenta ya existente, cualquiera que conociera (o adivinara) el
+  // teléfono de otra persona podría iniciar sesión como ella. En el registro
+  // sí es seguro mostrarlo porque el código es de la cuenta que se está
+  // creando en esa misma request, no de una cuenta ajena preexistente.
+  const isDev = process.env.NODE_ENV !== 'production'
   return NextResponse.json({
     ok: true,
     channel: emailResult.ok ? 'email' : 'none',
-    devCode: code,
+    devCode: isDev ? code : undefined,
   })
 }

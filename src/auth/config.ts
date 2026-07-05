@@ -14,6 +14,14 @@ interface AuthRow {
   is_entrepreneur: boolean | null
 }
 
+interface ActiveOtpRow {
+  id: string
+  code: string
+  attempts: number
+}
+
+const MAX_OTP_ATTEMPTS = 5
+
 /**
  * NextAuth v4 — Login por OTP.
  *
@@ -38,6 +46,35 @@ export const authOptions: NextAuthOptions = {
         const phone = normalizePeruPhone(credentials.phone)
         if (!phone) return null
 
+        const userRows = await prisma.$queryRawUnsafe<{ id: string }[]>(
+          `SELECT id FROM users WHERE phone = $1 LIMIT 1`,
+          phone,
+        )
+        if (!userRows || userRows.length === 0) return null
+        const userId = userRows[0].id
+
+        // El OTP más reciente vigente para este usuario, sin importar si el
+        // código coincide — así podemos limitar intentos (fuerza bruta sobre
+        // un código de 6 dígitos en 5 min) independientemente de si acertó.
+        const activeOtp = await prisma.$queryRawUnsafe<ActiveOtpRow[]>(
+          `SELECT id, code, attempts FROM otp_codes
+           WHERE user_id = $1 AND expires_at > NOW() AND used = false
+           ORDER BY created_at DESC LIMIT 1`,
+          userId,
+        )
+        if (!activeOtp || activeOtp.length === 0) return null
+        const otp = activeOtp[0]
+
+        if (otp.attempts >= MAX_OTP_ATTEMPTS) return null
+
+        if (otp.code !== credentials.otp) {
+          await prisma.$executeRawUnsafe(
+            `UPDATE otp_codes SET attempts = attempts + 1 WHERE id = $1`,
+            otp.id,
+          )
+          return null
+        }
+
         const rows = await prisma.$queryRawUnsafe<AuthRow[]>(
           `SELECT u.id, u.name, u.phone, u.role,
                   ap.id AS artisan_profile_id,
@@ -45,25 +82,16 @@ export const authOptions: NextAuthOptions = {
            FROM users u
            LEFT JOIN artisan_profiles ap ON ap.user_id = u.id
            LEFT JOIN client_profiles cp ON cp.user_id = u.id
-           JOIN otp_codes o ON o.user_id = u.id
-           WHERE u.phone = $1
-             AND o.code = $2
-             AND o.expires_at > NOW()
-             AND o.used = false
-           ORDER BY o.created_at DESC
-           LIMIT 1`,
-          phone,
-          credentials.otp,
+           WHERE u.id = $1`,
+          userId,
         )
-
         if (!rows || rows.length === 0) return null
         const row = rows[0]
 
         // Marcar el OTP como usado — statement separado.
         await prisma.$executeRawUnsafe(
-          `UPDATE otp_codes SET used = true WHERE code = $1 AND user_id = $2`,
-          credentials.otp,
-          row.id,
+          `UPDATE otp_codes SET used = true WHERE id = $1`,
+          otp.id,
         )
 
         return {
