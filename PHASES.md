@@ -159,8 +159,9 @@ Estado: ✅ hecho · 🟡 en progreso · ⬜ pendiente
       del id del ArtisanProfile (404) — ahora usa p.id, verificado en vivo.
 - [x] Seed de contenido de demo idempotente listo (prisma/seed.ts):
       `npx prisma db seed` puebla talleres/ferias/academia/comunidad.
-- [ ] Poblar el contenido de demo en producción (pendiente de decisión
-      del usuario — escritura a la DB de producción).
+- [x] Contenido de demo poblado en producción (autorizado por el usuario):
+      5 talleres, 2 ferias, 4 artículos de Academia y 5 posts de comunidad,
+      atados a los 5 artesanos reales. Verificado en vivo (listado + detalle).
 - [ ] Hero parallax GSAP ScrollTrigger (opcional — versión Framer entregada).
 
 ## ✅ Verificación end-to-end en producción (kuska-cyan.vercel.app)
