@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { Kusi } from '@/components/ui/Kusi'
 import { Button } from '@/components/ui/Button'
@@ -33,11 +33,59 @@ const floatingWords = [
 
 export function Hero() {
   const sectionRef = useRef<HTMLElement>(null)
+  const sunRef = useRef<HTMLDivElement>(null)
+  const wordsRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ['start start', 'end start'],
   })
   const kusiY = useTransform(scrollYProgress, [0, 1], [0, 70])
+
+  // Parallax GSAP ScrollTrigger sobre las capas de fondo (sol + palabras
+  // quechua) para dar profundidad multi-capa. Import dinámico (regla #6):
+  // GSAP solo se carga en el cliente, nunca en el bundle de SSR. Respeta
+  // prefers-reduced-motion y limpia sus ScrollTriggers al desmontar.
+  useEffect(() => {
+    const section = sectionRef.current
+    if (!section) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
+    let ctx: { revert: () => void } | undefined
+    let cancelled = false
+
+    ;(async () => {
+      const { gsap } = await import('gsap')
+      const { ScrollTrigger } = await import('gsap/ScrollTrigger')
+      if (cancelled) return
+      gsap.registerPlugin(ScrollTrigger)
+
+      ctx = gsap.context(() => {
+        // El sol dorado sube y se agranda un poco al hacer scroll (capa lejana).
+        if (sunRef.current) {
+          gsap.to(sunRef.current, {
+            yPercent: -22,
+            scale: 1.15,
+            ease: 'none',
+            scrollTrigger: { trigger: section, start: 'top top', end: 'bottom top', scrub: 0.6 },
+          })
+        }
+        // Las palabras quechua se desplazan hacia arriba (capa intermedia,
+        // más rápida que el fondo → sensación de profundidad).
+        if (wordsRef.current) {
+          gsap.to(wordsRef.current, {
+            yPercent: -14,
+            ease: 'none',
+            scrollTrigger: { trigger: section, start: 'top top', end: 'bottom top', scrub: 0.6 },
+          })
+        }
+      }, section)
+    })()
+
+    return () => {
+      cancelled = true
+      ctx?.revert()
+    }
+  }, [])
 
   return (
     <section
@@ -46,7 +94,8 @@ export function Hero() {
     >
       {/* Sol espiral dorado */}
       <div
-        className="pointer-events-none absolute -right-32 -top-20 h-[420px] w-[420px] rounded-full opacity-[0.18]"
+        ref={sunRef}
+        className="pointer-events-none absolute -right-32 -top-20 h-[420px] w-[420px] rounded-full opacity-[0.18] will-change-transform"
         style={{
           background:
             'radial-gradient(circle, rgba(212,146,10,0.9) 0%, rgba(212,146,10,0) 70%)',
@@ -54,23 +103,25 @@ export function Hero() {
         aria-hidden
       />
 
-      {/* Frases quechua flotantes de fondo — 20 palabras, tamaños 48-130px */}
-      {floatingWords.map((w, i) => (
-        <motion.span
-          key={w.text}
-          className="pointer-events-none absolute font-display font-bold text-kuska-brown"
-          style={{ top: w.top, left: w.left, fontSize: `${w.size}px`, opacity: 0.055 }}
-          animate={{ y: [0, -12, 0] }}
-          transition={{
-            duration: 6 + (i % 6),
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-          aria-hidden
-        >
-          {w.text}
-        </motion.span>
-      ))}
+      {/* Frases quechua flotantes de fondo — 20 palabras, tamaños 48-130px.
+          Envueltas en una capa propia para el parallax GSAP (ver useEffect). */}
+      <div ref={wordsRef} className="pointer-events-none absolute inset-0 will-change-transform" aria-hidden>
+        {floatingWords.map((w, i) => (
+          <motion.span
+            key={w.text}
+            className="absolute font-display font-bold text-kuska-brown"
+            style={{ top: w.top, left: w.left, fontSize: `${w.size}px`, opacity: 0.055 }}
+            animate={{ y: [0, -12, 0] }}
+            transition={{
+              duration: 6 + (i % 6),
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          >
+            {w.text}
+          </motion.span>
+        ))}
+      </div>
 
       <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-6 lg:grid-cols-[1fr_0.8fr]">
         <motion.div

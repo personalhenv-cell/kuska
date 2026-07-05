@@ -50,7 +50,10 @@ Estado: ✅ hecho · 🟡 en progreso · ⬜ pendiente
       (`/api/artesanos/mapa` agrupa artesanos por región), popup con
       nombres → perfil público y link al marketplace filtrado por región.
       Carga dinámica ssr:false (regla #6). Marcadores de marca Kuska.
-- [ ] Hero parallax GSAP ScrollTrigger — pendiente (versión Framer entregada)
+- [x] Hero parallax GSAP ScrollTrigger: profundidad multi-capa sobre el sol
+      dorado y las palabras quechua (scrub), import dinámico ssr:false (regla
+      #6, GSAP fuera del bundle SSR), respeta prefers-reduced-motion y limpia
+      sus ScrollTriggers al desmontar. Convive con el parallax Framer del Kusi.
 
 ---
 
@@ -162,7 +165,7 @@ Estado: ✅ hecho · 🟡 en progreso · ⬜ pendiente
 - [x] Contenido de demo poblado en producción (autorizado por el usuario):
       5 talleres, 2 ferias, 4 artículos de Academia y 5 posts de comunidad,
       atados a los 5 artesanos reales. Verificado en vivo (listado + detalle).
-- [ ] Hero parallax GSAP ScrollTrigger (opcional — versión Framer entregada).
+- [x] Hero parallax GSAP ScrollTrigger (ver Fase 3).
 
 ## ✅ Verificación end-to-end en producción (kuska-cyan.vercel.app)
 Prueba real completa: registro → email con OTP → login → dashboard,
