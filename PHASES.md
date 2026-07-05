@@ -150,7 +150,18 @@ Estado: ✅ hecho · 🟡 en progreso · ⬜ pendiente
 - [x] Footer apuntaba a /impacto, /rutas, /biblioteca, /blog (todos 404) →
       repuntados a rutas reales (talleres, ferias, academia, comunidad).
 
-## ⬜ FASE 12 — Polish final y verificación
+## 🟡 FASE 12 — Polish final y verificación
+- [x] Barrido de enlaces internos: todos los href estáticos resuelven a
+      rutas reales (se corrigieron los 404 de Navbar/Footer, ver arriba).
+- [x] Barrido HTTP en producción: todas las rutas públicas 200, las
+      protegidas 307→login, las APIs públicas 200 — ningún 500.
+- [x] Bug real corregido: el popup del mapa enlazaba con user.id en vez
+      del id del ArtisanProfile (404) — ahora usa p.id, verificado en vivo.
+- [x] Seed de contenido de demo idempotente listo (prisma/seed.ts):
+      `npx prisma db seed` puebla talleres/ferias/academia/comunidad.
+- [ ] Poblar el contenido de demo en producción (pendiente de decisión
+      del usuario — escritura a la DB de producción).
+- [ ] Hero parallax GSAP ScrollTrigger (opcional — versión Framer entregada).
 
 ## ✅ Verificación end-to-end en producción (kuska-cyan.vercel.app)
 Prueba real completa: registro → email con OTP → login → dashboard,
