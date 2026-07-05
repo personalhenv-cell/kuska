@@ -22,7 +22,7 @@ export default async function FairDetailPage({ params }: { params: { id: string 
   return (
     <div className="min-h-screen bg-kuska-cream">
       <Navbar />
-      <main className="mx-auto max-w-5xl px-6 py-12">
+      <main className="mx-auto max-w-5xl px-6 pt-28 pb-12 sm:pt-32">
         <Link href="/ferias" className="font-body text-sm text-kuska-text-mid hover:text-kuska-red">← Todas las ferias</Link>
         <p className="mt-4 font-nunito text-xs font-bold uppercase tracking-wide text-kuska-gold">{fair.theme}</p>
         <h1 className="mt-1 font-display text-3xl font-bold text-kuska-text">{fair.title}</h1>

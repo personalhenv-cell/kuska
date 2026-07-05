@@ -27,7 +27,7 @@ export default async function ComunidadPublicaPage() {
   return (
     <div className="min-h-screen bg-kuska-cream">
       <Navbar />
-      <main className="mx-auto max-w-2xl px-6 py-12">
+      <main className="mx-auto max-w-2xl px-6 pt-28 pb-12 sm:pt-32">
         <p className="font-nunito text-xs font-bold uppercase tracking-wide text-kuska-gold">Comunidad Kuska</p>
         <h1 className="mt-1 font-display text-3xl font-bold text-kuska-text">Red Cuéntame</h1>
         <p className="mt-2 font-body text-kuska-text-mid">

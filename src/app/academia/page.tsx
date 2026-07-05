@@ -25,7 +25,7 @@ export default async function AcademiaPublicaPage() {
   return (
     <div className="min-h-screen bg-kuska-cream">
       <Navbar />
-      <main className="mx-auto max-w-5xl px-6 py-12">
+      <main className="mx-auto max-w-5xl px-6 pt-28 pb-12 sm:pt-32">
         <p className="font-nunito text-xs font-bold uppercase tracking-wide text-kuska-gold">Aprende con Kuska</p>
         <h1 className="mt-1 font-display text-3xl font-bold text-kuska-text md:text-4xl">Academia Kuska</h1>
         <p className="mt-2 max-w-2xl font-body text-kuska-text-mid">

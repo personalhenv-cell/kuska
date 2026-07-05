@@ -16,7 +16,7 @@ export default async function FeriasPage() {
   return (
     <div className="min-h-screen bg-kuska-cream">
       <Navbar />
-      <main className="mx-auto max-w-5xl px-6 py-12">
+      <main className="mx-auto max-w-5xl px-6 pt-28 pb-12 sm:pt-32">
         <h1 className="font-display text-3xl font-bold text-kuska-text">Ferias Digitales</h1>
         <p className="mt-2 font-body text-kuska-text-mid">Stands virtuales donde los artesanos de Kuska muestran su arte por temporada.</p>
 

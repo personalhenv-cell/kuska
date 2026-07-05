@@ -39,7 +39,7 @@ export default async function TallerDetailPage({ params }: { params: { id: strin
   return (
     <div className="min-h-screen bg-kuska-cream">
       <Navbar />
-      <main className="mx-auto max-w-3xl px-6 py-12">
+      <main className="mx-auto max-w-3xl px-6 pt-28 pb-12 sm:pt-32">
         <Link href="/talleres" className="font-body text-sm text-kuska-text-mid hover:text-kuska-red">
           ← Todos los talleres
         </Link>

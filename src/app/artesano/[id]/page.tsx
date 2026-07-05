@@ -41,7 +41,7 @@ export default async function ArtisanRaicesPage({ params }: PageProps) {
   return (
     <div className="min-h-screen bg-kuska-cream">
       <Navbar />
-      <main className="mx-auto max-w-4xl px-6 py-12">
+      <main className="mx-auto max-w-4xl px-6 pt-28 pb-12 sm:pt-32">
         <div className="flex items-center gap-4">
           <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-full border-2 border-kuska-gold bg-white">
             {artisan.user.avatar_url ? (
