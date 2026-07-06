@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { useSession } from 'next-auth/react'
+import toast from 'react-hot-toast'
 import { Button } from '@/components/ui/Button'
 import { RippleButton } from '@/components/ui/RippleButton'
 
@@ -46,6 +47,7 @@ function PostCard({ post, onReact }: { post: PostItem; onReact: (id: string) => 
   const [comments, setComments] = useState<CommentItem[]>([])
   const [loadingComments, setLoadingComments] = useState(false)
   const [newComment, setNewComment] = useState('')
+  const [submittingComment, setSubmittingComment] = useState(false)
 
   async function toggleComments() {
     setShowComments((prev) => !prev)
@@ -62,16 +64,25 @@ function PostCard({ post, onReact }: { post: PostItem; onReact: (id: string) => 
   }
 
   async function submitComment() {
-    if (!newComment.trim()) return
-    const res = await fetch(`/api/posts/${post.id}/comments`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content: newComment }),
-    })
-    if (res.ok) {
-      const data: { comment: { id: string; content: string; created_at: string } } = await res.json()
-      setComments((prev) => [...prev, { ...data.comment, author: null }])
-      setNewComment('')
+    if (!newComment.trim() || submittingComment) return
+    setSubmittingComment(true)
+    try {
+      const res = await fetch(`/api/posts/${post.id}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: newComment }),
+      })
+      if (res.ok) {
+        const data: { comment: { id: string; content: string; created_at: string } } = await res.json()
+        setComments((prev) => [...prev, { ...data.comment, author: null }])
+        setNewComment('')
+      } else {
+        toast.error('No se pudo publicar el comentario')
+      }
+    } catch {
+      toast.error('Error de red. Intenta de nuevo.')
+    } finally {
+      setSubmittingComment(false)
     }
   }
 
@@ -131,10 +142,15 @@ function PostCard({ post, onReact }: { post: PostItem; onReact: (id: string) => 
               onChange={(e) => setNewComment(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && submitComment()}
               placeholder="Escribe un comentario…"
-              className="flex-1 rounded-btn border border-kuska-border px-3 py-1.5 font-body text-sm focus:border-kuska-gold focus:outline-none"
+              disabled={submittingComment}
+              className="flex-1 rounded-btn border border-kuska-border px-3 py-1.5 font-body text-sm focus:border-kuska-gold focus:outline-none disabled:opacity-50"
             />
-            <button onClick={submitComment} className="font-body text-sm font-semibold text-kuska-red">
-              Enviar
+            <button
+              onClick={submitComment}
+              disabled={submittingComment || !newComment.trim()}
+              className="font-body text-sm font-semibold text-kuska-red transition-opacity disabled:opacity-40"
+            >
+              {submittingComment ? 'Enviando…' : 'Enviar'}
             </button>
           </div>
         </div>
