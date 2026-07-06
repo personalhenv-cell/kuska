@@ -69,7 +69,8 @@ Estado: ✅ hecho · 🟡 en progreso · ⬜ pendiente
 - [x] `POST /api/checkout` (Zod, transacción Order+OrderItem, stock, SolidarityFund)
 - [x] `/checkout` un paso: Yape (QR animado), Plin, Visa (flip 3D), donación opcional
 - [x] Éxito con Kusi celebrate + confetti
-- [ ] Validar flujo completo contra la DB real en Vercel
+- [x] Validado contra la DB real en Vercel: orden creada, stock descontado
+      atómicamente, SolidarityFund registrado (verificado en vivo)
 
 ## ✅ FASE 7 — Dashboard artesano
 - [x] Inicio (stats, pedidos recientes, insignias, misiones), productos,
@@ -194,21 +195,19 @@ chat Pusher y CFO-bot IA. Bugs reales encontrados y corregidos:
   (`credit balance too low`) — acción pendiente del usuario, no es bug.
 
 ### ⚠️ Pendiente de acción del usuario antes de la demo
-1. **Anthropic**: agregar crédito/billing a la cuenta — CFO-bot y
-   descripciones IA no funcionarán hasta entonces.
+1. **Google Gemini**: agregar `GEMINI_API_KEY` en Vercel (Project Settings →
+   Environment Variables) — CFO-bot, descripciones IA, Emprendedor IA y
+   Match IA responden 200 pero con "Kuska IA no está configurada" hasta
+   entonces. (Se migró de Anthropic a Gemini — ver Fase 9.)
 2. **Resend**: verificar un dominio propio en resend.com/domains. Hoy
    el remitente `onboarding@resend.dev` (modo prueba) solo puede enviar
    a la propia cuenta de Resend (`personalhenv@gmail.com`) — un
-   inversionista real registrándose en vivo **no recibiría su código**
-   hasta que se verifique un dominio.
-3. **Vercel Blob en modo privado**: subir la foto de un producto real
-   falla con `Cannot use public access on a private store`. El código
-   del formulario de creación de producto (`/dashboard/artesano/productos/nuevo`)
-   está correcto y probado — el token de subida se genera bien
-   (`BLOB_READ_WRITE_TOKEN` configurado), pero el Store de Blob está
-   configurado en modo privado en el dashboard de Vercel. Hay que
-   cambiarlo a acceso público (Storage → el store de Blob → Settings)
-   para que las fotos de producto sean visibles en el marketplace.
+   inversionista real registrándose en vivo **no recibiría su código
+   por email**, aunque el flujo sigue funcionando porque el código
+   siempre se muestra en pantalla (canal de entrega real hoy).
+3. ~~Vercel Blob en modo privado~~ — **resuelto**: el store ya está en
+   modo público, verificado en vivo (`blob.generate-client-token`
+   devuelve 200 con token válido).
 
 > Las fases 4–12 están planificadas en detalle en el prompt maestro v8.0.
 > Cada fase debe cerrar con `npm run build` en 0 errores antes de avanzar.
