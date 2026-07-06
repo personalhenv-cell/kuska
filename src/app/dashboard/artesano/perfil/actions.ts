@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { authOptions } from '@/auth/config'
 import { prisma } from '@/lib/prisma'
+import { normalizePeruPhone } from '@/lib/utils'
 
 const ProfileSchema = z.object({
   bio: z.string().max(280).optional(),
@@ -30,9 +31,20 @@ export async function updateArtisanProfile(formData: FormData): Promise<void> {
     whatsapp: formData.get('whatsapp')?.toString() || undefined,
   })
 
+  // Se guarda siempre como "51" + 9 dígitos (sin espacios ni "+") — el
+  // formato exacto que necesita un link wa.me. Antes se guardaba el texto
+  // tal cual lo tipeaba el artesano, lo que rompía el botón de WhatsApp en
+  // cuanto incluía espacios o le faltaba el código de país.
+  let whatsapp = parsed.whatsapp
+  if (whatsapp) {
+    const local = normalizePeruPhone(whatsapp)
+    if (!local) throw new Error('El número de WhatsApp debe ser un celular peruano válido (9 dígitos, empieza con 9)')
+    whatsapp = `51${local}`
+  }
+
   await prisma.artisanProfile.update({
     where: { id: session.user.artisan_profile_id },
-    data: parsed,
+    data: { ...parsed, whatsapp },
   })
 
   revalidatePath('/dashboard/artesano/perfil')

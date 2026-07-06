@@ -106,13 +106,20 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id
         token.phone = user.phone
         token.role = user.role
         token.artisan_profile_id = user.artisan_profile_id
         token.is_entrepreneur = user.is_entrepreneur
+      }
+      // Permite refrescar is_entrepreneur sin re-login: el cliente llama a
+      // useSession().update({ is_entrepreneur }) justo después de guardar su
+      // perfil — si no, el toggle quedaría "guardado" en la DB pero invisible
+      // en la sesión activa hasta el próximo login.
+      if (trigger === 'update' && session?.is_entrepreneur !== undefined) {
+        token.is_entrepreneur = session.is_entrepreneur
       }
       return token
     },

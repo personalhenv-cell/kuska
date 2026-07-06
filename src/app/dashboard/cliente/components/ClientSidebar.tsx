@@ -19,13 +19,24 @@ const navItems = [
   { href: '/dashboard/cliente/comunidad', label: 'Red Cuéntame', icon: '🗣️', exact: false },
 ]
 
-const entrepreneurItem = { href: '/dashboard/cliente/emprendedor', label: 'Emprendedor IA', icon: '🚀', exact: false }
+const entrepreneurItems = [
+  { href: '/dashboard/cliente/emprendedor', label: 'Emprendedor IA', icon: '🚀', exact: false },
+  { href: '/dashboard/cliente/capitalizacion', label: 'Capitalización', icon: '💰', exact: false },
+]
+
+const profileItem = { href: '/dashboard/cliente/perfil', label: 'Mi perfil', icon: '⚙️', exact: false }
 
 export function ClientSidebar({ user }: { user: User }) {
   const pathname = usePathname()
 
   const isActive = (href: string, exact: boolean) =>
     exact ? pathname === href : pathname.startsWith(href)
+
+  const items = [
+    ...navItems,
+    ...(user.is_entrepreneur ? entrepreneurItems : []),
+    profileItem,
+  ]
 
   return (
     <aside className="hidden lg:flex flex-col w-64 min-h-screen border-r border-kuska-border bg-white sticky top-0">
@@ -53,7 +64,7 @@ export function ClientSidebar({ user }: { user: User }) {
       </div>
 
       <nav className="flex-1 px-3 py-4 space-y-1">
-        {(user.is_entrepreneur ? [...navItems, entrepreneurItem] : navItems).map((item) => (
+        {items.map((item) => (
           <Link
             key={item.href}
             href={item.href}

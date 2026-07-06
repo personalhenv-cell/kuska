@@ -6,15 +6,22 @@ import { prisma } from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic'
 
-const CreateWorkshopSchema = z.object({
-  title: z.string().min(4).max(120),
-  description: z.string().min(10).max(2000),
-  date: z.string().refine((s) => !Number.isNaN(Date.parse(s)), 'Fecha inválida'),
-  capacity: z.number().int().min(1).max(500),
-  price: z.number().min(0).max(10000).default(0),
-  is_virtual: z.boolean().default(true),
-  materials_url: z.string().url().max(500).optional().or(z.literal('')),
-})
+const CreateWorkshopSchema = z
+  .object({
+    title: z.string().min(4).max(120),
+    description: z.string().min(10).max(2000),
+    date: z.string().refine((s) => !Number.isNaN(Date.parse(s)), 'Fecha inválida'),
+    capacity: z.number().int().min(1).max(500),
+    price: z.number().min(0).max(10000).default(0),
+    is_virtual: z.boolean().default(true),
+    location: z.string().min(4).max(300).optional().or(z.literal('')),
+    meeting_url: z.string().url().max(500).optional().or(z.literal('')),
+    materials_url: z.string().url().max(500).optional().or(z.literal('')),
+  })
+  .refine((d) => d.is_virtual || (d.location && d.location.length >= 4), {
+    message: 'Los talleres presenciales necesitan una dirección real',
+    path: ['location'],
+  })
 
 /** GET /api/talleres — lista los talleres próximos (fecha futura), datos reales. */
 export async function GET() {
@@ -53,6 +60,8 @@ export async function POST(req: Request) {
       capacity: d.capacity,
       price: d.price,
       is_virtual: d.is_virtual,
+      location: d.is_virtual ? null : d.location || null,
+      meeting_url: d.is_virtual ? d.meeting_url || null : null,
       materials_url: d.materials_url || null,
     },
   })

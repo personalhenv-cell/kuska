@@ -17,6 +17,8 @@ export function CreateWorkshopForm() {
     capacity: 10,
     price: 0,
     is_virtual: true,
+    location: '',
+    meeting_url: '',
     materials_url: '',
   })
 
@@ -40,7 +42,10 @@ export function CreateWorkshopForm() {
       })
       if (res.ok) {
         setOpen(false)
-        setForm({ title: '', description: '', date: '', capacity: 10, price: 0, is_virtual: true, materials_url: '' })
+        setForm({
+          title: '', description: '', date: '', capacity: 10, price: 0,
+          is_virtual: true, location: '', meeting_url: '', materials_url: '',
+        })
         router.refresh()
       } else {
         const data = await res.json().catch(() => ({}))
@@ -61,7 +66,12 @@ export function CreateWorkshopForm() {
     )
   }
 
-  const valid = form.title.length >= 4 && form.description.length >= 10 && form.date && Number(form.capacity) >= 1
+  const valid =
+    form.title.length >= 4 &&
+    form.description.length >= 10 &&
+    form.date &&
+    Number(form.capacity) >= 1 &&
+    (form.is_virtual || form.location.length >= 4)
 
   return (
     <div className="rounded-card border border-kuska-border bg-white p-6">
@@ -129,6 +139,23 @@ export function CreateWorkshopForm() {
             </div>
           </div>
         </div>
+
+        {form.is_virtual ? (
+          <Input
+            label="Enlace de videollamada (Zoom, Meet…)"
+            value={form.meeting_url}
+            onChange={(e) => set('meeting_url')(e.target.value)}
+            placeholder="https://meet.google.com/…"
+          />
+        ) : (
+          <Input
+            label="Dirección del taller"
+            value={form.location}
+            onChange={(e) => set('location')(e.target.value)}
+            placeholder="Jr. Los Andes 123, Chinchero, Cusco"
+          />
+        )}
+
         <Input
           label="Enlace de materiales (opcional)"
           value={form.materials_url}

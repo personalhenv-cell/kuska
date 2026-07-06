@@ -58,6 +58,11 @@ export default async function TalleresPage() {
                   <p className="mt-3 font-body text-xs text-kuska-text-mid">
                     Por <span className="font-semibold text-kuska-text">{w.artisan.user.name}</span> · {w.artisan.region}
                   </p>
+                  {!w.is_virtual && w.location && (
+                    <p className="mt-1 flex items-center gap-1 font-body text-xs text-kuska-text-mid">
+                      <span>📍</span> {w.location}
+                    </p>
+                  )}
                   <div className="mt-3 flex items-center justify-between">
                     <span className="font-body text-xs text-kuska-text-mid">
                       {formatDate(w.date)} · {w._count.participants}/{w.capacity} cupos

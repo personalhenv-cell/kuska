@@ -45,7 +45,15 @@ export default async function ArtisanProfilePage() {
 
         <div>
           <label className={labelClass}>WhatsApp</label>
-          <input name="whatsapp" defaultValue={profile.whatsapp ?? ''} placeholder="999 888 777" className={inputClass} />
+          <input
+            name="whatsapp"
+            defaultValue={profile.whatsapp?.replace(/^51/, '') ?? ''}
+            placeholder="987 654 321"
+            className={inputClass}
+          />
+          <p className="mt-1 font-body text-xs text-kuska-text-mid">
+            Tu celular peruano — clientes y organizadores de talleres podrán escribirte directo por WhatsApp.
+          </p>
         </div>
 
         <div>

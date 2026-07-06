@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { formatDate, formatPrice } from '@/lib/utils'
+import { WhatsAppButton } from '@/components/ui/WhatsAppButton'
 import { EnrollButton } from './EnrollButton'
 
 export const dynamic = 'force-dynamic'
@@ -15,7 +16,10 @@ export default async function TallerDetailPage({ params }: { params: { id: strin
     where: { id: params.id },
     include: {
       artisan: {
-        select: { id: true, specialty: true, region: true, community: true, user: { select: { name: true } } },
+        select: {
+          id: true, specialty: true, region: true, community: true, whatsapp: true,
+          user: { select: { name: true } },
+        },
       },
       _count: { select: { participants: true } },
     },
@@ -85,15 +89,49 @@ export default async function TallerDetailPage({ params }: { params: { id: strin
 
           <p className="mt-5 whitespace-pre-line font-body leading-relaxed text-kuska-text">{workshop.description}</p>
 
-          <div className="mt-6">
-            {past ? (
-              <div className="rounded-card border border-kuska-border bg-white px-5 py-3 text-center font-body text-kuska-text-mid">
-                Este taller ya se realizó
+          {!workshop.is_virtual && workshop.location && (
+            <div className="mt-5 flex items-start gap-3 rounded-card border border-kuska-border bg-white p-4">
+              <span className="text-xl">📍</span>
+              <div>
+                <p className="font-nunito text-xs font-bold uppercase tracking-wide text-kuska-text-mid">Dirección</p>
+                <p className="mt-0.5 font-body text-sm text-kuska-text">{workshop.location}</p>
               </div>
-            ) : (
-              <EnrollButton workshopId={workshop.id} full={full} alreadyEnrolled={alreadyEnrolled} />
+            </div>
+          )}
+
+          {workshop.is_virtual && workshop.meeting_url && alreadyEnrolled && (
+            <div className="mt-5 flex items-center justify-between gap-3 rounded-card border border-kuska-teal/30 bg-kuska-teal/5 p-4">
+              <div>
+                <p className="font-nunito text-xs font-bold uppercase tracking-wide text-kuska-teal">Ya estás inscrito</p>
+                <p className="mt-0.5 font-body text-sm text-kuska-text">Únete a la videollamada el día del taller</p>
+              </div>
+              <a
+                href={workshop.meeting_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-shrink-0 rounded-btn bg-kuska-teal px-4 py-2 font-body text-sm font-bold text-white transition-transform hover:-translate-y-0.5"
+              >
+                Ingresar →
+              </a>
+            </div>
+          )}
+
+          <div className="mt-6 flex flex-wrap gap-3">
+            {!past && <EnrollButton workshopId={workshop.id} full={full} alreadyEnrolled={alreadyEnrolled} />}
+            {workshop.artisan.whatsapp && (
+              <WhatsAppButton
+                phone={workshop.artisan.whatsapp}
+                message={`Hola ${workshop.artisan.user.name}, vi tu taller "${workshop.title}" en Kuska y quisiera más información para agendarlo.`}
+                label="Agendar por WhatsApp"
+              />
             )}
           </div>
+
+          {past && (
+            <div className="mt-4 rounded-card border border-kuska-border bg-white px-5 py-3 text-center font-body text-kuska-text-mid">
+              Este taller ya se realizó
+            </div>
+          )}
         </div>
       </main>
       <Footer />

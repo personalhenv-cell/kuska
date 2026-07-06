@@ -15,13 +15,14 @@ export default async function EmprendedorPage() {
   if (!session.user.is_entrepreneur) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 p-6 text-center">
-        <Kusi size="lg" animation="think" />
+        <Kusi size="lg" expression="dudoso" />
         <h1 className="font-display text-2xl font-bold text-kuska-text">Emprendedor IA es para clientes emprendedores</h1>
         <p className="max-w-md font-body text-sm text-kuska-text-mid">
-          Marca tu cuenta como emprendedora desde tu perfil para desbloquear el generador de planes de negocio con IA.
+          Activa &ldquo;¿Eres emprendedor?&rdquo; desde tu perfil para desbloquear el generador de planes de negocio
+          con IA y el Hub de Capitalización.
         </p>
-        <Link href="/dashboard/cliente">
-          <Button variant="primary" size="lg">Volver al inicio</Button>
+        <Link href="/dashboard/cliente/perfil">
+          <Button variant="primary" size="lg">Ir a mi perfil</Button>
         </Link>
       </div>
     )
