@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { authOptions } from '@/auth/config'
 import { prisma } from '@/lib/prisma'
 import { Badge } from '@/components/ui/Badge'
+import { Kusi } from '@/components/ui/Kusi'
 import { formatPrice, formatDate } from '@/lib/utils'
 
 export default async function ArtisanOrdersPage() {
@@ -35,7 +36,7 @@ export default async function ArtisanOrdersPage() {
 
       {items.length === 0 ? (
         <div className="rounded-card border border-dashed border-kuska-border bg-white p-12 text-center">
-          <span className="text-4xl">📦</span>
+          <Kusi size="sm" expression="triste" className="mx-auto" />
           <p className="mt-3 font-body text-kuska-text-mid">Todavía no tienes pedidos.</p>
         </div>
       ) : (

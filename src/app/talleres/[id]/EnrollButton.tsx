@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/Button'
+import { Kusi } from '@/components/ui/Kusi'
 
 interface Props {
   workshopId: string
@@ -20,16 +21,18 @@ export function EnrollButton({ workshopId, full, alreadyEnrolled }: Props) {
 
   if (enrolled) {
     return (
-      <div className="rounded-card border border-kuska-teal/30 bg-kuska-teal/10 px-5 py-3 text-center font-body font-semibold text-kuska-teal">
-        ✓ Ya estás inscrito · te esperamos
+      <div className="flex items-center justify-center gap-3 rounded-card border border-kuska-teal/30 bg-kuska-teal/10 px-5 py-3 text-center">
+        <Kusi size="xs" expression="sorprendido" />
+        <p className="font-body font-semibold text-kuska-teal">¡Ya estás inscrito! Te esperamos 🦙</p>
       </div>
     )
   }
 
   if (full) {
     return (
-      <div className="rounded-card border border-kuska-border bg-white px-5 py-3 text-center font-body text-kuska-text-mid">
-        Cupos agotados
+      <div className="flex items-center justify-center gap-3 rounded-card border border-kuska-border bg-white px-5 py-3 text-center">
+        <Kusi size="xs" expression="asustado" />
+        <p className="font-body text-kuska-text-mid">Cupos agotados — muy pronto habrá más talleres</p>
       </div>
     )
   }
