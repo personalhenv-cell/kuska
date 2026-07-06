@@ -125,7 +125,7 @@ export default function LoginPage() {
                       className="w-full rounded-btn border border-white/30 bg-white px-4 py-3 font-body text-kuska-text placeholder:text-kuska-text-mid/50 focus:border-kuska-gold focus:outline-none focus:ring-2 focus:ring-kuska-gold/30 transition-all"
                     />
                     {error && (
-                      <p className="mt-1.5 font-body text-xs text-red-400">{error}</p>
+                      <p className="mt-1.5 font-body text-xs text-kuska-red">{error}</p>
                     )}
                   </div>
                   <RippleButton className="block w-full">
@@ -163,7 +163,7 @@ export default function LoginPage() {
                       className="w-full rounded-btn border border-white/30 bg-white px-4 py-3 font-body text-kuska-text placeholder:text-kuska-text-mid/50 focus:border-kuska-gold focus:outline-none focus:ring-2 focus:ring-kuska-gold/30 text-center tracking-[0.4em] text-lg transition-all"
                     />
                     {error && (
-                      <p className="mt-1.5 font-body text-xs text-red-400">{error}</p>
+                      <p className="mt-1.5 font-body text-xs text-kuska-red">{error}</p>
                     )}
                   </div>
                   <RippleButton className="block w-full">

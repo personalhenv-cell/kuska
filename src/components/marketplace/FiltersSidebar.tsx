@@ -56,10 +56,10 @@ function FilterGroup({
         <button
           onClick={() => onChange('')}
           className={cn(
-            'block w-full rounded-lg px-3 py-1.5 text-left font-body text-sm transition-colors',
+            'block w-full rounded-lg px-3 py-1.5 text-left font-body text-sm transition-all duration-200',
             value === ''
               ? 'bg-kuska-brown text-kuska-cream'
-              : 'text-kuska-text-mid hover:bg-kuska-cream-dark',
+              : 'text-kuska-text-mid hover:translate-x-0.5 hover:bg-kuska-cream-dark',
           )}
         >
           Todos
@@ -69,10 +69,10 @@ function FilterGroup({
             key={o}
             onClick={() => onChange(value === o ? '' : o)}
             className={cn(
-              'block w-full rounded-lg px-3 py-1.5 text-left font-body text-sm transition-colors',
+              'block w-full rounded-lg px-3 py-1.5 text-left font-body text-sm transition-all duration-200',
               value === o
                 ? 'bg-kuska-brown text-kuska-cream'
-                : 'text-kuska-text-mid hover:bg-kuska-cream-dark',
+                : 'text-kuska-text-mid hover:translate-x-0.5 hover:bg-kuska-cream-dark',
             )}
           >
             {o}

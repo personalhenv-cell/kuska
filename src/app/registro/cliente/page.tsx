@@ -246,7 +246,7 @@ export default function RegistroClientePage() {
                     )}
                   </div>
 
-                  {error && <p className="font-body text-xs text-red-400">{error}</p>}
+                  {error && <p className="font-body text-xs text-kuska-red">{error}</p>}
                   <div className="flex gap-3">
                     <Button variant="ghost" size="lg" className="flex-1" onClick={() => setStep(1)}>← Atrás</Button>
                     <RippleButton className="block flex-1">
@@ -282,7 +282,7 @@ export default function RegistroClientePage() {
                       placeholder="000000"
                       required
                     />
-                    {error && <p className="mt-1.5 font-body text-xs text-red-400">{error}</p>}
+                    {error && <p className="mt-1.5 font-body text-xs text-kuska-red">{error}</p>}
                   </div>
                   <RippleButton className="block w-full">
                     <Button type="submit" size="lg" className="w-full" disabled={loading}>
