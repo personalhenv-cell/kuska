@@ -73,13 +73,17 @@ Datos del taller del artesano:
 
 Da respuestas breves (máximo 4-5 líneas), accionables, y si detectas alertas reales en los datos (stock bajo, productos sin ventas) menciónalas proactivamente.`
 
-  const readable = streamGemini({
-    systemPrompt,
-    messages: parsed.data.messages,
-    maxOutputTokens: 500,
-  })
-
-  return new Response(readable, {
-    headers: { 'Content-Type': 'text/plain; charset=utf-8' },
-  })
+  try {
+    const readable = streamGemini({
+      systemPrompt,
+      messages: parsed.data.messages,
+      maxOutputTokens: 500,
+    })
+    return new Response(readable, {
+      headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+    })
+  } catch (e) {
+    console.error('[cfo-bot] error inesperado:', e instanceof Error ? e.message : e)
+    return new Response(JSON.stringify({ error: 'Kuska IA no pudo responder. Intenta de nuevo.' }), { status: 500 })
+  }
 }

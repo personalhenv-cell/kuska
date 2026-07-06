@@ -55,13 +55,17 @@ ${entrepreneurList}
 
 Sugiere los 2-3 emprendedores con mejor potencial de colaboración con este artesano, explicando brevemente por qué en cada caso (1-2 líneas). Si ninguno encaja bien, dilo honestamente.`
 
-  const readable = streamGemini({
-    systemPrompt,
-    messages: [{ role: 'user', content: userPrompt }],
-    maxOutputTokens: 500,
-  })
-
-  return new Response(readable, {
-    headers: { 'Content-Type': 'text/plain; charset=utf-8' },
-  })
+  try {
+    const readable = streamGemini({
+      systemPrompt,
+      messages: [{ role: 'user', content: userPrompt }],
+      maxOutputTokens: 500,
+    })
+    return new Response(readable, {
+      headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+    })
+  } catch (e) {
+    console.error('[match-emprendedores] error inesperado:', e instanceof Error ? e.message : e)
+    return new Response(JSON.stringify({ error: 'Kuska IA no pudo generar los matches. Intenta de nuevo.' }), { status: 500 })
+  }
 }

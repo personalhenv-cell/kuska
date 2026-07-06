@@ -43,13 +43,17 @@ export async function POST(req: Request) {
 - Presupuesto inicial: S/ ${initial_budget}
 - Región: ${region}`
 
-  const readable = streamGemini({
-    systemPrompt,
-    messages: [{ role: 'user', content: userPrompt }],
-    maxOutputTokens: 1300,
-  })
-
-  return new Response(readable, {
-    headers: { 'Content-Type': 'text/plain; charset=utf-8' },
-  })
+  try {
+    const readable = streamGemini({
+      systemPrompt,
+      messages: [{ role: 'user', content: userPrompt }],
+      maxOutputTokens: 1300,
+    })
+    return new Response(readable, {
+      headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+    })
+  } catch (e) {
+    console.error('[business-plan] error inesperado:', e instanceof Error ? e.message : e)
+    return new Response(JSON.stringify({ error: 'Kuska IA no pudo generar el plan. Intenta de nuevo.' }), { status: 500 })
+  }
 }

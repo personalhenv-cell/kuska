@@ -52,13 +52,17 @@ export async function POST(req: Request) {
 ${materials ? `- Materiales: ${materials}` : ''}
 ${notes ? `- Notas del artesano: ${notes}` : ''}`
 
-  const readable = streamGemini({
-    systemPrompt,
-    messages: [{ role: 'user', content: userPrompt }],
-    maxOutputTokens: 400,
-  })
-
-  return new Response(readable, {
-    headers: { 'Content-Type': 'text/plain; charset=utf-8' },
-  })
+  try {
+    const readable = streamGemini({
+      systemPrompt,
+      messages: [{ role: 'user', content: userPrompt }],
+      maxOutputTokens: 400,
+    })
+    return new Response(readable, {
+      headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+    })
+  } catch (e) {
+    console.error('[product-description] error inesperado:', e instanceof Error ? e.message : e)
+    return new Response(JSON.stringify({ error: 'Kuska IA no pudo generar la descripción. Intenta de nuevo.' }), { status: 500 })
+  }
 }
