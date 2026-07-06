@@ -4,7 +4,6 @@ import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion, useInView } from 'framer-motion'
 import { Badge } from '@/components/ui/Badge'
-import { Kusi } from '@/components/ui/Kusi'
 
 const BULLETS = [
   'Marketplace con historias reales detrás de cada pieza',
@@ -13,31 +12,46 @@ const BULLETS = [
 ]
 
 const TITLE = 'Un ecosistema, no solo una tienda'
-const KUSI_MESSAGE = 'Cada pieza tiene una historia. Yo te la cuento 🦙'
 
 /** Fotos reales de artesanos peruanos (Unsplash/Pexels, licencias libres de
- *  uso comercial, sin marca de agua) — reemplazan la foto genérica de
- *  montaña que no representaba a las personas detrás de Kuska. */
+ *  uso comercial, sin marca de agua), cada una con una frase inspiradora
+ *  propia que aparece en sincronía con la transición de la imagen. */
 const PHOTOS = [
   {
     src: 'https://images.unsplash.com/photo-1602591620189-de34d60650b2?w=900&q=80',
     alt: 'Artesana peruana tejiendo con vestimenta tradicional andina, Valle Sagrado',
     position: '50% 30%',
+    phrase: 'Cada hilo lleva la memoria de generaciones.',
   },
   {
     src: 'https://images.unsplash.com/photo-1769358720638-932b3dd8101a?w=900&q=80',
     alt: 'Tejedora andina trabajando en telar con hilos de colores vibrantes',
     position: '50% 40%',
+    phrase: 'Las manos que tejen, tejen también el futuro.',
   },
   {
     src: 'https://images.pexels.com/photos/33027862/pexels-photo-33027862.jpeg?w=900&q=80',
     alt: 'Textiles peruanos artesanales de colores vivos en un mercado de Cusco',
     position: '50% 45%',
+    phrase: 'El color del Perú se cuenta en cada textil.',
   },
   {
     src: 'https://images.unsplash.com/photo-1422246358533-95dcd3d48961?w=900&q=80',
     alt: 'Manos de un ceramista peruano moldeando arcilla',
     position: '50% 50%',
+    phrase: 'De la tierra nace el arte que perdura.',
+  },
+  {
+    src: 'https://images.unsplash.com/photo-1774082313811-f9852bd53d00?w=900&q=80',
+    alt: 'Mercado artesanal de Pisac, Perú, con puestos de textiles multicolores',
+    position: '50% 40%',
+    phrase: 'En cada mercado late el corazón de un pueblo que crea.',
+  },
+  {
+    src: 'https://images.pexels.com/photos/8066075/pexels-photo-8066075.jpeg?w=900&q=80',
+    alt: 'Manos de un artesano pintando con pincel fino una vasija de cerámica',
+    position: '50% 50%',
+    phrase: 'El detalle de una mano paciente convierte el barro en historia.',
   },
 ]
 
@@ -90,6 +104,22 @@ function PhotoCarousel({ active }: { active: boolean }) {
         </motion.div>
       </AnimatePresence>
 
+      {/* Frase inspiradora — sincronizada con la foto activa */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-10 z-10 px-6">
+        <AnimatePresence mode="wait">
+          <motion.p
+            key={index}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
+            className="font-display text-xl font-semibold italic leading-snug text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.45)] sm:text-2xl"
+          >
+            &ldquo;{PHOTOS[index].phrase}&rdquo;
+          </motion.p>
+        </AnimatePresence>
+      </div>
+
       {/* Puntos indicadores — inferior centro, sobre la imagen */}
       <div className="pointer-events-none absolute inset-x-0 bottom-4 z-10 flex justify-center gap-1.5">
         {PHOTOS.map((p, i) => (
@@ -108,7 +138,6 @@ export function QueEsKuskaSection() {
   const sectionRef = useRef<HTMLDivElement>(null)
   const inView = useInView(sectionRef, { once: true, amount: 0.35 })
   const titleText = useTypewriter(TITLE, inView, 32)
-  const kusiText = useTypewriter(KUSI_MESSAGE, inView, 22)
 
   return (
     <section ref={sectionRef} className="mx-auto max-w-6xl px-6 py-20">
@@ -123,34 +152,11 @@ export function QueEsKuskaSection() {
           <div className="relative aspect-[4/5] overflow-hidden rounded-glass shadow-xl">
             <PhotoCarousel active={inView} />
 
-            {/* Viñeta inferior para que el texto/Kusi resalten sobre cualquier foto */}
+            {/* Viñeta inferior para que la frase resalte sobre cualquier foto */}
             <div
               className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5"
               style={{ background: 'linear-gradient(180deg, transparent 0%, rgba(26,10,0,0.55) 100%)' }}
             />
-
-            {/* Kusi + burbuja typewriter, esquina inferior izquierda */}
-            <div className="absolute bottom-4 left-4 z-10 flex flex-col items-start gap-2">
-              {kusiText && (
-                <div className="max-w-[200px] rounded-2xl border border-kuska-gold/30 bg-white px-4 py-2 shadow-sm">
-                  <p className="font-nunito text-sm text-kuska-text">
-                    {kusiText}
-                    {kusiText.length < KUSI_MESSAGE.length && (
-                      <span className="ml-0.5 inline-block w-1 animate-pulse text-kuska-gold">|</span>
-                    )}
-                  </p>
-                </div>
-              )}
-              <Kusi size="lg" animation="float" />
-            </div>
-          </div>
-
-          {/* Badge, esquina inferior derecha — dentro de los límites de la imagen */}
-          <div className="absolute bottom-4 right-4 z-10 rounded-card bg-kuska-brown px-5 py-4 text-kuska-cream shadow-xl">
-            <p className="font-nunito text-xs uppercase tracking-wide text-kuska-gold">
-              Kuska significa
-            </p>
-            <p className="font-display text-2xl font-bold text-kuska-red">«Juntos»</p>
           </div>
         </motion.div>
 
