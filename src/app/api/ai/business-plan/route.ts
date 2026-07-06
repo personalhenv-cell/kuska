@@ -1,7 +1,7 @@
 import { getServerSession } from 'next-auth'
 import { z } from 'zod'
 import { authOptions } from '@/auth/config'
-import { streamGemini } from '@/lib/gemini'
+import { generateGemini } from '@/lib/gemini'
 
 const PlanSchema = z.object({
   business_name: z.string().min(2).max(120),
@@ -44,12 +44,12 @@ export async function POST(req: Request) {
 - Región: ${region}`
 
   try {
-    const readable = streamGemini({
+    const text = await generateGemini({
       systemPrompt,
       messages: [{ role: 'user', content: userPrompt }],
       maxOutputTokens: 1300,
     })
-    return new Response(readable, {
+    return new Response(text, {
       headers: { 'Content-Type': 'text/plain; charset=utf-8' },
     })
   } catch (e) {

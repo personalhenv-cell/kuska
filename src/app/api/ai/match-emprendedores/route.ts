@@ -1,7 +1,7 @@
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/auth/config'
 import { prisma } from '@/lib/prisma'
-import { streamGemini } from '@/lib/gemini'
+import { generateGemini } from '@/lib/gemini'
 
 export async function POST() {
   const session = await getServerSession(authOptions)
@@ -56,12 +56,12 @@ ${entrepreneurList}
 Sugiere los 2-3 emprendedores con mejor potencial de colaboración con este artesano, explicando brevemente por qué en cada caso (1-2 líneas). Si ninguno encaja bien, dilo honestamente.`
 
   try {
-    const readable = streamGemini({
+    const text = await generateGemini({
       systemPrompt,
       messages: [{ role: 'user', content: userPrompt }],
       maxOutputTokens: 500,
     })
-    return new Response(readable, {
+    return new Response(text, {
       headers: { 'Content-Type': 'text/plain; charset=utf-8' },
     })
   } catch (e) {

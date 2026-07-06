@@ -2,7 +2,7 @@ import { getServerSession } from 'next-auth'
 import { z } from 'zod'
 import { authOptions } from '@/auth/config'
 import { prisma } from '@/lib/prisma'
-import { streamGemini } from '@/lib/gemini'
+import { generateGemini } from '@/lib/gemini'
 
 const DescriptionSchema = z.object({
   name: z.string().min(1).max(120),
@@ -53,12 +53,12 @@ ${materials ? `- Materiales: ${materials}` : ''}
 ${notes ? `- Notas del artesano: ${notes}` : ''}`
 
   try {
-    const readable = streamGemini({
+    const text = await generateGemini({
       systemPrompt,
       messages: [{ role: 'user', content: userPrompt }],
       maxOutputTokens: 400,
     })
-    return new Response(readable, {
+    return new Response(text, {
       headers: { 'Content-Type': 'text/plain; charset=utf-8' },
     })
   } catch (e) {

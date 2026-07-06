@@ -2,7 +2,7 @@ import { getServerSession } from 'next-auth'
 import { z } from 'zod'
 import { authOptions } from '@/auth/config'
 import { prisma } from '@/lib/prisma'
-import { streamGemini } from '@/lib/gemini'
+import { generateGemini } from '@/lib/gemini'
 
 const MessageSchema = z.object({
   messages: z
@@ -74,12 +74,12 @@ Datos del taller del artesano:
 Da respuestas breves (máximo 4-5 líneas), accionables, y si detectas alertas reales en los datos (stock bajo, productos sin ventas) menciónalas proactivamente.`
 
   try {
-    const readable = streamGemini({
+    const text = await generateGemini({
       systemPrompt,
       messages: parsed.data.messages,
       maxOutputTokens: 500,
     })
-    return new Response(readable, {
+    return new Response(text, {
       headers: { 'Content-Type': 'text/plain; charset=utf-8' },
     })
   } catch (e) {
