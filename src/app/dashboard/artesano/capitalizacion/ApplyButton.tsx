@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import toast from 'react-hot-toast'
 import { applyToFund } from './actions'
 
 export function ApplyButton({ opportunityId, alreadyApplied }: { opportunityId: string; alreadyApplied: boolean }) {
@@ -9,8 +10,12 @@ export function ApplyButton({ opportunityId, alreadyApplied }: { opportunityId: 
 
   function apply() {
     startTransition(async () => {
-      await applyToFund(opportunityId)
-      setApplied(true)
+      try {
+        await applyToFund(opportunityId)
+        setApplied(true)
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : 'No se pudo enviar la postulación')
+      }
     })
   }
 

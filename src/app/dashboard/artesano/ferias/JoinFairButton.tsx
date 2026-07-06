@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import toast from 'react-hot-toast'
 import { joinFair } from './actions'
 
 export function JoinFairButton({ fairId, alreadyJoined }: { fairId: string; alreadyJoined: boolean }) {
@@ -9,8 +10,12 @@ export function JoinFairButton({ fairId, alreadyJoined }: { fairId: string; alre
 
   function join() {
     startTransition(async () => {
-      await joinFair(fairId)
-      setJoined(true)
+      try {
+        await joinFair(fairId)
+        setJoined(true)
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : 'No se pudo unir a la feria')
+      }
     })
   }
 
