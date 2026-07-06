@@ -11,6 +11,7 @@ import { Kusi } from '@/components/ui/Kusi'
 import { Logo } from '@/components/ui/Logo'
 import { RippleButton } from '@/components/ui/RippleButton'
 import { AuthBackground } from '@/components/auth/AuthBackground'
+import { updateArtisanProfile } from '@/app/dashboard/artesano/perfil/actions'
 
 type Step = 1 | 2 | 3 | 4 | 5
 
@@ -126,6 +127,22 @@ export default function RegistroArtesanoPage() {
   }
 
   async function finish() {
+    // La historia se escribe recién en el paso 4, después de que submit()
+    // ya creó la cuenta (paso 2→3) con story vacío — sin este guardado
+    // final, lo que el artesano escribe aquí se pierde para siempre.
+    if (form.story.trim()) {
+      try {
+        const fd = new FormData()
+        fd.set('specialty', form.specialty)
+        fd.set('technique', form.technique)
+        fd.set('region', form.region)
+        fd.set('story', form.story)
+        await updateArtisanProfile(fd)
+      } catch {
+        // No bloquea el onboarding por esto — el artesano puede completar
+        // su historia después desde su perfil.
+      }
+    }
     toast.success('¡Bienvenido a Kuska! 🦙')
     router.push('/dashboard')
   }
@@ -275,7 +292,7 @@ export default function RegistroArtesanoPage() {
                       placeholder="5"
                     />
                   </div>
-                  {error && <p className="font-body text-xs text-red-400">{error}</p>}
+                  {error && <p className="font-body text-xs text-kuska-red">{error}</p>}
                   <div className="flex gap-3">
                     <Button variant="ghost" size="lg" className="flex-1" onClick={() => setStep(1)}>← Atrás</Button>
                     <RippleButton className="block flex-1">
@@ -311,7 +328,7 @@ export default function RegistroArtesanoPage() {
                       placeholder="000000"
                       required
                     />
-                    {error && <p className="mt-1.5 font-body text-xs text-red-400">{error}</p>}
+                    {error && <p className="mt-1.5 font-body text-xs text-kuska-red">{error}</p>}
                   </div>
                   <RippleButton className="block w-full">
                     <Button type="submit" size="lg" className="w-full" disabled={loading}>
