@@ -15,19 +15,25 @@ function slugify(text: string): string {
 interface SeedArtisan {
   name: string
   phone: string
+  whatsapp: string
   region: string
   community: string
   specialty: string
   technique: string
   years: number
   story: string
-  products: { name: string; price: number; category: string; description: string }[]
+  products: { name: string; price: number; category: string; description: string; image: string }[]
 }
 
+/** Fotos reales de productos artesanales (Unsplash/Pexels, licencias libres
+ *  de uso comercial, sin marca de agua), una por producto, verificadas por
+ *  HTTP 200 antes de usarse — sin ellas el marketplace demo mostraba solo
+ *  el placeholder de emoji genérico. */
 const artisans: SeedArtisan[] = [
   {
     name: 'Rosa Quispe Mamani',
     phone: '999000001',
+    whatsapp: '51984123001',
     region: 'Cusco',
     community: 'Chinchero',
     specialty: 'Textilería',
@@ -36,14 +42,27 @@ const artisans: SeedArtisan[] = [
     story:
       'Aprendí a tejer con mi abuela mirando las estrellas. Cada manta cuenta la historia de nuestra comunidad.',
     products: [
-      { name: 'Manta Chinchero Inti', price: 320, category: 'Textiles', description: 'Manta tejida a mano con tintes naturales de cochinilla y nogal.' },
-      { name: 'Chullo Andino Tradicional', price: 85, category: 'Textiles', description: 'Chullo de lana de alpaca con iconografía inca.' },
-      { name: 'Camino del Sol — Tapiz', price: 540, category: 'Textiles', description: 'Tapiz ceremonial inspirado en el camino del Inti.' },
+      {
+        name: 'Manta Chinchero Inti', price: 320, category: 'Textiles',
+        description: 'Manta tejida a mano con tintes naturales de cochinilla y nogal.',
+        image: 'https://images.pexels.com/photos/24645287/pexels-photo-24645287.jpeg?w=900&q=80',
+      },
+      {
+        name: 'Chullo Andino Tradicional', price: 85, category: 'Textiles',
+        description: 'Chullo de lana de alpaca con iconografía inca.',
+        image: 'https://images.pexels.com/photos/33027862/pexels-photo-33027862.jpeg?w=900&q=80',
+      },
+      {
+        name: 'Camino del Sol — Tapiz', price: 540, category: 'Textiles',
+        description: 'Tapiz ceremonial inspirado en el camino del Inti.',
+        image: 'https://images.unsplash.com/photo-1578314874366-1975eac6e32a?w=900&q=80',
+      },
     ],
   },
   {
     name: 'Julián Mamani Apaza',
     phone: '999000002',
+    whatsapp: '51984123002',
     region: 'Puno',
     community: 'Pucará',
     specialty: 'Cerámica',
@@ -52,13 +71,22 @@ const artisans: SeedArtisan[] = [
     story:
       'El barro de Pucará tiene memoria. Mis toritos protegen los hogares como lo hicieron por siglos.',
     products: [
-      { name: 'Torito de Pucará Mediano', price: 140, category: 'Cerámica', description: 'Torito ceremonial pintado a mano, símbolo de protección.' },
-      { name: 'Vasija Tiwanaku', price: 260, category: 'Cerámica', description: 'Vasija decorativa con motivos prehispánicos.' },
+      {
+        name: 'Torito de Pucará Mediano', price: 140, category: 'Cerámica',
+        description: 'Torito ceremonial pintado a mano, símbolo de protección.',
+        image: 'https://images.pexels.com/photos/19822275/pexels-photo-19822275.jpeg?w=900&q=80',
+      },
+      {
+        name: 'Vasija Tiwanaku', price: 260, category: 'Cerámica',
+        description: 'Vasija decorativa con motivos prehispánicos.',
+        image: 'https://images.pexels.com/photos/8063852/pexels-photo-8063852.jpeg?w=900&q=80',
+      },
     ],
   },
   {
     name: 'Elena Huamán Flores',
     phone: '999000003',
+    whatsapp: '51984123003',
     region: 'Ayacucho',
     community: 'Quinua',
     specialty: 'Retablos',
@@ -67,13 +95,22 @@ const artisans: SeedArtisan[] = [
     story:
       'En cada retablo guardo un pedazo de mi pueblo: sus fiestas, su fe y su gente trabajadora.',
     products: [
-      { name: 'Retablo Fiesta Andina', price: 410, category: 'Retablos', description: 'Retablo de tres pisos con escenas costumbristas.' },
-      { name: 'Retablo Nacimiento', price: 230, category: 'Retablos', description: 'Nacimiento andino en caja de madera tallada.' },
+      {
+        name: 'Retablo Fiesta Andina', price: 410, category: 'Retablos',
+        description: 'Retablo de tres pisos con escenas costumbristas.',
+        image: 'https://images.pexels.com/photos/20130627/pexels-photo-20130627.jpeg?w=900&q=80',
+      },
+      {
+        name: 'Retablo Nacimiento', price: 230, category: 'Retablos',
+        description: 'Nacimiento andino en caja de madera tallada.',
+        image: 'https://images.pexels.com/photos/16151697/pexels-photo-16151697.jpeg?w=900&q=80',
+      },
     ],
   },
   {
     name: 'Marcelino Quispe Ríos',
     phone: '999000004',
+    whatsapp: '51984123004',
     region: 'Junín',
     community: 'San Pedro de Cajas',
     specialty: 'Tapicería',
@@ -82,13 +119,22 @@ const artisans: SeedArtisan[] = [
     story:
       'Convierto la lana en paisajes. Mis tapices llevan los valles del centro del Perú a otras tierras.',
     products: [
-      { name: 'Tapiz Valle del Mantaro', price: 620, category: 'Textiles', description: 'Paisaje andino tejido con lana de oveja teñida a mano.' },
-      { name: 'Tapiz Pastores', price: 380, category: 'Textiles', description: 'Escena de pastoreo con degradados naturales.' },
+      {
+        name: 'Tapiz Valle del Mantaro', price: 620, category: 'Textiles',
+        description: 'Paisaje andino tejido con lana de oveja teñida a mano.',
+        image: 'https://images.pexels.com/photos/38091248/pexels-photo-38091248.jpeg?w=900&q=80',
+      },
+      {
+        name: 'Tapiz Pastores', price: 380, category: 'Textiles',
+        description: 'Escena de pastoreo con degradados naturales.',
+        image: 'https://images.pexels.com/photos/35251793/pexels-photo-35251793.jpeg?w=900&q=80',
+      },
     ],
   },
   {
     name: 'Carmen Saavedra León',
     phone: '999000005',
+    whatsapp: '51984123005',
     region: 'Lima',
     community: 'Lurín',
     specialty: 'Joyería',
@@ -97,8 +143,16 @@ const artisans: SeedArtisan[] = [
     story:
       'La plata peruana cobra vida en mis manos. Cada pieza es ligera como un suspiro y fuerte como una raíz.',
     products: [
-      { name: 'Aretes Filigrana Colibrí', price: 175, category: 'Joyería', description: 'Aretes de plata 950 en filigrana, motivo colibrí.' },
-      { name: 'Collar Chakana', price: 290, category: 'Joyería', description: 'Collar con cruz andina en plata trabajada a mano.' },
+      {
+        name: 'Aretes Filigrana Colibrí', price: 175, category: 'Joyería',
+        description: 'Aretes de plata 950 en filigrana, motivo colibrí.',
+        image: 'https://images.pexels.com/photos/33873052/pexels-photo-33873052.jpeg?w=900&q=80',
+      },
+      {
+        name: 'Collar Chakana', price: 290, category: 'Joyería',
+        description: 'Collar con cruz andina en plata trabajada a mano.',
+        image: 'https://images.pexels.com/photos/33834689/pexels-photo-33834689.jpeg?w=900&q=80',
+      },
     ],
   },
 ]
@@ -150,6 +204,7 @@ async function main() {
             story: a.story,
             is_verified: true,
             rating: 4.8,
+            whatsapp: a.whatsapp,
           },
         },
       },
@@ -159,27 +214,48 @@ async function main() {
     const profileId = user.artisan_profile!.id
     refs[a.name] = { profileId, userId: user.id }
 
-    // Los productos no son idempotentes por sí solos (no hay clave natural),
-    // así que solo se siembran si el artesano aún no tiene ninguno.
-    const existingProducts = await prisma.product.count({ where: { artisan_id: profileId } })
-    if (existingProducts === 0) {
-      for (const p of a.products) {
-        await prisma.product.create({
-          data: {
-            artisan_id: profileId,
-            name: p.name,
-            slug: `${slugify(p.name)}-${Math.random().toString(36).slice(2, 7)}`,
-            description: p.description,
-            price: p.price,
-            stock: 5,
-            category: p.category,
-            technique: a.technique,
-            region: a.region,
-            materials: ['Materiales naturales'],
-            is_featured: true,
-          },
-        })
+    // whatsapp se completa siempre, aunque el artesano ya existiera de un
+    // seed anterior sin este campo — si no, el botón de WhatsApp en talleres
+    // y productos nunca aparecería en una demo re-sembrada.
+    await prisma.artisanProfile.update({
+      where: { id: profileId },
+      data: { whatsapp: a.whatsapp },
+    })
+
+    // Los productos no son idempotentes por sí solos (no hay clave natural).
+    // Si un producto con el mismo nombre ya existe para este artesano (de un
+    // seed anterior, quizás sin imagen), se le completa la foto en vez de
+    // crear un duplicado; si no existe, se crea con su imagen real.
+    for (const p of a.products) {
+      const existing = await prisma.product.findFirst({
+        where: { artisan_id: profileId, name: p.name },
+        select: { id: true, images: true },
+      })
+      if (existing) {
+        if (existing.images.length === 0) {
+          await prisma.product.update({
+            where: { id: existing.id },
+            data: { images: [p.image] },
+          })
+        }
+        continue
       }
+      await prisma.product.create({
+        data: {
+          artisan_id: profileId,
+          name: p.name,
+          slug: `${slugify(p.name)}-${Math.random().toString(36).slice(2, 7)}`,
+          description: p.description,
+          price: p.price,
+          stock: 5,
+          category: p.category,
+          technique: a.technique,
+          region: a.region,
+          materials: ['Materiales naturales'],
+          images: [p.image],
+          is_featured: true,
+        },
+      })
     }
   }
 
