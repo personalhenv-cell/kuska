@@ -209,5 +209,51 @@ chat Pusher y CFO-bot IA. Bugs reales encontrados y corregidos:
    modo público, verificado en vivo (`blob.generate-client-token`
    devuelve 200 con token válido).
 
+## 🟡 FASE 10 (cont.) — Integraciones pendientes reales (no bloqueadas por bug, por credenciales)
+- [ ] **Mux**: solo existe `MUX_TOKEN_ID`, falta `MUX_TOKEN_SECRET`. No hay
+      código de subida/reproducción de video implementado aún más allá del
+      placeholder — Raíces y Academia no tienen video real.
+- [ ] **Sentry**: no hay `SENTRY_DSN` ni integración de código — el
+      monitoreo de errores no está conectado (aparte del nuevo
+      `error.tsx`/`global-error.tsx`, que son boundaries de UI, no reporting).
+- [ ] **OneSignal server-side**: el SDK cliente sí está inicializado, pero
+      el envío de push desde el servidor (ej. "tu pedido fue confirmado")
+      no está implementado — falta `ONESIGNAL_API_KEY` y el código que la usa.
+
+## ✅ Auditoría de bugs + fluidez visual (post-lanzamiento)
+Auditoría completa de manejo de errores, estados de carga, validación y
+consistencia visual. Bugs reales encontrados y corregidos:
+- **Sin `error.tsx`/`global-error.tsx` en toda la app**: cualquier excepción
+  no atrapada mostraba la pantalla de error genérica de Next.js. Agregado
+  boundary de marca (Kusi + reintentar) y fallback mínimo para el root layout.
+- **5 toggles de admin sin rollback**: activar/suspender usuario, publicar
+  producto/academia, activar fondo/feria hacían update optimista sin
+  try/catch — si el server action fallaba, el switch quedaba en el estado
+  visual incorrecto para siempre, sin ningún aviso. Corregido en los 5.
+- **Postular a fondo / unirse a feria fallaban en silencio**: mismo patrón,
+  sin try/catch — ahora muestran el error real (ej. "requiere plan Maestro").
+- **Bug de pérdida de datos real**: la cuenta de artesano se creaba en el
+  paso 2→3 del registro, antes de que existiera el campo "tu historia"
+  (aparece en el paso 4) — lo que el artesano escribía ahí se perdía para
+  siempre. Ahora se persiste al finalizar el registro.
+- **Comentarios de Red Cuéntame duplicables por doble-click**: sin estado
+  de envío ni manejo de error. Corregido.
+- **Colores fuera de paleta**: `text-red-400` → `text-kuska-red` (login,
+  ambos registros); el botón de WhatsApp en producto tenía su propio verde
+  genérico de Tailwind en vez de reusar `<WhatsAppButton>`.
+- **`ApplicationStatusSelect` mostraba valores crudos del enum**
+  (`en_revision`, `aprobado`) en vez de etiquetas legibles.
+
+### Pendiente de una sesión dedicada (documentado, no bloqueante)
+- Rediseño de `/admin/*`: es el área menos pulida — usa HTML plano sin
+  `Button`/`TiltCard`/`Kusi`/framer-motion, e íconos de emoji en el sidebar
+  (viola la regla de oro de DESIGN.md). Requiere un set de íconos SVG y un
+  pase completo, mejor como su propia sesión que como parche rápido.
+- Cobertura real de i18n: el toggle ES/QU/EN solo traduce ~5 palabras del
+  navbar; el resto de la plataforma queda fijo en español.
+- Animaciones de entrada faltantes en `ProductDetail` (galería), páginas
+  públicas `/artesano/[id]` y `/talleres/[id]` — funcionales pero estáticas
+  comparadas con el resto de la app.
+
 > Las fases 4–12 están planificadas en detalle en el prompt maestro v8.0.
 > Cada fase debe cerrar con `npm run build` en 0 errores antes de avanzar.
