@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import toast from 'react-hot-toast'
 import { togglePublished } from './actions'
 
 export function PublishToggle({ postId, isPublished }: { postId: string; isPublished: boolean }) {
@@ -11,7 +12,12 @@ export function PublishToggle({ postId, isPublished }: { postId: string; isPubli
     const next = !published
     setPublished(next)
     startTransition(async () => {
-      await togglePublished(postId, next)
+      try {
+        await togglePublished(postId, next)
+      } catch (e) {
+        setPublished(!next)
+        toast.error(e instanceof Error ? e.message : 'No se pudo actualizar el estado')
+      }
     })
   }
 

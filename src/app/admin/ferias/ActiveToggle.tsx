@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import toast from 'react-hot-toast'
 import { toggleFairActive } from './actions'
 
 export function ActiveToggle({ fairId, isActive }: { fairId: string; isActive: boolean }) {
@@ -11,7 +12,12 @@ export function ActiveToggle({ fairId, isActive }: { fairId: string; isActive: b
     const next = !active
     setActive(next)
     startTransition(async () => {
-      await toggleFairActive(fairId, next)
+      try {
+        await toggleFairActive(fairId, next)
+      } catch (e) {
+        setActive(!next)
+        toast.error(e instanceof Error ? e.message : 'No se pudo actualizar el estado')
+      }
     })
   }
 
