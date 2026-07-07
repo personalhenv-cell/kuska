@@ -6,6 +6,7 @@ import { Kusi } from '@/components/ui/Kusi'
 import { Badge } from '@/components/ui/Badge'
 import { ModuleGrid, type ModuleCard } from '@/components/dashboard/ModuleGrid'
 import { SmartCards, type SmartCard } from '@/components/dashboard/SmartCards'
+import { StockAlerts } from '@/components/dashboard/StockAlerts'
 import { formatPrice, formatDate, timeGreeting } from '@/lib/utils'
 import { levelName, DEMO_UNLOCK_ALL_PLANS } from '@/lib/memberships'
 
@@ -142,6 +143,11 @@ export function ArtisanDashboardContent({
           <SmartCards cards={smartCards} />
         </motion.div>
       )}
+
+      {/* Alertas de stock bajo — señal urgente para reponer productos */}
+      <motion.div variants={itemVariants}>
+        <StockAlerts />
+      </motion.div>
 
       {/* Stats */}
       <motion.div variants={itemVariants} className="grid grid-cols-2 gap-4 lg:grid-cols-4">

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { ProductCard } from '@/components/marketplace/ProductCard'
 import { FiltersSidebar } from '@/components/marketplace/FiltersSidebar'
-import { SearchBar } from '@/components/marketplace/SearchBar'
+import { SmartSearchBar } from '@/components/marketplace/SmartSearchBar'
 import { SkeletonGrid } from '@/components/ui/SkeletonCard'
 import { Kusi } from '@/components/ui/Kusi'
 import type { FiltersState, ProductListItem, ProductsResponse } from '@/types/marketplace'
@@ -113,9 +113,9 @@ export function MarketplaceClient() {
             Arte peruano hecho a mano con historia
           </p>
         </div>
-        <SearchBar
+        <SmartSearchBar
           value={filters.q}
-          onChange={(q) => setFilters((prev) => ({ ...prev, q }))}
+          onSearch={(q) => setFilters((prev) => ({ ...prev, q }))}
         />
       </div>
 

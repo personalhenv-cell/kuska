@@ -14,15 +14,16 @@ interface Suggestion {
 }
 
 interface SmartSearchBarProps {
+  value?: string
   onSearch?: (query: string) => void
   onRegionFilter?: (region: string) => void
 }
 
 const POPULAR_SEARCHES = ['Textiles', 'Cerámica', 'Joyería', 'Cusco', 'Ayacucho']
 
-export function SmartSearchBar({ onSearch }: SmartSearchBarProps) {
+export function SmartSearchBar({ value, onSearch }: SmartSearchBarProps) {
   const router = useRouter()
-  const [query, setQuery] = useState('')
+  const [query, setQuery] = useState(value ?? '')
   const [suggestions, setSuggestions] = useState<Suggestion[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -33,6 +34,10 @@ export function SmartSearchBar({ onSearch }: SmartSearchBarProps) {
     const saved = localStorage.getItem('search_history')
     if (saved) setHistory(JSON.parse(saved))
   }, [])
+
+  useEffect(() => {
+    if (value !== undefined) setQuery(value)
+  }, [value])
 
   const fetchSuggestions = useCallback(async (q: string) => {
     if (q.length < 2) {
@@ -61,10 +66,14 @@ export function SmartSearchBar({ onSearch }: SmartSearchBarProps) {
     const newHistory = [q, ...history.filter((h) => h !== q)].slice(0, 5)
     setHistory(newHistory)
     localStorage.setItem('search_history', JSON.stringify(newHistory))
-    onSearch?.(q)
-    router.push(`/marketplace?q=${encodeURIComponent(q)}`)
+    if (onSearch) {
+      onSearch(q)
+      setQuery(q)
+    } else {
+      router.push(`/marketplace?q=${encodeURIComponent(q)}`)
+      setQuery('')
+    }
     setShowSuggestions(false)
-    setQuery('')
   }
 
   return (
@@ -128,7 +137,7 @@ export function SmartSearchBar({ onSearch }: SmartSearchBarProps) {
               )}
               {!loading && suggestions.length === 0 && query.length >= 2 && (
                 <div className="px-4 py-3 text-center font-body text-sm text-kuska-text-mid">
-                  No encontramos productos con "{query}"
+                  No encontramos productos con &ldquo;{query}&rdquo;
                 </div>
               )}
             </>

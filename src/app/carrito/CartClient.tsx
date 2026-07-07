@@ -9,7 +9,7 @@ import { useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/Button'
 import { RippleButton } from '@/components/ui/RippleButton'
 import { Kusi } from '@/components/ui/Kusi'
-import { SkeletonCard } from '@/components/ui/SkeletonCard'
+import { SkeletonProductCard } from '@/components/ui/SkeletonCard'
 import { formatPrice } from '@/lib/utils'
 
 export function CartClient() {
@@ -22,7 +22,7 @@ export function CartClient() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
         <div className="rounded-card border border-dashed border-kuska-border bg-white p-12 text-center">
-          <Kusi size="md" expression="confused" className="mx-auto" />
+          <Kusi size="md" expression="dudoso" className="mx-auto" />
           <p className="mt-4 font-display text-lg font-bold text-kuska-text">Debes iniciar sesión</p>
           <p className="mt-2 font-body text-kuska-text-mid">Para ver tu carrito, por favor inicia sesión primero</p>
           <Link href="/login" className="mt-6 inline-block">
@@ -36,7 +36,7 @@ export function CartClient() {
   }
 
   if (loading) {
-    return <SkeletonCard />
+    return <SkeletonProductCard />
   }
 
   if (items.length === 0) {

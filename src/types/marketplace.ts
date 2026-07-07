@@ -12,6 +12,7 @@ export interface ProductListItem {
   name: string
   description: string
   price: number
+  stock: number
   images: string[]
   category: string
   technique: string
@@ -25,7 +26,6 @@ export interface ProductListItem {
 }
 
 export interface ProductDetail extends ProductListItem {
-  stock: number
   materials: string[]
   dominant_colors: string[]
   is_custom_order: boolean
