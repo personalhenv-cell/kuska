@@ -2,6 +2,7 @@ import { getServerSession } from 'next-auth'
 import { z } from 'zod'
 import { authOptions } from '@/auth/config'
 import { prisma } from '@/lib/prisma'
+import { hasPlanAccess } from '@/lib/memberships'
 import { generateGemini } from '@/lib/gemini'
 
 const DescriptionSchema = z.object({
@@ -23,7 +24,7 @@ export async function POST(req: Request) {
     where: { id: session.user.artisan_profile_id },
     select: { membership_tier: true },
   })
-  if (profile?.membership_tier !== 'pro' && profile?.membership_tier !== 'maestro') {
+  if (!hasPlanAccess(profile?.membership_tier, 'pro')) {
     return new Response(
       JSON.stringify({ error: 'Las descripciones con IA son parte del plan Artesano Pro o superior' }),
       { status: 403 },

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { authOptions } from '@/auth/config'
 import { prisma } from '@/lib/prisma'
 import { MembershipGate } from '@/components/dashboard/MembershipGate'
+import { hasPlanAccess } from '@/lib/memberships'
 import { formatDate } from '@/lib/utils'
 
 export default async function AcademiaPostPage({ params }: { params: { slug: string } }) {
@@ -17,7 +18,7 @@ export default async function AcademiaPostPage({ params }: { params: { slug: str
     select: { membership_tier: true },
   })
 
-  if (profile?.membership_tier !== 'pro' && profile?.membership_tier !== 'maestro') {
+  if (!hasPlanAccess(profile?.membership_tier, 'pro')) {
     return <MembershipGate requiredPlan="pro" featureName="Academia Kuska" />
   }
 

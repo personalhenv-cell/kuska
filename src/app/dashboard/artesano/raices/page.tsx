@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { authOptions } from '@/auth/config'
 import { prisma } from '@/lib/prisma'
 import { MembershipGate } from '@/components/dashboard/MembershipGate'
+import { hasPlanAccess } from '@/lib/memberships'
 import { RaicesEditor } from './RaicesEditor'
 
 export default async function RaicesPage() {
@@ -16,7 +17,7 @@ export default async function RaicesPage() {
     select: { membership_tier: true, story: true, story_audio_url: true, genealogy: true, workshop_photos: true },
   })
 
-  if (profile?.membership_tier !== 'pro' && profile?.membership_tier !== 'maestro') {
+  if (!hasPlanAccess(profile?.membership_tier, 'pro')) {
     return <MembershipGate requiredPlan="pro" featureName="El módulo Raíces completo" />
   }
 

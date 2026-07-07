@@ -1,6 +1,7 @@
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/auth/config'
 import { prisma } from '@/lib/prisma'
+import { hasPlanAccess } from '@/lib/memberships'
 import { generateGemini } from '@/lib/gemini'
 
 export async function POST() {
@@ -13,7 +14,7 @@ export async function POST() {
     where: { id: session.user.artisan_profile_id },
     select: { membership_tier: true, specialty: true, technique: true, region: true, story: true },
   })
-  if (artisan?.membership_tier !== 'maestro') {
+  if (!artisan || !hasPlanAccess(artisan.membership_tier, 'maestro')) {
     return new Response(
       JSON.stringify({ error: 'El Match con emprendedores es exclusivo del plan Artesano Maestro' }),
       { status: 403 },

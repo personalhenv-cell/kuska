@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { authOptions } from '@/auth/config'
 import { prisma } from '@/lib/prisma'
 import { MembershipGate } from '@/components/dashboard/MembershipGate'
+import { hasPlanAccess } from '@/lib/memberships'
 import { MatchFinder } from './MatchFinder'
 
 export default async function MatchIaPage() {
@@ -16,7 +17,7 @@ export default async function MatchIaPage() {
     select: { membership_tier: true },
   })
 
-  if (profile?.membership_tier !== 'maestro') {
+  if (!hasPlanAccess(profile?.membership_tier, 'maestro')) {
     return <MembershipGate requiredPlan="maestro" featureName="Match artesano-emprendedor con IA" />
   }
 

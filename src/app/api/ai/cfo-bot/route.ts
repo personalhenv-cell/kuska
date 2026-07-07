@@ -2,6 +2,7 @@ import { getServerSession } from 'next-auth'
 import { z } from 'zod'
 import { authOptions } from '@/auth/config'
 import { prisma } from '@/lib/prisma'
+import { hasPlanAccess } from '@/lib/memberships'
 import { generateGemini } from '@/lib/gemini'
 
 const MessageSchema = z.object({
@@ -26,7 +27,7 @@ export async function POST(req: Request) {
     where: { id: session.user.artisan_profile_id },
     select: { membership_tier: true },
   })
-  if (profile?.membership_tier !== 'maestro') {
+  if (!hasPlanAccess(profile?.membership_tier, 'maestro')) {
     return new Response(
       JSON.stringify({ error: 'El CFO-Bot IA es exclusivo del plan Artesano Maestro' }),
       { status: 403 },

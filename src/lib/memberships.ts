@@ -110,6 +110,24 @@ export function getPlan(id: string): MembershipPlan | undefined {
   return ALL_PLANS.find((p) => p.id === id)
 }
 
+/**
+ * MODO DEMO — desbloquea todos los módulos con gate de plan (CFO-Bot,
+ * Match IA, Descripciones IA, Raíces, Academia, Capitalización) sin
+ * importar la membresía del usuario. Los planes y /precios siguen
+ * visibles como parte del modelo de negocio.
+ * Para reactivar los gates de pago: cambiar a `false` — nada más.
+ */
+export const DEMO_UNLOCK_ALL_PLANS = true
+
+const ARTISAN_PLAN_ORDER: ArtisanPlan[] = ['semilla', 'pro', 'maestro']
+
+/** ¿El plan `tier` incluye lo que exige `required`? (respeta el modo demo) */
+export function hasPlanAccess(tier: string | null | undefined, required: ArtisanPlan): boolean {
+  if (DEMO_UNLOCK_ALL_PLANS) return true
+  const current = ARTISAN_PLAN_ORDER.indexOf((tier ?? 'semilla') as ArtisanPlan)
+  return current >= ARTISAN_PLAN_ORDER.indexOf(required)
+}
+
 /** Módulo 12 — nombres de nivel de gamificación (independiente de membresías). */
 const LEVEL_NAMES = ['Aprendiz', 'Artesano', 'Maestro', 'Gran Maestro', 'Leyenda'] as const
 

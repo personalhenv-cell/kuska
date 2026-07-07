@@ -6,7 +6,7 @@ import { Kusi } from '@/components/ui/Kusi'
 import { Badge } from '@/components/ui/Badge'
 import { ModuleGrid, type ModuleCard } from '@/components/dashboard/ModuleGrid'
 import { formatPrice, formatDate } from '@/lib/utils'
-import { levelName } from '@/lib/memberships'
+import { levelName, DEMO_UNLOCK_ALL_PLANS } from '@/lib/memberships'
 
 interface User {
   name: string | null
@@ -78,8 +78,9 @@ export function ArtisanDashboardContent({
   const planId = plan?.id ?? 'semilla'
   // Chip informativo del plan requerido — el módulo sigue siendo clickeable
   // (cada página muestra su propio MembershipGate con la opción de mejorar).
-  const proChip = planId === 'semilla' ? 'Plan Pro' : undefined
-  const maestroChip = planId !== 'maestro' ? 'Plan Maestro' : undefined
+  // En modo demo todo está desbloqueado, así que no se muestran chips.
+  const proChip = !DEMO_UNLOCK_ALL_PLANS && planId === 'semilla' ? 'Plan Pro' : undefined
+  const maestroChip = !DEMO_UNLOCK_ALL_PLANS && planId !== 'maestro' ? 'Plan Maestro' : undefined
 
   const modules: ModuleCard[] = [
     { href: '/dashboard/artesano/productos', icon: 'palette', title: 'Mis productos', desc: 'Publica y gestiona tus piezas sin límite, con catálogo PDF.' },

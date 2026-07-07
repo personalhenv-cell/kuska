@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { authOptions } from '@/auth/config'
 import { prisma } from '@/lib/prisma'
 import { MembershipGate } from '@/components/dashboard/MembershipGate'
+import { hasPlanAccess } from '@/lib/memberships'
 import { DescriptionGenerator } from './DescriptionGenerator'
 
 export default async function IaDescripcionPage() {
@@ -16,7 +17,7 @@ export default async function IaDescripcionPage() {
     select: { membership_tier: true },
   })
 
-  if (profile?.membership_tier !== 'pro' && profile?.membership_tier !== 'maestro') {
+  if (!hasPlanAccess(profile?.membership_tier, 'pro')) {
     return <MembershipGate requiredPlan="pro" featureName="Las descripciones con IA" />
   }
 

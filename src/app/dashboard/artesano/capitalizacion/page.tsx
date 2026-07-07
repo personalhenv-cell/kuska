@@ -4,6 +4,7 @@ import { authOptions } from '@/auth/config'
 import { prisma } from '@/lib/prisma'
 import { formatPrice, formatDate } from '@/lib/utils'
 import { MembershipGate } from '@/components/dashboard/MembershipGate'
+import { hasPlanAccess } from '@/lib/memberships'
 import { ApplyButton } from './ApplyButton'
 
 export default async function CapitalizacionPage() {
@@ -18,7 +19,7 @@ export default async function CapitalizacionPage() {
     select: { membership_tier: true },
   })
 
-  if (profile?.membership_tier !== 'maestro') {
+  if (!hasPlanAccess(profile?.membership_tier, 'maestro')) {
     return <MembershipGate requiredPlan="maestro" featureName="El Hub de Capitalización" />
   }
 
