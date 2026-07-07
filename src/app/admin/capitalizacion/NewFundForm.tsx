@@ -1,6 +1,8 @@
 'use client'
 
 import { useRef, useState } from 'react'
+import toast from 'react-hot-toast'
+import { Button } from '@/components/ui/Button'
 import { createFund } from './actions'
 
 const INPUT_CLASS =
@@ -15,6 +17,9 @@ export function NewFundForm() {
     try {
       await createFund(formData)
       formRef.current?.reset()
+      toast.success('Convocatoria creada')
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'No se pudo crear la convocatoria')
     } finally {
       setSaving(false)
     }
@@ -31,13 +36,9 @@ export function NewFundForm() {
       <input name="deadline" type="date" required className={INPUT_CLASS} />
       <input name="requirements" placeholder="Requisitos separados por coma" className={INPUT_CLASS} />
       <input name="link" type="url" placeholder="Enlace externo (opcional)" className={INPUT_CLASS} />
-      <button
-        type="submit"
-        disabled={saving}
-        className="rounded-btn bg-kuska-red px-5 py-2.5 font-body text-sm font-bold text-white disabled:opacity-50"
-      >
+      <Button type="submit" disabled={saving}>
         {saving ? 'Creando…' : 'Crear convocatoria'}
-      </button>
+      </Button>
     </form>
   )
 }

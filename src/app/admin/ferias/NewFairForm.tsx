@@ -1,6 +1,8 @@
 'use client'
 
 import { useRef, useState } from 'react'
+import toast from 'react-hot-toast'
+import { Button } from '@/components/ui/Button'
 import { createFair } from './actions'
 
 const INPUT_CLASS =
@@ -15,6 +17,9 @@ export function NewFairForm() {
     try {
       await createFair(formData)
       formRef.current?.reset()
+      toast.success('Feria creada')
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'No se pudo crear la feria')
     } finally {
       setSaving(false)
     }
@@ -30,13 +35,9 @@ export function NewFairForm() {
         <input name="start_date" type="date" required className={INPUT_CLASS} />
         <input name="end_date" type="date" required className={INPUT_CLASS} />
       </div>
-      <button
-        type="submit"
-        disabled={saving}
-        className="rounded-btn bg-kuska-red px-5 py-2.5 font-body text-sm font-bold text-white disabled:opacity-50"
-      >
+      <Button type="submit" disabled={saving}>
         {saving ? 'Creando…' : 'Crear feria'}
-      </button>
+      </Button>
     </form>
   )
 }

@@ -4,18 +4,19 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
 import { Logo } from '@/components/ui/Logo'
+import { Icon, type IconName } from '@/components/ui/Icon'
 import type { Session } from 'next-auth'
 
 type User = Session['user']
 
-const navItems = [
-  { href: '/admin', label: 'Resumen', icon: '📊', exact: true },
-  { href: '/admin/usuarios', label: 'Usuarios', icon: '👥', exact: false },
-  { href: '/admin/productos', label: 'Productos', icon: '🎨', exact: false },
-  { href: '/admin/pedidos', label: 'Pedidos', icon: '📦', exact: false },
-  { href: '/admin/academia', label: 'Academia', icon: '🎓', exact: false },
-  { href: '/admin/ferias', label: 'Ferias Digitales', icon: '🎪', exact: false },
-  { href: '/admin/capitalizacion', label: 'Capitalización', icon: '💰', exact: false },
+const navItems: { href: string; label: string; icon: IconName; exact: boolean }[] = [
+  { href: '/admin', label: 'Resumen', icon: 'dashboard', exact: true },
+  { href: '/admin/usuarios', label: 'Usuarios', icon: 'users', exact: false },
+  { href: '/admin/productos', label: 'Productos', icon: 'palette', exact: false },
+  { href: '/admin/pedidos', label: 'Pedidos', icon: 'box', exact: false },
+  { href: '/admin/academia', label: 'Academia', icon: 'academy', exact: false },
+  { href: '/admin/ferias', label: 'Ferias Digitales', icon: 'tent', exact: false },
+  { href: '/admin/capitalizacion', label: 'Capitalización', icon: 'wallet', exact: false },
 ]
 
 export function AdminSidebar({ user }: { user: User }) {
@@ -48,13 +49,13 @@ export function AdminSidebar({ user }: { user: User }) {
           <Link
             key={item.href}
             href={item.href}
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-btn font-body text-sm transition-all ${
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-btn font-body text-sm transition-all hover:translate-x-0.5 ${
               isActive(item.href, item.exact)
                 ? 'bg-kuska-gold/15 text-kuska-brown font-semibold'
                 : 'text-kuska-text-mid hover:bg-kuska-cream hover:text-kuska-text'
             }`}
           >
-            <span className="text-base">{item.icon}</span>
+            <Icon name={item.icon} className="h-[18px] w-[18px] flex-shrink-0" />
             {item.label}
           </Link>
         ))}

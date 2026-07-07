@@ -1,6 +1,8 @@
 'use client'
 
 import { useRef, useState } from 'react'
+import toast from 'react-hot-toast'
+import { Button } from '@/components/ui/Button'
 import { createBlogPost } from './actions'
 
 const INPUT_CLASS =
@@ -15,6 +17,9 @@ export function NewPostForm() {
     try {
       await createBlogPost(formData)
       formRef.current?.reset()
+      toast.success('Publicado')
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'No se pudo publicar')
     } finally {
       setSaving(false)
     }
@@ -28,13 +33,9 @@ export function NewPostForm() {
       <textarea name="excerpt" placeholder="Resumen corto (aparece en la lista)" required className={`${INPUT_CLASS} h-16 resize-none`} />
       <textarea name="content" placeholder="Contenido completo" required className={`${INPUT_CLASS} h-40 resize-none`} />
       <input name="tags" placeholder="Etiquetas separadas por coma (ej: precios, fotografía)" className={INPUT_CLASS} />
-      <button
-        type="submit"
-        disabled={saving}
-        className="rounded-btn bg-kuska-red px-5 py-2.5 font-body text-sm font-bold text-white disabled:opacity-50"
-      >
+      <Button type="submit" disabled={saving}>
         {saving ? 'Publicando…' : 'Publicar'}
-      </button>
+      </Button>
     </form>
   )
 }

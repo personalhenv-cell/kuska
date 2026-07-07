@@ -28,7 +28,7 @@ export default async function AdminProductosPage() {
           </thead>
           <tbody>
             {products.map((p) => (
-              <tr key={p.id} className="border-b border-kuska-border last:border-0">
+              <tr key={p.id} className="border-b border-kuska-border transition-colors last:border-0 hover:bg-kuska-cream/40">
                 <td className="px-4 py-3 font-body text-sm text-kuska-text">{p.name}</td>
                 <td className="px-4 py-3 font-body text-sm text-kuska-text-mid">{p.artisan.user.name}</td>
                 <td className="px-4 py-3 font-body text-sm text-kuska-text">{formatPrice(p.price)}</td>

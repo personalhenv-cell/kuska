@@ -31,7 +31,7 @@ export default async function AdminFeriasPage() {
           </thead>
           <tbody>
             {fairs.map((f) => (
-              <tr key={f.id} className="border-b border-kuska-border last:border-0">
+              <tr key={f.id} className="border-b border-kuska-border transition-colors last:border-0 hover:bg-kuska-cream/40">
                 <td className="px-4 py-3 font-body text-sm text-kuska-text">{f.title}</td>
                 <td className="px-4 py-3 font-body text-sm text-kuska-text-mid">{f.theme}</td>
                 <td className="px-4 py-3 font-body text-sm text-kuska-text-mid">

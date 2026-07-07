@@ -35,7 +35,7 @@ export default async function AdminPedidosPage() {
               </tr>
             )}
             {orders.map((o) => (
-              <tr key={o.id} className="border-b border-kuska-border last:border-0">
+              <tr key={o.id} className="border-b border-kuska-border transition-colors last:border-0 hover:bg-kuska-cream/40">
                 <td className="px-4 py-3 font-body text-sm text-kuska-text">{o.client.name}</td>
                 <td className="px-4 py-3 font-body text-sm text-kuska-text-mid">{o.items.length}</td>
                 <td className="px-4 py-3 font-body text-sm text-kuska-text">{formatPrice(o.total)}</td>

@@ -36,7 +36,7 @@ export default async function AdminUsuariosPage() {
           </thead>
           <tbody>
             {users.map((u) => (
-              <tr key={u.id} className="border-b border-kuska-border last:border-0">
+              <tr key={u.id} className="border-b border-kuska-border transition-colors last:border-0 hover:bg-kuska-cream/40">
                 <td className="px-4 py-3 font-body text-sm text-kuska-text">{u.name}</td>
                 <td className="px-4 py-3 font-body text-sm text-kuska-text-mid">
                   {u.phone}{u.email ? ` · ${u.email}` : ''}

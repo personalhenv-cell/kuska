@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { formatPrice, formatDate } from '@/lib/utils'
+import { Icon } from '@/components/ui/Icon'
 import { ActiveToggle } from './ActiveToggle'
 import { NewFundForm } from './NewFundForm'
 import { ApplicationStatusSelect } from './ApplicationStatusSelect'
@@ -51,12 +52,15 @@ export default async function AdminCapitalizacionPage() {
                   </thead>
                   <tbody>
                     {f.applications.map((a) => (
-                      <tr key={a.id}>
+                      <tr key={a.id} className="transition-colors hover:bg-kuska-cream/40">
                         <td className="py-1.5 font-body text-sm text-kuska-text">
                           {a.artisan?.user.name ?? a.client?.user.name ?? '—'}
                         </td>
                         <td className="py-1.5 font-nunito text-xs text-kuska-text-mid">
-                          {a.artisan ? '🎨 Artesano' : '🚀 Emprendedor'}
+                          <span className="inline-flex items-center gap-1.5">
+                            <Icon name={a.artisan ? 'palette' : 'rocket'} className="h-3.5 w-3.5" />
+                            {a.artisan ? 'Artesano' : 'Emprendedor'}
+                          </span>
                         </td>
                         <td className="py-1.5">
                           <ApplicationStatusSelect applicationId={a.id} status={a.status} />
