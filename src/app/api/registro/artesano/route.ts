@@ -11,7 +11,7 @@ const schema = z.object({
   specialty: z.string().min(2),
   technique: z.string().min(2),
   region: z.string().min(2),
-  community: z.string().min(2),
+  community: z.string().trim().max(120).optional(),
   years_experience: z.number().int().min(0).max(80).default(0),
   story: z.string().optional(),
 })
@@ -42,7 +42,7 @@ export async function POST(req: Request) {
       email,
       role: 'artesano',
       artisan_profile: {
-        create: { specialty, technique, region, community, years_experience, story },
+        create: { specialty, technique, region, community: community || '', years_experience, story },
       },
     },
     include: { artisan_profile: true },

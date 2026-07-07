@@ -55,7 +55,7 @@ export default async function ArtisanRaicesPage({ params }: PageProps) {
           <div>
             <h1 className="font-display text-3xl font-bold text-kuska-text">{artisan.user.name}</h1>
             <p className="font-body text-kuska-text-mid">
-              {artisan.specialty} · {artisan.technique} · {artisan.community}, {artisan.region}
+              {artisan.specialty} · {artisan.technique} · {artisan.community ? `${artisan.community}, ` : ''}{artisan.region}
             </p>
             {artisan.is_verified && (
               <span className="mt-1 inline-block rounded-full bg-kuska-teal/15 px-2.5 py-0.5 font-nunito text-xs font-bold uppercase text-kuska-teal">

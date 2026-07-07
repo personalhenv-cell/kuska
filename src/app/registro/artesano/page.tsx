@@ -15,9 +15,14 @@ import { updateArtisanProfile } from '@/app/dashboard/artesano/perfil/actions'
 
 type Step = 1 | 2 | 3 | 4 | 5
 
-const REGIONS = ['Cusco', 'Puno', 'Ayacucho', 'Junín', 'Lima', 'Arequipa', 'Amazonas', 'Piura', 'Loreto', 'Cajamarca', 'Huancavelica', 'Apurímac']
+const REGIONS = [
+  'Amazonas', 'Áncash', 'Apurímac', 'Arequipa', 'Ayacucho', 'Cajamarca', 'Callao', 'Cusco',
+  'Huancavelica', 'Huánuco', 'Ica', 'Junín', 'La Libertad', 'Lambayeque', 'Lima', 'Loreto',
+  'Madre de Dios', 'Moquegua', 'Pasco', 'Piura', 'Puno', 'San Martín', 'Tacna', 'Tumbes', 'Ucayali',
+]
 const TECHNIQUES = ['Telar de cintura', 'Telar de pedal', 'Modelado y bruñido', 'Retablo ayacuchano', 'Filigrana de plata', 'Tapicería', 'Tallado en madera', 'Bordado', 'Macramé', 'Repujado']
 const SPECIALTIES = ['Textilería', 'Cerámica', 'Joyería', 'Retablos', 'Madera', 'Cuero', 'Gobelino', 'Pintura', 'Platería', 'Cestería']
+const OTHER = 'Otro'
 
 interface FormData {
   name: string
@@ -32,8 +37,9 @@ interface FormData {
   otp: string
 }
 
-const INPUT = 'w-full rounded-[12px] border border-white/30 bg-white px-4 py-3 font-body text-kuska-text placeholder:text-kuska-text-mid/50 focus:border-kuska-gold focus:outline-none focus:ring-2 focus:ring-kuska-gold/30 transition-all'
+const INPUT = 'w-full rounded-[12px] border border-white/30 bg-white px-4 py-3 font-body text-kuska-text placeholder:italic placeholder:text-kuska-text-mid/40 placeholder:font-normal focus:border-kuska-gold focus:outline-none focus:ring-2 focus:ring-kuska-gold/30 transition-all'
 const LABEL = 'block mb-1.5 font-nunito text-xs font-bold uppercase tracking-wide text-kuska-cream/60'
+const HINT = 'mt-1.5 font-body text-xs text-kuska-cream/45'
 
 function ProgressBar({ step }: { step: Step }) {
   const pct = ((step - 1) / 4) * 100
@@ -53,23 +59,49 @@ function ProgressBar({ step }: { step: Step }) {
   )
 }
 
-function SelectPill({ options, value, onChange }: { options: string[]; value: string; onChange: (v: string) => void }) {
+/** Select de pills con opción "Otro": si el valor actual no está en `options`, se asume texto libre. */
+function SelectPillOther({
+  options, value, onChange, placeholder,
+}: { options: string[]; value: string; onChange: (v: string) => void; placeholder: string }) {
+  const [otherMode, setOtherMode] = useState(value !== '' && !options.includes(value))
   return (
-    <div className="flex flex-wrap gap-2">
-      {options.map((o) => (
+    <div>
+      <div className="flex flex-wrap gap-2">
+        {options.map((o) => (
+          <button
+            key={o}
+            type="button"
+            onClick={() => { setOtherMode(false); onChange(o) }}
+            className={`rounded-full border px-3 py-1 font-body text-xs transition-all ${
+              !otherMode && value === o
+                ? 'border-kuska-gold bg-kuska-gold/20 text-kuska-gold font-semibold'
+                : 'border-white/20 text-kuska-cream/65 hover:border-kuska-gold/50 hover:text-kuska-cream'
+            }`}
+          >
+            {o}
+          </button>
+        ))}
         <button
-          key={o}
           type="button"
-          onClick={() => onChange(o)}
-          className={`rounded-full border px-3 py-1 font-body text-xs transition-all ${
-            value === o
+          onClick={() => { setOtherMode(true); onChange('') }}
+          className={`rounded-full border border-dashed px-3 py-1 font-body text-xs transition-all ${
+            otherMode
               ? 'border-kuska-gold bg-kuska-gold/20 text-kuska-gold font-semibold'
-              : 'border-white/20 text-kuska-cream/65 hover:border-kuska-gold/50 hover:text-kuska-cream'
+              : 'border-white/30 text-kuska-cream/65 hover:border-kuska-gold/50 hover:text-kuska-cream'
           }`}
         >
-          {o}
+          {OTHER} +
         </button>
-      ))}
+      </div>
+      {otherMode && (
+        <input
+          className={`${INPUT} mt-2`}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          autoFocus
+        />
+      )}
     </div>
   )
 }
@@ -213,7 +245,7 @@ export default function RegistroArtesanoPage() {
                       className={INPUT}
                       value={form.name}
                       onChange={(e) => set('name')(e.target.value)}
-                      placeholder="Ana Quispe"
+                      placeholder="Ej: Ana Quispe"
                       required
                     />
                   </div>
@@ -225,7 +257,7 @@ export default function RegistroArtesanoPage() {
                       inputMode="tel"
                       value={form.phone}
                       onChange={(e) => set('phone')(e.target.value)}
-                      placeholder="999 888 777"
+                      placeholder="Ej: 999 888 777"
                       required
                     />
                   </div>
@@ -236,10 +268,10 @@ export default function RegistroArtesanoPage() {
                       type="email"
                       value={form.email}
                       onChange={(e) => set('email')(e.target.value)}
-                      placeholder="ana@correo.com"
+                      placeholder="Ej: ana@correo.com"
                       required
                     />
-                    <p className="mt-1.5 font-body text-xs text-kuska-cream/45">Aquí te enviaremos tu código de acceso.</p>
+                    <p className={HINT}>Aquí te enviaremos tu código de acceso.</p>
                   </div>
                   <RippleButton className="block w-full">
                     <Button size="lg" className="w-full" onClick={() => form.name && form.phone && form.email && setStep(2)}>
@@ -263,40 +295,45 @@ export default function RegistroArtesanoPage() {
                   </div>
                   <div>
                     <p className={LABEL}>Especialidad</p>
-                    <SelectPill options={SPECIALTIES} value={form.specialty} onChange={set('specialty')} />
+                    <SelectPillOther options={SPECIALTIES} value={form.specialty} onChange={set('specialty')} placeholder="Ej: Tejido en fibra de alpaca" />
                   </div>
                   <div>
                     <p className={LABEL}>Técnica principal</p>
-                    <SelectPill options={TECHNIQUES} value={form.technique} onChange={set('technique')} />
+                    <SelectPillOther options={TECHNIQUES} value={form.technique} onChange={set('technique')} placeholder="Ej: Nudo pima" />
                   </div>
                   <div>
                     <p className={LABEL}>Región</p>
-                    <SelectPill options={REGIONS} value={form.region} onChange={set('region')} />
+                    <SelectPillOther options={REGIONS} value={form.region} onChange={set('region')} placeholder="Ej: Otra región o país" />
+                    <p className={HINT}>Cobertura a nivel nacional. Si tu región no aparece, usa &quot;Otro&quot;.</p>
                   </div>
                   <div>
-                    <label className={LABEL}>Comunidad o ciudad</label>
+                    <label className={LABEL}>Comunidad o ciudad <span className="normal-case font-normal text-kuska-cream/40">(opcional)</span></label>
                     <input
                       className={INPUT}
                       value={form.community}
                       onChange={(e) => set('community')(e.target.value)}
-                      placeholder="Pisaq, Cusco"
+                      placeholder="Ej: Pisaq, Cusco"
                     />
+                    <p className={HINT}>El pueblo o ciudad donde vives y creas — aparece en tu perfil público para que clientes conozcan tu origen.</p>
                   </div>
                   <div>
                     <label className={LABEL}>Años de experiencia</label>
                     <input
                       className={INPUT}
                       type="number"
+                      min={0}
+                      max={80}
                       value={String(form.years_experience)}
                       onChange={(e) => set('years_experience')(Number(e.target.value))}
-                      placeholder="5"
+                      placeholder="Ej: 5"
                     />
+                    <p className={HINT}>Cuántos años llevas practicando tu oficio — genera confianza en quienes ven tu perfil.</p>
                   </div>
                   {error && <p className="font-body text-xs text-kuska-red">{error}</p>}
                   <div className="flex gap-3">
                     <Button variant="ghost" size="lg" className="flex-1" onClick={() => setStep(1)}>← Atrás</Button>
                     <RippleButton className="block flex-1">
-                      <Button size="lg" className="w-full" onClick={submit} disabled={loading || !form.specialty || !form.region}>
+                      <Button size="lg" className="w-full" onClick={submit} disabled={loading || !form.specialty || !form.technique || !form.region}>
                         {loading ? 'Creando…' : 'Crear cuenta'}
                       </Button>
                     </RippleButton>

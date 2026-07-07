@@ -15,7 +15,12 @@ import { AuthBackground } from '@/components/auth/AuthBackground'
 type Step = 1 | 2 | 3 | 4
 
 const INTERESTS = ['Textiles', 'Cerámica', 'Joyería', 'Retablos', 'Madera', 'Arte contemporáneo']
-const REGIONS = ['Cusco', 'Puno', 'Ayacucho', 'Junín', 'Lima', 'Arequipa', 'Amazonas']
+const REGIONS = [
+  'Amazonas', 'Áncash', 'Apurímac', 'Arequipa', 'Ayacucho', 'Cajamarca', 'Callao', 'Cusco',
+  'Huancavelica', 'Huánuco', 'Ica', 'Junín', 'La Libertad', 'Lambayeque', 'Lima', 'Loreto',
+  'Madre de Dios', 'Moquegua', 'Pasco', 'Piura', 'Puno', 'San Martín', 'Tacna', 'Tumbes', 'Ucayali',
+]
+const OTHER = 'Otro'
 
 interface FormData {
   name: string
@@ -27,30 +32,67 @@ interface FormData {
   otp: string
 }
 
-const INPUT = 'w-full rounded-[12px] border border-white/30 bg-white px-4 py-3 font-body text-kuska-text placeholder:text-kuska-text-mid/50 focus:border-kuska-gold focus:outline-none focus:ring-2 focus:ring-kuska-gold/30 transition-all'
+const INPUT = 'w-full rounded-[12px] border border-white/30 bg-white px-4 py-3 font-body text-kuska-text placeholder:italic placeholder:text-kuska-text-mid/40 placeholder:font-normal focus:border-kuska-gold focus:outline-none focus:ring-2 focus:ring-kuska-gold/30 transition-all'
 const LABEL = 'block mb-1.5 font-nunito text-xs font-bold uppercase tracking-wide text-kuska-cream/60'
 
-function MultiSelectPill({
-  options, value, onChange,
-}: { options: string[]; value: string[]; onChange: (v: string[]) => void }) {
+/** Multi-select con opción "Otro": permite agregar valores libres además de los presets. */
+function MultiSelectPillOther({
+  options, value, onChange, placeholder,
+}: { options: string[]; value: string[]; onChange: (v: string[]) => void; placeholder: string }) {
+  const [otherInput, setOtherInput] = useState('')
+  const customValues = value.filter((v) => !options.includes(v))
   const toggle = (o: string) =>
     onChange(value.includes(o) ? value.filter((x) => x !== o) : [...value, o])
+  const addCustom = () => {
+    const v = otherInput.trim()
+    if (v && !value.includes(v)) onChange([...value, v])
+    setOtherInput('')
+  }
   return (
-    <div className="flex flex-wrap gap-2">
-      {options.map((o) => (
+    <div>
+      <div className="flex flex-wrap gap-2">
+        {options.map((o) => (
+          <button
+            key={o}
+            type="button"
+            onClick={() => toggle(o)}
+            className={`rounded-full border px-3 py-1 font-body text-xs transition-all ${
+              value.includes(o)
+                ? 'border-kuska-gold bg-kuska-gold/20 text-kuska-gold font-semibold'
+                : 'border-white/20 text-kuska-cream/65 hover:border-kuska-gold/50 hover:text-kuska-cream'
+            }`}
+          >
+            {o}
+          </button>
+        ))}
+        {customValues.map((v) => (
+          <button
+            key={v}
+            type="button"
+            onClick={() => toggle(v)}
+            className="rounded-full border border-kuska-gold bg-kuska-gold/20 px-3 py-1 font-body text-xs font-semibold text-kuska-gold"
+          >
+            {v} ✕
+          </button>
+        ))}
+      </div>
+      <div className="mt-2 flex gap-2">
+        <input
+          value={otherInput}
+          onChange={(e) => setOtherInput(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustom() } }}
+          placeholder={placeholder}
+          className={INPUT}
+        />
         <button
-          key={o}
           type="button"
-          onClick={() => toggle(o)}
-          className={`rounded-full border px-3 py-1 font-body text-xs transition-all ${
-            value.includes(o)
-              ? 'border-kuska-gold bg-kuska-gold/20 text-kuska-gold font-semibold'
-              : 'border-white/20 text-kuska-cream/65 hover:border-kuska-gold/50 hover:text-kuska-cream'
-          }`}
+          onClick={addCustom}
+          disabled={!otherInput.trim()}
+          className="flex-shrink-0 rounded-[12px] border border-white/20 px-4 font-body text-xs font-semibold text-kuska-cream/80 transition-colors hover:border-kuska-gold/50 hover:text-kuska-gold disabled:opacity-40"
         >
-          {o}
+          + {OTHER}
         </button>
-      ))}
+      </div>
     </div>
   )
 }
@@ -161,7 +203,7 @@ export default function RegistroClientePage() {
                       className={INPUT}
                       value={form.name}
                       onChange={(e) => set('name')(e.target.value)}
-                      placeholder="María García"
+                      placeholder="Ej: María García"
                       required
                     />
                   </div>
@@ -173,7 +215,7 @@ export default function RegistroClientePage() {
                       inputMode="tel"
                       value={form.phone}
                       onChange={(e) => set('phone')(e.target.value)}
-                      placeholder="999 888 777"
+                      placeholder="Ej: 999 888 777"
                       required
                     />
                   </div>
@@ -184,7 +226,7 @@ export default function RegistroClientePage() {
                       type="email"
                       value={form.email}
                       onChange={(e) => set('email')(e.target.value)}
-                      placeholder="maria@correo.com"
+                      placeholder="Ej: maria@correo.com"
                       required
                     />
                     <p className="mt-1.5 font-body text-xs text-kuska-cream/45">Aquí te enviaremos tu código de acceso.</p>
@@ -211,11 +253,12 @@ export default function RegistroClientePage() {
                   </div>
                   <div>
                     <p className={LABEL}>¿Qué tipo de arte te gusta?</p>
-                    <MultiSelectPill options={INTERESTS} value={form.interests} onChange={set('interests')} />
+                    <MultiSelectPillOther options={INTERESTS} value={form.interests} onChange={set('interests')} placeholder="Ej: Otro tipo de arte (Enter para agregar)" />
                   </div>
                   <div>
                     <p className={LABEL}>¿Qué regiones te interesan?</p>
-                    <MultiSelectPill options={REGIONS} value={form.regions_interest} onChange={set('regions_interest')} />
+                    <MultiSelectPillOther options={REGIONS} value={form.regions_interest} onChange={set('regions_interest')} placeholder="Ej: Otra región (Enter para agregar)" />
+                    <p className="mt-1.5 font-body text-xs text-kuska-cream/45">Cobertura a nivel nacional — elige tantas como quieras.</p>
                   </div>
 
                   <div

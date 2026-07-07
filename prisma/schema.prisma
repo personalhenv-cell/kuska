@@ -54,7 +54,7 @@ model ArtisanProfile {
   specialty        String
   technique        String
   region           String
-  community        String
+  community        String?
   years_experience Int      @default(0)
   bio              String?
   story            String?

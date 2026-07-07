@@ -65,7 +65,7 @@ export default async function TallerDetailPage({ params }: { params: { id: strin
             <Link href={`/artesano/${workshop.artisan.id}`} className="font-semibold text-kuska-teal hover:underline">
               {workshop.artisan.user.name}
             </Link>{' '}
-            · {workshop.artisan.specialty} · {workshop.artisan.community}, {workshop.artisan.region}
+            · {workshop.artisan.specialty} · {workshop.artisan.community ? `${workshop.artisan.community}, ` : ''}{workshop.artisan.region}
           </p>
 
           <div className="mt-5 grid grid-cols-2 gap-4 rounded-card bg-kuska-cream/60 p-4 sm:grid-cols-3">
