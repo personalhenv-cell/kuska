@@ -1,8 +1,13 @@
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
+import QRCode from 'qrcode'
 import { authOptions } from '@/auth/config'
 import { prisma } from '@/lib/prisma'
 import { updateArtisanProfile } from './actions'
+import { SaveProfileButton } from './SaveProfileButton'
+import { ShareQrCard } from './ShareQrCard'
+
+const SITE_URL = 'https://kuska-cyan.vercel.app'
 
 export default async function ArtisanProfilePage() {
   const session = await getServerSession(authOptions)
@@ -12,6 +17,13 @@ export default async function ArtisanProfilePage() {
 
   const profile = await prisma.artisanProfile.findUniqueOrThrow({
     where: { id: session.user.artisan_profile_id },
+  })
+
+  const publicProfileUrl = `${SITE_URL}/artesano/${profile.id}`
+  const qrDataUrl = await QRCode.toDataURL(publicProfileUrl, {
+    width: 320,
+    margin: 1,
+    color: { dark: '#3D1C02', light: '#F5F0E8' },
   })
 
   const inputClass =
@@ -77,13 +89,10 @@ export default async function ArtisanProfilePage() {
           />
         </div>
 
-        <button
-          type="submit"
-          className="rounded-btn bg-kuska-red px-6 py-3 font-body text-sm font-bold text-white transition-transform hover:-translate-y-0.5"
-        >
-          Guardar cambios
-        </button>
+        <SaveProfileButton />
       </form>
+
+      <ShareQrCard qrDataUrl={qrDataUrl} profileUrl={publicProfileUrl} />
     </div>
   )
 }
