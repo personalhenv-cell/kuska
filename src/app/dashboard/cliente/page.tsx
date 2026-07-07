@@ -20,7 +20,7 @@ export default async function ClientDashboardHome() {
     }),
     prisma.clientProfile.findUnique({
       where: { user_id: session.user.id },
-      select: { membership_tier: true },
+      select: { membership_tier: true, is_entrepreneur: true },
     }),
   ])
 
@@ -33,6 +33,7 @@ export default async function ClientDashboardHome() {
       orderCount={orderCount}
       favoriteCount={favoriteCount}
       featured={featured}
+      isEntrepreneur={clientProfile?.is_entrepreneur ?? false}
     />
   )
 }

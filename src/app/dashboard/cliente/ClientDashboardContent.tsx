@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Kusi } from '@/components/ui/Kusi'
 import { Badge } from '@/components/ui/Badge'
+import { ModuleGrid, type ModuleCard } from '@/components/dashboard/ModuleGrid'
 import { formatPrice } from '@/lib/utils'
 import { levelName } from '@/lib/memberships'
 
@@ -29,6 +30,7 @@ interface ClientDashboardContentProps {
   orderCount: number
   favoriteCount: number
   featured: Product[]
+  isEntrepreneur: boolean
 }
 
 const containerVariants = {
@@ -57,7 +59,24 @@ export function ClientDashboardContent({
   orderCount,
   favoriteCount,
   featured,
+  isEntrepreneur,
 }: ClientDashboardContentProps) {
+  const modules: ModuleCard[] = [
+    { href: '/marketplace', icon: 'store', title: 'Marketplace', desc: 'Descubre piezas únicas de artesanos de todo el Perú.' },
+    { href: '/dashboard/cliente/pedidos', icon: 'box', title: 'Mis pedidos', desc: 'Sigue tus compras y deja reseñas con foto.' },
+    { href: '/dashboard/cliente/favoritos', icon: 'heart', title: 'Favoritos', desc: 'Las piezas que guardaste para no perderlas.' },
+    { href: '/dashboard/cliente/mensajes', icon: 'chat', title: 'Mensajes', desc: 'Chatea en tiempo real con los artesanos.' },
+    { href: '/dashboard/cliente/talleres', icon: 'workshop', title: 'Mis talleres', desc: 'Talleres en vivo dictados por maestros artesanos.' },
+    { href: '/dashboard/cliente/comunidad', icon: 'megaphone', title: 'Red Cuéntame', desc: 'Historias, fotos y voces de la comunidad Kuska.' },
+    isEntrepreneur
+      ? { href: '/dashboard/cliente/emprendedor', icon: 'rocket', title: 'Emprendedor IA', desc: 'Genera tu plan de negocio artesanal con Kuska IA.', ia: true }
+      : { href: '/dashboard/cliente/perfil', icon: 'rocket', title: 'Emprendedor IA', desc: 'Planes de negocio con Kuska IA para tu emprendimiento.', ia: true, locked: true, lockCta: 'Actívalo en tu perfil' },
+    isEntrepreneur
+      ? { href: '/dashboard/cliente/capitalizacion', icon: 'wallet', title: 'Capitalización', desc: 'Fondos y convocatorias abiertas para emprendedores.' }
+      : { href: '/dashboard/cliente/perfil', icon: 'wallet', title: 'Capitalización', desc: 'Fondos y convocatorias para tu emprendimiento.', locked: true, lockCta: 'Actívalo en tu perfil' },
+    { href: '/dashboard/cliente/perfil', icon: 'user', title: 'Mi perfil', desc: 'Tus datos, intereses y modo emprendedor.' },
+  ]
+
   return (
     <motion.div
       className="p-6 lg:p-10 space-y-8"
@@ -113,6 +132,15 @@ export function ClientDashboardContent({
             <p className="font-nunito text-xs text-kuska-text-mid">Favoritos</p>
           </motion.div>
         </Link>
+      </motion.div>
+
+      {/* Todos los módulos del cliente — visible en cualquier pantalla */}
+      <motion.div variants={itemVariants}>
+        <ModuleGrid
+          title="Tus módulos"
+          subtitle={isEntrepreneur ? 'Modo emprendedor activo 🚀' : undefined}
+          modules={modules}
+        />
       </motion.div>
 
       {/* Recomendado */}

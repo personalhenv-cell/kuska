@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { Kusi } from '@/components/ui/Kusi'
 import { Badge } from '@/components/ui/Badge'
+import { ModuleGrid, type ModuleCard } from '@/components/dashboard/ModuleGrid'
 import { formatPrice, formatDate } from '@/lib/utils'
 import { levelName } from '@/lib/memberships'
 
@@ -74,6 +75,30 @@ export function ArtisanDashboardContent({
   badges,
   missions,
 }: DashboardContentProps) {
+  const planId = plan?.id ?? 'semilla'
+  // Chip informativo del plan requerido — el módulo sigue siendo clickeable
+  // (cada página muestra su propio MembershipGate con la opción de mejorar).
+  const proChip = planId === 'semilla' ? 'Plan Pro' : undefined
+  const maestroChip = planId !== 'maestro' ? 'Plan Maestro' : undefined
+
+  const modules: ModuleCard[] = [
+    { href: '/dashboard/artesano/productos', icon: 'palette', title: 'Mis productos', desc: 'Publica y gestiona tus piezas sin límite, con catálogo PDF.' },
+    { href: '/dashboard/artesano/pedidos', icon: 'box', title: 'Pedidos', desc: 'Tus ventas y el estado de cada envío.' },
+    { href: '/dashboard/artesano/estadisticas', icon: 'chart', title: 'Estadísticas', desc: 'Ingresos, tendencias y tus piezas más vendidas.' },
+    { href: '/dashboard/artesano/cfo-bot', icon: 'bot', title: 'CFO-Bot', desc: 'Tu asesor financiero personal, entrenado para tu oficio.', ia: true, chip: maestroChip },
+    { href: '/dashboard/artesano/match-ia', icon: 'link', title: 'Match IA', desc: 'Conecta con emprendedores que buscan exactamente tu arte.', ia: true, chip: maestroChip },
+    { href: '/dashboard/artesano/productos/ia-descripcion', icon: 'sparkles', title: 'Descripciones IA', desc: 'Descripciones de producto que venden, en segundos.', ia: true, chip: proChip },
+    { href: '/dashboard/artesano/raices', icon: 'tree', title: 'Raíces', desc: 'Tu historia, tu genealogía artesanal y tu taller.', chip: proChip },
+    { href: '/dashboard/artesano/academia', icon: 'academy', title: 'Academia', desc: 'Lecciones para hacer crecer tu negocio artesanal.', chip: proChip },
+    { href: '/dashboard/artesano/talleres', icon: 'workshop', title: 'Mis talleres', desc: 'Dicta talleres en vivo y genera ingresos extra.' },
+    { href: '/dashboard/artesano/ferias', icon: 'tent', title: 'Ferias Digitales', desc: 'Tu stand virtual en ferias de todo el país.' },
+    { href: '/dashboard/artesano/agrupacion', icon: 'users', title: 'Red Agrupación', desc: 'Organiza ferias físicas junto a otros artesanos.' },
+    { href: '/dashboard/artesano/comunidad', icon: 'megaphone', title: 'Red Cuéntame', desc: 'Comparte tu día a día con la comunidad Kuska.' },
+    { href: '/dashboard/artesano/capitalizacion', icon: 'wallet', title: 'Capitalización', desc: 'Fondos y convocatorias abiertas para tu taller.', chip: maestroChip },
+    { href: '/dashboard/artesano/mensajes', icon: 'chat', title: 'Mensajes', desc: 'Chatea en tiempo real con tus clientes.' },
+    { href: '/dashboard/artesano/perfil', icon: 'user', title: 'Mi perfil', desc: 'Tu perfil público, con QR compartible para ferias.' },
+  ]
+
   return (
     <motion.div
       className="p-6 lg:p-10 space-y-8"
@@ -120,6 +145,15 @@ export function ArtisanDashboardContent({
             <p className="font-nunito text-xs text-kuska-text-mid">{s.label}</p>
           </motion.div>
         ))}
+      </motion.div>
+
+      {/* Todos los módulos del artesano — visible en cualquier pantalla */}
+      <motion.div variants={itemVariants}>
+        <ModuleGrid
+          title="Tus módulos"
+          subtitle={`Plan ${plan?.name ?? 'Artesano Semilla'}`}
+          modules={modules}
+        />
       </motion.div>
 
       <motion.div variants={itemVariants} className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
