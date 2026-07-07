@@ -117,7 +117,12 @@ export function AllianceModal({ alliance, onClose, onNext, onPrev }: AllianceMod
                   </div>
 
                   <div className="flex items-center justify-between gap-3 border-t border-kuska-border pt-4">
-                    <p className="font-body text-xs text-kuska-text-mid">{alliance.contacto}</p>
+                    <div>
+                      <p className="font-nunito text-[10px] font-bold uppercase tracking-wide text-kuska-text-mid/70">
+                        Contacto en {alliance.name}
+                      </p>
+                      <p className="mt-0.5 font-body text-xs text-kuska-text">{alliance.contacto}</p>
+                    </div>
                     <Kusi size="sm" expression={ESTADO_KUSI[alliance.estado]} />
                   </div>
                 </div>
