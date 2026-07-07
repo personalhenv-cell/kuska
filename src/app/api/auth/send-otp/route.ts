@@ -67,16 +67,18 @@ export async function POST(req: Request) {
     ? await sendOtpEmail({ to: user.email, name: user.name, code })
     : { ok: false }
 
-  // El código NUNCA se devuelve aquí (a diferencia del registro): este
-  // endpoint es público y solo recibe un teléfono — si devolviera el código
-  // de una cuenta ya existente, cualquiera que conociera (o adivinara) el
-  // teléfono de otra persona podría iniciar sesión como ella. En el registro
-  // sí es seguro mostrarlo porque el código es de la cuenta que se está
-  // creando en esa misma request, no de una cuenta ajena preexistente.
-  const isDev = process.env.NODE_ENV !== 'production'
+  // Decisión explícita del dueño del producto (Kuska no tiene dominio propio
+  // verificado en Resend todavía, así que el email real solo llega a su
+  // propia cuenta): mientras eso no se resuelva, el código se muestra
+  // siempre en pantalla — igual que ya se hace en el registro — para que
+  // CUALQUIER usuario pueda iniciar sesión, no solo el dueño de la cuenta
+  // de Resend. Trade-off aceptado: cualquiera que conozca el teléfono de
+  // otra persona podría ver su código aquí. Mitigado con el rate limit de
+  // arriba (3 intentos/5min por teléfono). Revertir devolviendo `undefined`
+  // en cuanto haya un dominio propio verificado y el email llegue de verdad.
   return NextResponse.json({
     ok: true,
     channel: emailResult.ok ? 'email' : 'none',
-    devCode: isDev ? code : undefined,
+    devCode: code,
   })
 }

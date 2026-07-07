@@ -45,16 +45,17 @@ export default function LoginPage() {
         setError(data.error ?? 'No se pudo enviar el código')
         return
       }
-      // channel 'none' = el correo no salió y no hay devCode (producción):
-      // decirlo honestamente en vez del falso "Código enviado" que dejaba
-      // al usuario esperando un código que nunca iba a llegar.
+      // /api/auth/send-otp siempre devuelve devCode (Resend aún no tiene
+      // dominio propio verificado, así que el email real no llega a todos).
+      // Si algún día dejara de devolverlo sin que el email haya salido,
+      // avisamos en vez de dejar al usuario esperando un código que no verá.
       if (data.channel !== 'email' && !data.devCode) {
         setError('No pudimos enviarte el código por correo en este momento. Intenta de nuevo en unos minutos.')
         return
       }
       setDevCode(data.devCode ?? null)
       setStep('otp')
-      toast.success(data.channel === 'email' ? 'Código enviado a tu correo' : 'Código generado')
+      toast.success(data.channel === 'email' ? 'Código enviado a tu correo' : 'Tu código ya está listo aquí abajo 👇')
     } finally {
       setLoading(false)
     }
