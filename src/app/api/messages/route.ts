@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { authOptions } from '@/auth/config'
 import { prisma } from '@/lib/prisma'
 import { pusherServer, conversationChannel } from '@/lib/pusher'
+import { sendPushToUser } from '@/lib/onesignal'
 
 const SendSchema = z.object({
   receiver_id: z.string().min(1),
@@ -69,6 +70,15 @@ export async function POST(req: Request) {
     'new-message',
     message,
   )
+
+  // Fire-and-forget: si el destinatario tiene la app abierta, ya lo ve por
+  // Pusher en tiempo real; el push es para cuando no la tiene abierta.
+  sendPushToUser({
+    userId: receiver_id,
+    title: `Nuevo mensaje de ${session.user.name ?? 'un usuario de Kuska'}`,
+    message: content.length > 80 ? `${content.slice(0, 80)}…` : content,
+    url: '/dashboard',
+  }).catch(() => {})
 
   return NextResponse.json({ ok: true, message })
 }

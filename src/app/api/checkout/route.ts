@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { z } from 'zod'
 import { authOptions } from '@/auth/config'
 import { prisma } from '@/lib/prisma'
+import { sendPushToUser } from '@/lib/onesignal'
 
 const CheckoutSchema = z.object({
   product_id: z.string().min(1),
@@ -30,7 +31,10 @@ export async function POST(req: Request) {
   }
   const { product_id, quantity, payment_method, donation } = parsed.data
 
-  const product = await prisma.product.findUnique({ where: { id: product_id } })
+  const product = await prisma.product.findUnique({
+    where: { id: product_id },
+    include: { artisan: { select: { user_id: true } } },
+  })
   if (!product || !product.is_available) {
     return NextResponse.json({ error: 'Producto no disponible' }, { status: 404 })
   }
@@ -81,6 +85,15 @@ export async function POST(req: Request) {
 
       return created
     })
+
+    // Fire-and-forget: un push que falla o tarda no debe bloquear ni
+    // hacer fallar una compra ya confirmada y pagada.
+    sendPushToUser({
+      userId: product.artisan.user_id,
+      title: '¡Nueva venta! 🎉',
+      message: `Vendiste ${quantity} × "${product.name}" por ${new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(total)}`,
+      url: '/dashboard/artesano/pedidos',
+    }).catch(() => {})
 
     return NextResponse.json({ ok: true, orderId: order.id, total })
   } catch (e) {
