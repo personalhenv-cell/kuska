@@ -45,9 +45,16 @@ export default function LoginPage() {
         setError(data.error ?? 'No se pudo enviar el código')
         return
       }
+      // channel 'none' = el correo no salió y no hay devCode (producción):
+      // decirlo honestamente en vez del falso "Código enviado" que dejaba
+      // al usuario esperando un código que nunca iba a llegar.
+      if (data.channel !== 'email' && !data.devCode) {
+        setError('No pudimos enviarte el código por correo en este momento. Intenta de nuevo en unos minutos.')
+        return
+      }
       setDevCode(data.devCode ?? null)
       setStep('otp')
-      toast.success(data.channel === 'email' ? 'Código enviado a tu correo' : 'Código enviado')
+      toast.success(data.channel === 'email' ? 'Código enviado a tu correo' : 'Código generado')
     } finally {
       setLoading(false)
     }
@@ -110,7 +117,7 @@ export default function LoginPage() {
                 <div className="text-center">
                   <h1 className="font-display text-2xl font-bold text-kuska-cream">Ingresar</h1>
                   <p className="mt-1 font-body text-sm text-kuska-cream/65">
-                    Te enviamos un código a tu celular
+                    Te enviaremos un código a tu correo
                   </p>
                 </div>
                 <form onSubmit={sendOtp} className="space-y-4">
