@@ -43,6 +43,7 @@ model User {
   badges             UserBadge[]
   missions_completed MissionProgress[]
   subscriptions      Subscription[]
+  cart               Cart?
 
   @@map("users")
 }
@@ -144,6 +145,7 @@ model Product {
   reviews         Review[]
   favorites       Favorite[]
   order_items     OrderItem[]
+  cart_items      CartItem[]
   custom_requests CustomRequest[]
   coupons         ProductCoupon[]
 }
@@ -506,6 +508,32 @@ model GroupMessage {
   sender_id  String
   content    String
   created_at DateTime     @default(now())
+}
+
+model Cart {
+  id         String   @id @default(cuid())
+  user_id    String
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  items      CartItem[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([user_id])
+  @@map("carts")
+}
+
+model CartItem {
+  id         String   @id @default(cuid())
+  cart_id    String
+  cart       Cart     @relation(fields: [cart_id], references: [id], onDelete: Cascade)
+  product_id String
+  product    Product  @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  quantity   Int
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([cart_id, product_id])
+  @@map("cart_items")
 }
 
 model SolidarityFund {

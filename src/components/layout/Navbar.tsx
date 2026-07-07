@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { signOut, useSession } from 'next-auth/react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LanguageToggle } from '@/components/ui/LanguageToggle'
+import { CartIcon } from './CartIcon'
 import { Kusi } from '@/components/ui/Kusi'
 import { Logo } from '@/components/ui/Logo'
 import { cn } from '@/lib/utils'
@@ -64,6 +65,9 @@ export function Navbar() {
           <span className="hidden sm:block">
             <LanguageToggle dark />
           </span>
+          {session && (
+            <CartIcon />
+          )}
 
           {status === 'loading' ? (
             /* Reserva el espacio mientras carga la sesión — evita el salto de

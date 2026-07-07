@@ -3,9 +3,11 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState, useCallback } from 'react'
+import { useSession } from 'next-auth/react'
 import { cn, formatPrice } from '@/lib/utils'
 import { Badge } from '@/components/ui/Badge'
 import { TiltCard } from '@/components/ui/TiltCard'
+import { useCart } from '@/hooks/useCart'
 import type { ProductListItem } from '@/types/marketplace'
 
 interface ProductCardProps {
@@ -35,8 +37,11 @@ function StarRating({ value }: { value: number }) {
 }
 
 export function ProductCard({ product, initialFavorited = false }: ProductCardProps) {
+  const { data: session } = useSession()
+  const { addItem } = useCart()
   const [favorited, setFavorited] = useState(initialFavorited)
   const [toggling, setToggling] = useState(false)
+  const [addingToCart, setAddingToCart] = useState(false)
   const hasImage = product.images.length > 0
 
   const toggleFavorite = useCallback(
@@ -60,6 +65,21 @@ export function ProductCard({ product, initialFavorited = false }: ProductCardPr
       }
     },
     [product.id, toggling],
+  )
+
+  const handleAddToCart = useCallback(
+    async (e: React.MouseEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      if (!session) {
+        window.location.href = '/login'
+        return
+      }
+      setAddingToCart(true)
+      await addItem(product.id, 1)
+      setAddingToCart(false)
+    },
+    [product.id, session, addItem],
   )
 
   return (
@@ -144,6 +164,14 @@ export function ProductCard({ product, initialFavorited = false }: ProductCardPr
                 {product._count.favorites} ♥
               </span>
             </div>
+
+            <button
+              onClick={handleAddToCart}
+              disabled={addingToCart || product.stock === 0}
+              className="mt-3 w-full rounded-btn bg-kuska-gold py-2 font-body font-semibold text-kuska-brown transition-transform hover:scale-105 disabled:opacity-50 active:scale-95"
+            >
+              {product.stock === 0 ? 'Agotado' : addingToCart ? 'Agregando...' : '🛒 Agregar al carrito'}
+            </button>
           </div>
         </article>
       </Link>
