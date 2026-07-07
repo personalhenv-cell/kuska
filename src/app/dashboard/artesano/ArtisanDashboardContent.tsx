@@ -5,7 +5,8 @@ import Link from 'next/link'
 import { Kusi } from '@/components/ui/Kusi'
 import { Badge } from '@/components/ui/Badge'
 import { ModuleGrid, type ModuleCard } from '@/components/dashboard/ModuleGrid'
-import { formatPrice, formatDate } from '@/lib/utils'
+import { SmartCards, type SmartCard } from '@/components/dashboard/SmartCards'
+import { formatPrice, formatDate, timeGreeting } from '@/lib/utils'
 import { levelName, DEMO_UNLOCK_ALL_PLANS } from '@/lib/memberships'
 
 interface User {
@@ -45,6 +46,7 @@ interface DashboardContentProps {
   recentOrders: RecentOrder[]
   badges: Badge[]
   missions: Mission[]
+  smartCards: SmartCard[]
 }
 
 const containerVariants = {
@@ -74,6 +76,7 @@ export function ArtisanDashboardContent({
   recentOrders,
   badges,
   missions,
+  smartCards,
 }: DashboardContentProps) {
   const planId = plan?.id ?? 'semilla'
   // Chip informativo del plan requerido — el módulo sigue siendo clickeable
@@ -114,7 +117,7 @@ export function ArtisanDashboardContent({
           <Kusi size="lg" animation="celebrate" />
           <div>
             <h1 className="font-display text-2xl font-bold text-kuska-cream sm:text-3xl">
-              ¡Hola, {user?.name ?? 'artesano'}! 🦙
+              ¡{timeGreeting()}, {user?.name?.split(' ')[0] ?? 'artesano'}! 🦙
             </h1>
             <p className="mt-1 font-body text-kuska-cream/75">
               Nivel {user?.level ?? 1} — {levelName(user?.level ?? 1)} · {user?.points ?? 0} puntos
@@ -132,6 +135,13 @@ export function ArtisanDashboardContent({
           </div>
         </div>
       </motion.div>
+
+      {/* Cards inteligentes — señales reales que piden acción hoy */}
+      {smartCards.length > 0 && (
+        <motion.div variants={itemVariants}>
+          <SmartCards cards={smartCards} />
+        </motion.div>
+      )}
 
       {/* Stats */}
       <motion.div variants={itemVariants} className="grid grid-cols-2 gap-4 lg:grid-cols-4">

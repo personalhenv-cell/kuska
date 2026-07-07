@@ -10,6 +10,7 @@ interface AuthRow {
   name: string
   phone: string
   role: KuskaRole
+  avatar_url: string | null
   artisan_profile_id: string | null
   is_entrepreneur: boolean | null
 }
@@ -76,7 +77,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         const rows = await prisma.$queryRawUnsafe<AuthRow[]>(
-          `SELECT u.id, u.name, u.phone, u.role,
+          `SELECT u.id, u.name, u.phone, u.role, u.avatar_url,
                   ap.id AS artisan_profile_id,
                   cp.is_entrepreneur
            FROM users u
@@ -99,6 +100,9 @@ export const authOptions: NextAuthOptions = {
           name: row.name,
           phone: row.phone,
           role: row.role,
+          // NextAuth mapea user.image → token.picture → session.user.image;
+          // sin esto los sidebars nunca mostraban la foto del usuario.
+          image: row.avatar_url,
           artisan_profile_id: row.artisan_profile_id ?? null,
           is_entrepreneur: row.is_entrepreneur ?? false,
         }

@@ -25,6 +25,14 @@ export function formatDate(value: Date | string): string {
   }).format(date)
 }
 
+/** Saludo según la hora local: "Buenos días" / "Buenas tardes" / "Buenas noches". */
+export function timeGreeting(): string {
+  const h = new Date().getHours()
+  if (h < 12) return 'Buenos días'
+  if (h < 19) return 'Buenas tardes'
+  return 'Buenas noches'
+}
+
 /** Genera un slug URL-safe a partir de un texto. */
 export function slugify(text: string): string {
   return text

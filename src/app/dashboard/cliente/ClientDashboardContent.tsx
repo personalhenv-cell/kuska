@@ -6,7 +6,8 @@ import Image from 'next/image'
 import { Kusi } from '@/components/ui/Kusi'
 import { Badge } from '@/components/ui/Badge'
 import { ModuleGrid, type ModuleCard } from '@/components/dashboard/ModuleGrid'
-import { formatPrice } from '@/lib/utils'
+import { SmartCards, type SmartCard } from '@/components/dashboard/SmartCards'
+import { formatPrice, timeGreeting } from '@/lib/utils'
 import { levelName } from '@/lib/memberships'
 
 interface User {
@@ -31,6 +32,7 @@ interface ClientDashboardContentProps {
   favoriteCount: number
   featured: Product[]
   isEntrepreneur: boolean
+  smartCards: SmartCard[]
 }
 
 const containerVariants = {
@@ -60,6 +62,7 @@ export function ClientDashboardContent({
   favoriteCount,
   featured,
   isEntrepreneur,
+  smartCards,
 }: ClientDashboardContentProps) {
   const modules: ModuleCard[] = [
     { href: '/marketplace', icon: 'store', title: 'Marketplace', desc: 'Descubre piezas únicas de artesanos de todo el Perú.' },
@@ -91,7 +94,7 @@ export function ClientDashboardContent({
           <Kusi size="lg" animation="wave" />
           <div>
             <h1 className="font-display text-2xl font-bold text-kuska-cream sm:text-3xl">
-              ¡Hola, {user?.name ?? 'amigo'}! ✨
+              ¡{timeGreeting()}, {user?.name?.split(' ')[0] ?? 'amigo'}! ✨
             </h1>
             <p className="mt-1 font-body text-kuska-cream/75">
               Nivel {user?.level ?? 1} — {levelName(user?.level ?? 1)} · {user?.points ?? 0} puntos
@@ -109,6 +112,13 @@ export function ClientDashboardContent({
           </div>
         </div>
       </motion.div>
+
+      {/* Cards inteligentes — señales reales del cliente hoy */}
+      {smartCards.length > 0 && (
+        <motion.div variants={itemVariants}>
+          <SmartCards cards={smartCards} />
+        </motion.div>
+      )}
 
       {/* Stats cards */}
       <motion.div variants={itemVariants} className="grid grid-cols-2 gap-4 sm:grid-cols-2">

@@ -44,6 +44,8 @@ export function CatalogPdf({ artisanName, products }: { artisanName: string; pro
         <View style={styles.grid}>
           {products.map((p, i) => (
             <View key={i} style={styles.card} wrap={false}>
+              {/* Image de @react-pdf/renderer, no HTML — jsx-a11y pide alt igual */}
+              {/* eslint-disable-next-line jsx-a11y/alt-text */}
               {p.image ? <Image src={p.image} style={styles.image} /> : <View style={styles.imagePlaceholder} />}
               <Text style={styles.name}>{p.name}</Text>
               <Text style={styles.meta}>{p.technique}</Text>
