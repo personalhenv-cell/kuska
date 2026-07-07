@@ -15,7 +15,7 @@ type KusiAnimation =
 
 /** Expresiones ilustradas reales (no el sprite base con CSS) — para estados
  *  emocionales concretos: vacíos, errores, confirmaciones, onboarding. */
-type KusiExpression =
+export type KusiExpression =
   | 'triste'
   | 'molesto'
   | 'explicando'

@@ -67,7 +67,7 @@ export function MapaArtesanosSection() {
         whileInView={{ opacity: 1, scale: 1 }}
         viewport={{ once: true, amount: 0.2 }}
         transition={{ duration: 0.7, ease: 'easeOut' }}
-        className="relative h-[480px] w-full overflow-hidden rounded-3xl border border-kuska-brown/15 shadow-xl md:h-[560px]"
+        className="relative isolate z-0 h-[480px] w-full overflow-hidden rounded-3xl border border-kuska-brown/15 shadow-xl md:h-[560px]"
       >
         {regions === null ? (
           <div className="h-full w-full animate-pulse bg-kuska-brown/10" />

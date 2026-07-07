@@ -18,44 +18,44 @@ const TITLE = 'Un ecosistema, no solo una tienda'
  *  propia que aparece en sincronía con la transición de la imagen. */
 const PHOTOS = [
   {
-    src: 'https://images.unsplash.com/photo-1602591620189-de34d60650b2?w=900&q=80',
+    src: 'https://images.unsplash.com/photo-1602591620189-de34d60650b2?w=1600&q=85',
     alt: 'Artesana peruana tejiendo con vestimenta tradicional andina, Valle Sagrado',
     position: '50% 30%',
     phrase: 'Cada hilo lleva la memoria de generaciones.',
   },
   {
-    src: 'https://images.unsplash.com/photo-1769358720638-932b3dd8101a?w=900&q=80',
+    src: 'https://images.unsplash.com/photo-1769358720638-932b3dd8101a?w=1600&q=85',
     alt: 'Tejedora andina trabajando en telar con hilos de colores vibrantes',
     position: '50% 40%',
     phrase: 'Las manos que tejen, tejen también el futuro.',
   },
   {
-    src: 'https://images.pexels.com/photos/33027862/pexels-photo-33027862.jpeg?w=900&q=80',
+    src: 'https://images.pexels.com/photos/33027862/pexels-photo-33027862.jpeg?w=1600&q=85',
     alt: 'Textiles peruanos artesanales de colores vivos en un mercado de Cusco',
     position: '50% 45%',
     phrase: 'El color del Perú se cuenta en cada textil.',
   },
   {
-    src: 'https://images.unsplash.com/photo-1422246358533-95dcd3d48961?w=900&q=80',
+    src: 'https://images.unsplash.com/photo-1422246358533-95dcd3d48961?w=1600&q=85',
     alt: 'Manos de un ceramista peruano moldeando arcilla',
     position: '50% 50%',
     phrase: 'De la tierra nace el arte que perdura.',
   },
   {
-    src: 'https://images.unsplash.com/photo-1774082313811-f9852bd53d00?w=900&q=80',
+    src: 'https://images.unsplash.com/photo-1774082313811-f9852bd53d00?w=1600&q=85',
     alt: 'Mercado artesanal de Pisac, Perú, con puestos de textiles multicolores',
     position: '50% 40%',
     phrase: 'En cada mercado late el corazón de un pueblo que crea.',
   },
   {
-    src: 'https://images.pexels.com/photos/8066075/pexels-photo-8066075.jpeg?w=900&q=80',
+    src: 'https://images.pexels.com/photos/8066075/pexels-photo-8066075.jpeg?w=1600&q=85',
     alt: 'Manos de un artesano pintando con pincel fino una vasija de cerámica',
     position: '50% 50%',
     phrase: 'El detalle de una mano paciente convierte el barro en historia.',
   },
 ]
 
-const SLIDE_DURATION_MS = 4200
+const SLIDE_DURATION_MS = 3000
 
 function useTypewriter(text: string, active: boolean, speedMs = 30) {
   const [displayed, setDisplayed] = useState('')

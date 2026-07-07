@@ -1,10 +1,30 @@
 'use client'
 
 import 'leaflet/dist/leaflet.css'
+import { useEffect } from 'react'
 import L from 'leaflet'
 import Link from 'next/link'
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import { PERU_CENTER, PERU_ZOOM } from '@/lib/peru-regions'
+
+/** El contenedor del mapa vive dentro de un motion.div con scale inicial —
+ *  Leaflet mide el tamaño del contenedor al montar, y si en ese momento no
+ *  coincide con el tamaño final (fuentes/imágenes aún cargando, animación de
+ *  entrada), quedan franjas de tiles grises/incompletas. invalidateSize()
+ *  fuerza a recalcular una vez que el layout ya se asentó. */
+function MapResizeFix() {
+  const map = useMap()
+  useEffect(() => {
+    const id = setTimeout(() => map.invalidateSize(), 300)
+    const onResize = () => map.invalidateSize()
+    window.addEventListener('resize', onResize)
+    return () => {
+      clearTimeout(id)
+      window.removeEventListener('resize', onResize)
+    }
+  }, [map])
+  return null
+}
 
 export interface MapRegion {
   region: string
@@ -48,6 +68,7 @@ export default function ArtisanMap({ regions }: { regions: MapRegion[] }) {
       attributionControl={false}
     >
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+      <MapResizeFix />
       {regions.map((r) => (
         <Marker key={r.region} position={[r.lat, r.lng]} icon={kuskaIcon(r.count)}>
           <Popup>

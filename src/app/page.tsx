@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { LoadingScreen } from '@/components/LoadingScreen'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
@@ -40,19 +41,22 @@ const artesanos = [
     name: 'Rosa Quispe',
     region: 'Chinchero, Cusco',
     technique: 'Tejido en telar',
-    emoji: '🧶',
+    image: 'https://images.unsplash.com/photo-1570219870023-102f3a8b5b0e?w=800&q=85',
+    alt: 'Tejedora peruana con vestimenta tradicional trabajando en Cusco',
   },
   {
     name: 'Julián Mamani',
     region: 'Pucará, Puno',
     technique: 'Cerámica',
-    emoji: '🏺',
+    image: 'https://images.pexels.com/photos/19664361/pexels-photo-19664361.jpeg?w=800&q=85',
+    alt: 'Ceramista moldeando una vasija de arcilla a mano',
   },
   {
     name: 'Elena Huamán',
     region: 'Ayacucho',
     technique: 'Retablos',
-    emoji: '🎨',
+    image: 'https://images.pexels.com/photos/20130627/pexels-photo-20130627.jpeg?w=800&q=85',
+    alt: 'Retablo ayacuchano de estilo folk con patrones pintados a mano',
   },
 ]
 
@@ -134,9 +138,15 @@ export default function HomePage() {
           <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {artesanos.map((a) => (
               <TiltCard key={a.name}>
-                <article className="overflow-hidden rounded-card border border-kuska-border bg-white shadow-sm">
-                  <div className="flex h-44 items-center justify-center bg-kuska-cream-dark">
-                    <span className="text-6xl">{a.emoji}</span>
+                <article className="group overflow-hidden rounded-card border border-kuska-border bg-white shadow-sm">
+                  <div className="relative h-44 overflow-hidden bg-kuska-cream-dark">
+                    <Image
+                      src={a.image}
+                      alt={a.alt}
+                      fill
+                      sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 33vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
                   </div>
                   <div className="space-y-2 p-5">
                     <div className="flex items-center gap-2">
