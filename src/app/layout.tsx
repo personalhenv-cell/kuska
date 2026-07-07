@@ -77,8 +77,10 @@ export default function RootLayout({
       className={`${playfair.variable} ${inter.variable} ${nunito.variable}`}
     >
       <body>
-        <Providers>{children}</Providers>
-        <Integrations />
+        <Providers>
+          {children}
+          <Integrations />
+        </Providers>
       </body>
     </html>
   )

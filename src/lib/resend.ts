@@ -115,3 +115,45 @@ export async function sendOtpEmail(params: {
     return { ok: false, error: e instanceof Error ? e.message : 'Error desconocido al enviar' }
   }
 }
+
+/** Recordatorio de taller — no reporta fallo al llamador: el cron sigue
+ *  con el resto de inscritos aunque uno falle (mismo criterio que el
+ *  email de bienvenida, cortesía y no bloqueante). */
+export async function sendWorkshopReminderEmail(params: {
+  to: string | null | undefined
+  name: string
+  workshopTitle: string
+  when: string
+  joinInfo: string
+}): Promise<void> {
+  if (!params.to) return
+  const client = getResendClient()
+  if (!client) return
+
+  try {
+    await client.emails.send({
+      from: FROM,
+      to: params.to,
+      subject: `Mañana: "${params.workshopTitle}" — Kuska`,
+      html: `
+        <div style="font-family: Georgia, serif; background:#F5F0E8; padding:32px; color:#1A0A00;">
+          <div style="max-width:480px; margin:0 auto; background:#FFFFFF; border-radius:20px; padding:32px; border:1px solid rgba(61,28,2,0.12);">
+            <p style="font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:#D4920A; font-weight:bold; margin:0 0 8px;">Kuska · Recordatorio</p>
+            <h1 style="font-size:22px; margin:0 0 16px;">${params.workshopTitle}</h1>
+            <p style="font-size:15px; line-height:1.6; color:#6B4C35; margin:0 0 12px;">
+              Hola ${params.name}, tu taller es mañana, ${params.when}.
+            </p>
+            <p style="font-size:14px; line-height:1.6; color:#3D1C02; margin:0 0 20px; background:#F5F0E8; padding:12px 16px; border-radius:12px;">
+              ${params.joinInfo}
+            </p>
+            <a href="https://kuska-cyan.vercel.app/dashboard/cliente/talleres" style="display:inline-block; background:#C84B2F; color:#FFFFFF; text-decoration:none; padding:12px 24px; border-radius:12px; font-weight:bold; font-size:14px;">
+              Ver mis talleres
+            </a>
+          </div>
+        </div>
+      `,
+    })
+  } catch {
+    // No bloquea el resto de recordatorios del cron.
+  }
+}
