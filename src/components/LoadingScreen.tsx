@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { Logo } from '@/components/ui/Logo'
 
 const STORAGE_KEY = 'kuska_loaded_v10'
-const LOAD_DURATION_MS = 7500
+const LOAD_DURATION_MS = 5000
 const FLASH_DURATION_MS = 1800
 const TYPEWRITER_TEXT = 'KUSKA'
 
