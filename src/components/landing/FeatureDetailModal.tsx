@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Kusi } from '@/components/ui/Kusi'
 
-export interface AiFeatureDetail {
+export interface FeatureDetail {
   icon: string
   title: string
   tagline: string
@@ -14,26 +14,28 @@ export interface AiFeatureDetail {
   ctaLabel: string
   ctaHref: string
   accent: 'red' | 'gold' | 'teal'
+  /** Si es true, muestra la nota de "Potenciado por Kuska IA" en el footer. */
+  poweredByAi?: boolean
 }
 
-const ACCENT_GRADIENT: Record<AiFeatureDetail['accent'], string> = {
+const ACCENT_GRADIENT: Record<FeatureDetail['accent'], string> = {
   red: 'linear-gradient(135deg, #3D1C02 0%, #C84B2F 100%)',
   gold: 'linear-gradient(135deg, #3D1C02 0%, #D4920A 100%)',
   teal: 'linear-gradient(135deg, #3D1C02 0%, #2E7A6E 100%)',
 }
 
-const ACCENT_TEXT: Record<AiFeatureDetail['accent'], string> = {
+const ACCENT_TEXT: Record<FeatureDetail['accent'], string> = {
   red: 'text-kuska-red',
   gold: 'text-kuska-gold',
   teal: 'text-kuska-teal',
 }
 
-interface AiFeatureModalProps {
-  feature: AiFeatureDetail | null
+interface FeatureDetailModalProps {
+  feature: FeatureDetail | null
   onClose: () => void
 }
 
-export function AiFeatureModal({ feature, onClose }: AiFeatureModalProps) {
+export function FeatureDetailModal({ feature, onClose }: FeatureDetailModalProps) {
   return (
     <AnimatePresence>
       {feature && (
@@ -55,7 +57,7 @@ export function AiFeatureModal({ feature, onClose }: AiFeatureModalProps) {
           <motion.div
             role="dialog"
             aria-modal="true"
-            aria-labelledby="ai-modal-title"
+            aria-labelledby="feature-modal-title"
             className="relative w-full max-w-lg overflow-hidden rounded-glass bg-white shadow-2xl"
             initial={{ opacity: 0, scale: 0.92, y: 24 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -88,7 +90,7 @@ export function AiFeatureModal({ feature, onClose }: AiFeatureModalProps) {
                   <span className="inline-block rounded-full bg-white/15 px-2.5 py-0.5 font-nunito text-[10px] font-bold uppercase tracking-wide text-white/90">
                     {feature.gateLabel}
                   </span>
-                  <h3 id="ai-modal-title" className="mt-1 font-display text-2xl font-bold text-white">
+                  <h3 id="feature-modal-title" className="mt-1 font-display text-2xl font-bold text-white">
                     {feature.title}
                   </h3>
                 </div>
@@ -121,12 +123,14 @@ export function AiFeatureModal({ feature, onClose }: AiFeatureModalProps) {
                 ))}
               </ul>
 
-              <div className="mt-6 flex items-center gap-3 rounded-btn bg-kuska-cream/70 p-3">
-                <Kusi size="xs" animation="idle" />
-                <p className="font-nunito text-xs text-kuska-text-mid">
-                  Potenciado por Kuska IA — inteligencia artificial entrenada para el contexto artesanal peruano.
-                </p>
-              </div>
+              {feature.poweredByAi && (
+                <div className="mt-6 flex items-center gap-3 rounded-btn bg-kuska-cream/70 p-3">
+                  <Kusi size="xs" animation="idle" />
+                  <p className="font-nunito text-xs text-kuska-text-mid">
+                    Potenciado por Kuska IA — inteligencia artificial entrenada para el contexto artesanal peruano.
+                  </p>
+                </div>
+              )}
 
               <Link href={feature.ctaHref} onClick={onClose} className="mt-6 block">
                 <motion.span
