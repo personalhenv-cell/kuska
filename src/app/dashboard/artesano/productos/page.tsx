@@ -7,6 +7,7 @@ import { prisma } from '@/lib/prisma'
 import { Badge } from '@/components/ui/Badge'
 import { Kusi } from '@/components/ui/Kusi'
 import { formatPrice } from '@/lib/utils'
+import { DownloadCatalogButton } from './DownloadCatalogButton'
 
 export default async function ArtisanProductsPage() {
   const session = await getServerSession(authOptions)
@@ -35,7 +36,7 @@ export default async function ArtisanProductsPage() {
           </Link>
           <Link
             href="/dashboard/artesano/productos/ia-descripcion"
-            className="rounded-btn border border-kuska-gold bg-kuska-gold/10 px-4 py-2.5 font-body text-sm font-bold text-[#9a6a07] transition-transform hover:-translate-y-0.5"
+            className="rounded-btn border border-kuska-gold bg-kuska-gold/10 px-4 py-2.5 font-body text-sm font-bold text-kuska-gold transition-transform hover:-translate-y-0.5"
           >
             ✨ Descripción con IA
           </Link>
@@ -45,6 +46,17 @@ export default async function ArtisanProductsPage() {
           >
             Ver en marketplace →
           </Link>
+          <DownloadCatalogButton
+            artisanName={session.user.name ?? 'Artesano Kuska'}
+            products={products.map((p) => ({
+              name: p.name,
+              price: p.price,
+              stock: p.stock,
+              technique: p.technique,
+              region: p.region,
+              image: p.images[0] ?? null,
+            }))}
+          />
         </div>
       </div>
 
