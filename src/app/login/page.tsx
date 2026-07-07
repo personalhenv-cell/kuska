@@ -64,7 +64,10 @@ export default function LoginPage() {
         return
       }
       toast.success('¡Bienvenido a Kuska! 🦙')
-      router.push('/')
+      // /dashboard redirige por rol (artesano → su panel, cliente → el suyo,
+      // admin → /admin). Ir a '/' dejaba al usuario en el home sin ningún
+      // cambio visible — parecía que el login no había funcionado.
+      router.push('/dashboard')
       router.refresh()
     } finally {
       setLoading(false)

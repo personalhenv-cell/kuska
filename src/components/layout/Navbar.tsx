@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import { signOut, useSession } from 'next-auth/react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { LanguageToggle } from '@/components/ui/LanguageToggle'
 import { Kusi } from '@/components/ui/Kusi'
@@ -10,6 +11,7 @@ import { cn } from '@/lib/utils'
 
 export function Navbar() {
   const { t } = useLanguage()
+  const { data: session, status } = useSession()
   const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
@@ -62,18 +64,46 @@ export function Navbar() {
           <span className="hidden sm:block">
             <LanguageToggle dark />
           </span>
-          <Link
-            href="/login"
-            className="hidden font-body text-sm font-semibold text-kuska-cream/85 hover:text-kuska-gold sm:block"
-          >
-            {t('login')}
-          </Link>
-          <Link
-            href="/registro"
-            className="whitespace-nowrap rounded-btn bg-kuska-gold px-3 py-2 font-body text-xs font-bold text-kuska-brown transition-transform hover:-translate-y-0.5 sm:px-4 sm:text-sm"
-          >
-            {t('register')}
-          </Link>
+
+          {status === 'loading' ? (
+            /* Reserva el espacio mientras carga la sesión — evita el salto de
+               "Ingresar/Registrarse" a "Mi panel" en cada navegación. */
+            <span className="h-9 w-24 animate-pulse rounded-btn bg-white/10" aria-hidden />
+          ) : session ? (
+            <>
+              <span className="hidden max-w-[140px] truncate font-body text-sm text-kuska-cream/85 md:block">
+                {t('hello')}, <span className="font-semibold text-kuska-cream">{session.user.name?.split(' ')[0]}</span>
+              </span>
+              <Link
+                href="/dashboard"
+                className="whitespace-nowrap rounded-btn bg-kuska-gold px-3 py-2 font-body text-xs font-bold text-kuska-brown transition-transform hover:-translate-y-0.5 sm:px-4 sm:text-sm"
+              >
+                {t('myPanel')}
+              </Link>
+              <button
+                type="button"
+                onClick={() => signOut({ callbackUrl: '/' })}
+                className="hidden font-body text-sm font-semibold text-kuska-cream/60 transition-colors hover:text-kuska-gold sm:block"
+              >
+                {t('logout')}
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="hidden font-body text-sm font-semibold text-kuska-cream/85 hover:text-kuska-gold sm:block"
+              >
+                {t('login')}
+              </Link>
+              <Link
+                href="/registro"
+                className="whitespace-nowrap rounded-btn bg-kuska-gold px-3 py-2 font-body text-xs font-bold text-kuska-brown transition-transform hover:-translate-y-0.5 sm:px-4 sm:text-sm"
+              >
+                {t('register')}
+              </Link>
+            </>
+          )}
         </div>
       </nav>
     </header>

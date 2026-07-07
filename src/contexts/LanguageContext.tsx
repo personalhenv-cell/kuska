@@ -16,6 +16,9 @@ const translations: Record<Lang, Dict> = {
   es: {
     login: 'Ingresar',
     register: 'Registrarse',
+    logout: 'Salir',
+    myPanel: 'Mi panel',
+    hello: 'Hola',
     home: 'Inicio',
     marketplace: 'Marketplace',
     community: 'Comunidad',
@@ -38,6 +41,9 @@ const translations: Record<Lang, Dict> = {
   qu: {
     login: 'Yaykuy',
     register: 'Qillqakuy',
+    logout: 'Lluqsiy',
+    myPanel: 'Tinkuyniy',
+    hello: 'Rimaykullayki',
     home: 'Qallariy',
     marketplace: 'Rantikunay',
     community: 'Llaqta',
@@ -60,6 +66,9 @@ const translations: Record<Lang, Dict> = {
   en: {
     login: 'Sign In',
     register: 'Sign Up',
+    logout: 'Sign Out',
+    myPanel: 'My Panel',
+    hello: 'Hi',
     home: 'Home',
     marketplace: 'Marketplace',
     community: 'Community',
