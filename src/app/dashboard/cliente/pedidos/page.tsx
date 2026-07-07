@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma'
 import { Badge } from '@/components/ui/Badge'
 import { Kusi } from '@/components/ui/Kusi'
 import { formatPrice, formatDate } from '@/lib/utils'
+import { OrderItemReview } from './OrderItemReview'
 
 export default async function ClientOrdersPage() {
   const session = await getServerSession(authOptions)
@@ -12,9 +13,18 @@ export default async function ClientOrdersPage() {
 
   const orders = await prisma.order.findMany({
     where: { client_id: session.user.id },
-    include: { items: { include: { product: { select: { name: true, images: true } } } } },
+    include: { items: { include: { product: { select: { id: true, name: true, images: true } } } } },
     orderBy: { created_at: 'desc' },
   })
+
+  const reviewedProductIds = new Set(
+    (
+      await prisma.review.findMany({
+        where: { reviewer_id: session.user.id },
+        select: { product_id: true },
+      })
+    ).map((r) => r.product_id),
+  )
 
   return (
     <div className="p-6 lg:p-10 space-y-6">
@@ -39,11 +49,16 @@ export default async function ClientOrdersPage() {
                   <Badge variant={order.payment_status === 'pagado' ? 'verified' : 'new'}>{order.payment_status}</Badge>
                 </div>
               </div>
-              <ul className="mt-3 space-y-1.5">
+              <ul className="mt-3 space-y-2.5">
                 {order.items.map((item) => (
-                  <li key={item.id} className="flex items-center justify-between font-body text-sm text-kuska-text">
-                    <span>{item.product.name} × {item.quantity}</span>
-                    <span className="font-semibold">{formatPrice(item.price * item.quantity)}</span>
+                  <li key={item.id}>
+                    <div className="flex items-center justify-between font-body text-sm text-kuska-text">
+                      <span>{item.product.name} × {item.quantity}</span>
+                      <span className="font-semibold">{formatPrice(item.price * item.quantity)}</span>
+                    </div>
+                    {order.payment_status === 'pagado' && !reviewedProductIds.has(item.product.id) && (
+                      <OrderItemReview productId={item.product.id} productName={item.product.name} />
+                    )}
                   </li>
                 ))}
               </ul>

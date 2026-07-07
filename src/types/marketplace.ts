@@ -47,6 +47,7 @@ export interface ReviewItem {
   rating: number
   comment: string
   is_verified: boolean
+  image_url: string | null
   created_at: string
   reviewer: { name: string; avatar_url: string | null }
 }

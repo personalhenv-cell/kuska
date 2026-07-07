@@ -315,6 +315,11 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                   </div>
                 </div>
                 <p className="mt-3 font-body text-kuska-text-mid">{r.comment}</p>
+                {r.image_url && (
+                  <div className="relative mt-3 h-32 w-32 overflow-hidden rounded-btn border border-kuska-border">
+                    <Image src={r.image_url} alt={`Foto de la reseña de ${r.reviewer.name}`} fill className="object-cover" />
+                  </div>
+                )}
               </article>
             ))}
           </div>

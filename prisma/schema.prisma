@@ -191,6 +191,7 @@ model Review {
   comment     String
   is_verified Boolean  @default(false)
   video_url   String?
+  image_url   String?
   created_at  DateTime @default(now())
 }
 

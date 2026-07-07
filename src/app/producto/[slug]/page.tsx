@@ -72,6 +72,7 @@ export default async function ProductPage({ params }: PageProps) {
       rating: r.rating,
       comment: r.comment,
       is_verified: r.is_verified,
+      image_url: r.image_url,
       created_at: r.created_at.toISOString(),
       reviewer: r.reviewer,
     })),

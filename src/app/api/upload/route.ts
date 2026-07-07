@@ -16,7 +16,10 @@ export async function POST(req: Request): Promise<NextResponse> {
       body,
       request: req,
       onBeforeGenerateToken: async (pathname) => {
-        if (!pathname.startsWith(`products/${session.user.id}/`)) {
+        const allowed =
+          pathname.startsWith(`products/${session.user.id}/`) ||
+          pathname.startsWith(`reviews/${session.user.id}/`)
+        if (!allowed) {
           throw new Error('Ruta de subida no autorizada')
         }
         return {
