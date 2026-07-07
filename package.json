@@ -5,7 +5,7 @@
   "description": "Kuska — Primera Plataforma Nacional de Innovación Artesanal del Perú",
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "prisma generate && (npx prisma db push --accept-data-loss --skip-generate || true) && next build",
     "start": "next start",
     "lint": "next lint",
     "postinstall": "prisma generate"
