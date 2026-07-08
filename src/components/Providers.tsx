@@ -4,11 +4,13 @@ import { SessionProvider } from 'next-auth/react'
 import { Toaster } from 'react-hot-toast'
 import { type ReactNode } from 'react'
 import { LanguageProvider } from '@/contexts/LanguageContext'
+import { RememberSessionGuard } from '@/components/auth/RememberSessionGuard'
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
     <SessionProvider>
       <LanguageProvider>
+        <RememberSessionGuard />
         {children}
         <Toaster
           position="top-center"

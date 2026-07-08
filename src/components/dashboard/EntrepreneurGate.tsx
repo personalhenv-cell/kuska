@@ -1,9 +1,14 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { motion } from 'framer-motion'
+import toast from 'react-hot-toast'
 import { Kusi } from '@/components/ui/Kusi'
 import { Button } from '@/components/ui/Button'
+import { activateEntrepreneurMode } from '@/app/dashboard/cliente/perfil/actions'
 
 interface EntrepreneurGateProps {
   title: string
@@ -15,6 +20,25 @@ interface EntrepreneurGateProps {
  *  para que activar "¿Eres emprendedor?" se sienta como una sola promesa
  *  coherente, no dos textos sueltos. */
 export function EntrepreneurGate({ title, description }: EntrepreneurGateProps) {
+  const router = useRouter()
+  const { update } = useSession()
+  const [activating, setActivating] = useState(false)
+
+  async function activate() {
+    setActivating(true)
+    try {
+      await activateEntrepreneurMode()
+      // Refresca el JWT de la sesión activa para que sidebars y gates vean el
+      // cambio sin re-login, y recarga la ruta para mostrar ya el módulo.
+      await update({ is_entrepreneur: true })
+      toast.success('¡Modo emprendedor activado! 🚀')
+      router.refresh()
+    } catch {
+      toast.error('No se pudo activar. Intenta de nuevo.')
+      setActivating(false)
+    }
+  }
+
   return (
     <div className="flex min-h-[70vh] items-center justify-center p-6">
       <motion.div
@@ -65,12 +89,16 @@ export function EntrepreneurGate({ title, description }: EntrepreneurGateProps) 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.5 }}
-            className="mt-7"
+            className="mt-7 flex flex-col items-center gap-3"
           >
-            <Link href="/dashboard/cliente/perfil">
-              <Button variant="primary" size="lg">
-                Activar modo emprendedor
-              </Button>
+            <Button variant="primary" size="lg" onClick={activate} disabled={activating}>
+              {activating ? 'Activando…' : '🚀 Activar ahora'}
+            </Button>
+            <Link
+              href="/dashboard/cliente/perfil"
+              className="font-body text-sm text-kuska-text-mid transition-colors hover:text-kuska-red"
+            >
+              o configúralo desde tu perfil
             </Link>
           </motion.div>
         </div>

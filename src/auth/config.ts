@@ -32,7 +32,11 @@ const MAX_OTP_ATTEMPTS = 5
  */
 export const authOptions: NextAuthOptions = {
   secret: process.env.AUTH_SECRET,
-  session: { strategy: 'jwt' },
+  // maxAge explícito de 30 días para que "Mantener sesión iniciada" (checkbox
+  // del login) sea real: la cookie JWT persiste entre cierres del navegador.
+  // Quien NO quiera persistencia lo desmarca y el RememberSessionGuard cierra
+  // su sesión al abrir el navegador en una nueva sesión (ver Providers).
+  session: { strategy: 'jwt', maxAge: 60 * 60 * 24 * 30, updateAge: 60 * 60 * 24 },
   pages: { signIn: '/login', error: '/auth/error' },
   providers: [
     CredentialsProvider({

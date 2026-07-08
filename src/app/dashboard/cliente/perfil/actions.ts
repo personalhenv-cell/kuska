@@ -36,3 +36,25 @@ export async function updateClientProfile(data: z.infer<typeof ProfileSchema>): 
   revalidatePath('/dashboard/cliente/perfil')
   revalidatePath('/dashboard/cliente')
 }
+
+/**
+ * Activa el modo emprendedor con un solo clic desde el "gate" de los módulos
+ * IA/Capitalización, sin obligar a ir al perfil. El cliente debe además
+ * refrescar su sesión (useSession().update) para que los sidebars y gates
+ * lo vean sin re-login.
+ */
+export async function activateEntrepreneurMode(): Promise<void> {
+  const session = await getServerSession(authOptions)
+  if (!session || session.user.role !== 'cliente') {
+    throw new Error('No autorizado')
+  }
+
+  await prisma.clientProfile.update({
+    where: { user_id: session.user.id },
+    data: { is_entrepreneur: true },
+  })
+
+  revalidatePath('/dashboard/cliente/emprendedor')
+  revalidatePath('/dashboard/cliente/capitalizacion')
+  revalidatePath('/dashboard/cliente')
+}

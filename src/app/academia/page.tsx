@@ -1,9 +1,9 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import { prisma } from '@/lib/prisma'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { formatDate } from '@/lib/utils'
+import { AcademiaBrowser, type AcademiaArticle } from './AcademiaBrowser'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,6 +21,18 @@ export default async function AcademiaPublicaPage() {
     }),
     prisma.workshop.count({ where: { date: { gte: new Date() } } }),
   ])
+
+  // Serializamos a datos planos (fechas → texto) para pasarlos al buscador
+  // cliente, que filtra por categoría y búsqueda sin recargar la página.
+  const articles: AcademiaArticle[] = posts.map((p) => ({
+    id: p.id,
+    title: p.title,
+    excerpt: p.excerpt,
+    cover_url: p.cover_url,
+    tags: p.tags,
+    author: p.author,
+    published_label: p.published_at ? formatDate(p.published_at) : null,
+  }))
 
   return (
     <div className="min-h-screen bg-kuska-cream">
@@ -56,33 +68,7 @@ export default async function AcademiaPublicaPage() {
             <p className="mt-3 font-body text-kuska-text-mid">Pronto publicaremos las primeras lecciones.</p>
           </div>
         ) : (
-          <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {posts.map((p) => (
-              <article
-                key={p.id}
-                className="overflow-hidden rounded-card border border-kuska-border bg-white transition-transform hover:-translate-y-1"
-              >
-                {p.cover_url && (
-                  <div className="relative h-40 w-full">
-                    <Image src={p.cover_url} alt={p.title} fill className="object-cover" />
-                  </div>
-                )}
-                <div className="p-5">
-                  {p.tags[0] && (
-                    <span className="font-nunito text-xs font-bold uppercase tracking-wide text-kuska-teal">
-                      {p.tags[0]}
-                    </span>
-                  )}
-                  <h3 className="mt-1 font-display text-lg font-bold text-kuska-text">{p.title}</h3>
-                  <p className="mt-1.5 font-body text-sm text-kuska-text-mid line-clamp-3">{p.excerpt}</p>
-                  <p className="mt-3 font-body text-xs text-kuska-text-mid">
-                    {p.author}
-                    {p.published_at && <> · {formatDate(p.published_at)}</>}
-                  </p>
-                </div>
-              </article>
-            ))}
-          </div>
+          <AcademiaBrowser articles={articles} />
         )}
       </main>
       <Footer />

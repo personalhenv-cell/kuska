@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { useSession } from 'next-auth/react'
 import Image from 'next/image'
 import { Logo } from '@/components/ui/Logo'
 
@@ -62,6 +63,10 @@ export function LoadingScreen() {
   // El único chequeo de sessionStorage ocurre en el useEffect, ya en el
   // cliente, y si ya se vio en esta sesión la oculta de inmediato.
   const [visible, setVisible] = useState(true)
+  // La sesión permite saltar la intro para usuarios ya logueados: si vienes
+  // del dashboard a una sección del landing (p.ej. /#alianzas) no tiene
+  // sentido tragarte 5s de splash de marca cada vez.
+  const { status } = useSession()
   const [fraseIndex, setFraseIndex] = useState(0)
   const [displayed, setDisplayed] = useState('')
   const [percent, setPercent] = useState(0)
@@ -87,6 +92,26 @@ export function LoadingScreen() {
       }),
     [],
   )
+
+  // Saltar la intro cuando llegas a una sección concreta del landing con
+  // ancla (#alianzas, #que-es-kuska, etc.): estás navegando a algo puntual,
+  // normalmente desde dentro de la app, no haciendo una primera visita.
+  useEffect(() => {
+    if (window.location.hash) {
+      sessionStorage.setItem(STORAGE_KEY, '1')
+      setVisible(false)
+    }
+  }, [])
+
+  // Usuario autenticado → nada de splash. En cuanto NextAuth confirma la
+  // sesión ocultamos la intro (y marcamos el flag para que no reaparezca al
+  // navegar dentro de la pestaña).
+  useEffect(() => {
+    if (status === 'authenticated') {
+      sessionStorage.setItem(STORAGE_KEY, '1')
+      setVisible(false)
+    }
+  }, [status])
 
   useEffect(() => {
     // sessionStorage (no localStorage): el flag vive solo mientras dura la

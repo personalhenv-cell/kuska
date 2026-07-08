@@ -24,6 +24,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string>()
   const [kusiAnim, setKusiAnim] = useState<'bounce' | 'idle'>('bounce')
+  const [remember, setRemember] = useState(true)
 
   useEffect(() => {
     const t = setTimeout(() => setKusiAnim('idle'), 900)
@@ -71,6 +72,13 @@ export default function LoginPage() {
         setError('Código inválido o expirado')
         return
       }
+      // Preferencia de persistencia: si el usuario mantiene marcado "Mantener
+      // sesión iniciada" (por defecto), la cookie de 30 días persiste. Si lo
+      // desmarca, el RememberSessionGuard cerrará su sesión la próxima vez que
+      // abra el navegador. Marcamos la pestaña como activa ahora para no
+      // cerrarle la sesión recién creada en este mismo momento.
+      localStorage.setItem('kuska_remember', remember ? '1' : '0')
+      sessionStorage.setItem('kuska_tab_active', '1')
       toast.success('¡Bienvenido a Kuska! 🦙')
       // /dashboard redirige por rol (artesano → su panel, cliente → el suyo,
       // admin → /admin). Ir a '/' dejaba al usuario en el home sin ningún
@@ -177,6 +185,26 @@ export default function LoginPage() {
                       <p className="mt-1.5 font-body text-xs text-kuska-red">{error}</p>
                     )}
                   </div>
+                  <label className="flex cursor-pointer select-none items-center gap-2.5 font-body text-sm text-kuska-cream/75">
+                    <button
+                      type="button"
+                      role="checkbox"
+                      aria-checked={remember}
+                      onClick={() => setRemember((v) => !v)}
+                      className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-md border transition-colors ${
+                        remember
+                          ? 'border-kuska-gold bg-kuska-gold text-kuska-brown'
+                          : 'border-white/40 bg-white/10'
+                      }`}
+                    >
+                      {remember && (
+                        <svg className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M16.7 5.3a1 1 0 010 1.4l-7.5 7.5a1 1 0 01-1.4 0L3.3 9.7a1 1 0 011.4-1.4l3.3 3.3 6.8-6.8a1 1 0 011.4 0z" clipRule="evenodd" />
+                        </svg>
+                      )}
+                    </button>
+                    Mantener sesión iniciada
+                  </label>
                   <RippleButton className="block w-full">
                     <Button type="submit" size="lg" className="w-full" disabled={loading}>
                       {loading ? 'Verificando…' : 'Ingresar'}

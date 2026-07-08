@@ -12,6 +12,7 @@ import { Counter } from '@/components/ui/Counter'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Kusi } from '@/components/ui/Kusi'
+import { Reveal } from '@/components/ui/Reveal'
 import { QueEsKuskaSection } from '@/components/landing/QueEsKuskaSection'
 import { MapaArtesanosSection } from '@/components/landing/MapaArtesanosSection'
 
@@ -98,8 +99,8 @@ export default function HomePage() {
               className="absolute left-0 right-0 top-7 hidden h-px bg-gradient-to-r from-kuska-red via-kuska-gold to-kuska-teal md:block"
               aria-hidden
             />
-            {pasos.map((p) => (
-              <div key={p.n} className="relative text-center">
+            {pasos.map((p, i) => (
+              <Reveal key={p.n} delay={i * 0.12} className="relative text-center">
                 <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-kuska-border bg-white shadow-sm">
                   <span className={`font-display text-xl font-bold ${p.color}`}>
                     {p.n}
@@ -109,7 +110,7 @@ export default function HomePage() {
                   {p.title}
                 </h3>
                 <p className="mt-2 font-body text-kuska-text-mid">{p.text}</p>
-              </div>
+              </Reveal>
             ))}
           </div>
         </section>
@@ -136,8 +137,9 @@ export default function HomePage() {
           </div>
 
           <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {artesanos.map((a) => (
-              <TiltCard key={a.name}>
+            {artesanos.map((a, i) => (
+              <Reveal key={a.name} delay={i * 0.12} from="up">
+                <TiltCard>
                 <article className="group overflow-hidden rounded-card border border-kuska-border bg-white shadow-sm">
                   <div className="relative h-44 overflow-hidden bg-kuska-cream-dark">
                     <Image
@@ -163,7 +165,8 @@ export default function HomePage() {
                     </div>
                   </div>
                 </article>
-              </TiltCard>
+                </TiltCard>
+              </Reveal>
             ))}
           </div>
         </section>
@@ -186,15 +189,15 @@ export default function HomePage() {
                 { to: 24, label: 'Regiones' },
                 { to: 8500, suffix: '+', label: 'Piezas únicas' },
                 { to: 95, suffix: '%', label: 'Va al artesano' },
-              ].map((s) => (
-                <div key={s.label}>
+              ].map((s, i) => (
+                <Reveal key={s.label} delay={i * 0.1}>
                   <p className="font-display text-4xl font-bold text-kuska-gold sm:text-5xl">
                     <Counter to={s.to} suffix={s.suffix} />
                   </p>
                   <p className="mt-2 font-nunito text-sm text-kuska-cream/75">
                     {s.label}
                   </p>
-                </div>
+                </Reveal>
               ))}
             </div>
           </div>

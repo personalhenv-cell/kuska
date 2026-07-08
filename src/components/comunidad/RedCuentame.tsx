@@ -1,8 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import { useSession } from 'next-auth/react'
+import { upload } from '@vercel/blob/client'
+import { AnimatePresence, motion } from 'framer-motion'
 import toast from 'react-hot-toast'
 import { Button } from '@/components/ui/Button'
 import { RippleButton } from '@/components/ui/RippleButton'
@@ -185,8 +187,23 @@ export function RedCuentame() {
   const [loading, setLoading] = useState(true)
   const [newPost, setNewPost] = useState('')
   const [posting, setPosting] = useState(false)
+  const [files, setFiles] = useState<File[]>([])
   const [roleFilter, setRoleFilter] = useState<RoleFilter>('all')
   const [sort, setSort] = useState<SortFilter>('recientes')
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const MAX_PHOTOS = 4
+
+  function onFilesSelected(e: React.ChangeEvent<HTMLInputElement>) {
+    const picked = Array.from(e.target.files ?? [])
+    setFiles((prev) => [...prev, ...picked].slice(0, MAX_PHOTOS))
+    // Permite volver a elegir el mismo archivo si se quitó antes.
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
+  function removeFile(index: number) {
+    setFiles((prev) => prev.filter((_, i) => i !== index))
+  }
 
   async function loadPosts(role: RoleFilter, sortBy: SortFilter) {
     setLoading(true)
@@ -208,18 +225,40 @@ export function RedCuentame() {
   }, [roleFilter, sort])
 
   async function submitPost() {
-    if (!newPost.trim()) return
+    if (!newPost.trim() && files.length === 0) return
+    const userId = authSession?.user.id
+    if (!userId) {
+      toast.error('Sesión inválida, vuelve a iniciar sesión')
+      return
+    }
     setPosting(true)
     try {
+      // Sube cada foto a Vercel Blob bajo posts/<userId>/ (ruta autorizada en
+      // /api/upload) y recoge las URLs públicas para el post.
+      const images: string[] = []
+      for (const file of files) {
+        const blob = await upload(`posts/${userId}/${Date.now()}-${file.name}`, file, {
+          access: 'public',
+          handleUploadUrl: '/api/upload',
+        })
+        images.push(blob.url)
+      }
+
       const res = await fetch('/api/posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: newPost, images: [] }),
+        body: JSON.stringify({ content: newPost.trim() || '📷', images }),
       })
       if (res.ok) {
         setNewPost('')
+        setFiles([])
         await loadPosts(roleFilter, sort)
+        toast.success('¡Publicado! 🎉')
+      } else {
+        toast.error('No se pudo publicar. Intenta de nuevo.')
       }
+    } catch {
+      toast.error('No se pudieron subir las fotos. Intenta de nuevo.')
     } finally {
       setPosting(false)
     }
@@ -254,16 +293,62 @@ export function RedCuentame() {
         </p>
       </div>
 
-      <div className="rounded-card border border-kuska-border bg-white p-5">
+      <div className="rounded-card border border-kuska-border bg-white p-5 shadow-sm">
         <textarea
           value={newPost}
           onChange={(e) => setNewPost(e.target.value)}
           placeholder={`¿Qué quieres contarle a Kuska hoy, ${authSession?.user.name?.split(' ')[0] ?? ''}?`}
-          className="h-20 w-full resize-none rounded-btn border border-kuska-border p-3 font-body text-sm focus:border-kuska-gold focus:outline-none"
+          className="h-20 w-full resize-none rounded-btn border border-kuska-border p-3 font-body text-sm transition-colors focus:border-kuska-gold focus:outline-none focus:ring-2 focus:ring-kuska-gold/20"
         />
-        <div className="mt-2 flex justify-end">
+
+        {/* Previews de fotos seleccionadas */}
+        <AnimatePresence>
+          {files.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mt-3 flex flex-wrap gap-2 overflow-hidden"
+            >
+              {files.map((f, i) => (
+                <div key={i} className="group relative h-20 w-20 overflow-hidden rounded-btn border border-kuska-border">
+                  <Image src={URL.createObjectURL(f)} alt={`Foto ${i + 1}`} fill className="object-cover" unoptimized />
+                  <button
+                    type="button"
+                    onClick={() => removeFile(i)}
+                    aria-label="Quitar foto"
+                    className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-kuska-brown/70 text-xs text-white opacity-0 transition-opacity group-hover:opacity-100"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <div className="mt-3 flex items-center justify-between gap-3">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={onFilesSelected}
+            className="hidden"
+          />
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={files.length >= MAX_PHOTOS}
+            className="flex items-center gap-2 rounded-full border border-kuska-border px-3.5 py-1.5 font-nunito text-xs font-bold text-kuska-text-mid transition-colors hover:border-kuska-gold/50 hover:text-kuska-gold disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            {files.length > 0 ? `${files.length}/${MAX_PHOTOS} fotos` : 'Añadir foto'}
+          </button>
           <RippleButton>
-            <Button onClick={submitPost} disabled={posting || !newPost.trim()}>
+            <Button onClick={submitPost} disabled={posting || (!newPost.trim() && files.length === 0)}>
               {posting ? 'Publicando…' : 'Publicar'}
             </Button>
           </RippleButton>
