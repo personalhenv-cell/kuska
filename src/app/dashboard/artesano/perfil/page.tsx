@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import QRCode from 'qrcode'
 import { authOptions } from '@/auth/config'
 import { prisma } from '@/lib/prisma'
+import { AvatarUploader } from '@/components/ui/AvatarUploader'
 import { updateArtisanProfile } from './actions'
 import { SaveProfileButton } from './SaveProfileButton'
 import { ShareQrCard } from './ShareQrCard'
@@ -15,9 +16,15 @@ export default async function ArtisanProfilePage() {
     redirect('/login')
   }
 
-  const profile = await prisma.artisanProfile.findUniqueOrThrow({
-    where: { id: session.user.artisan_profile_id },
-  })
+  const [profile, user] = await Promise.all([
+    prisma.artisanProfile.findUniqueOrThrow({
+      where: { id: session.user.artisan_profile_id },
+    }),
+    prisma.user.findUniqueOrThrow({
+      where: { id: session.user.id },
+      select: { id: true, name: true, avatar_url: true },
+    }),
+  ])
 
   const publicProfileUrl = `${SITE_URL}/artesano/${profile.id}`
   const qrDataUrl = await QRCode.toDataURL(publicProfileUrl, {
@@ -39,6 +46,13 @@ export default async function ArtisanProfilePage() {
         </p>
       </div>
 
+      <div className="rounded-card border border-kuska-border bg-white p-6">
+        <p className="mb-3 font-nunito text-xs font-bold uppercase tracking-wide text-kuska-text-mid">
+          Foto de perfil
+        </p>
+        <AvatarUploader userId={user.id} name={user.name} initialUrl={user.avatar_url} accent="teal" />
+      </div>
+
       <form action={updateArtisanProfile} className="space-y-5 rounded-card border border-kuska-border bg-white p-6">
         <div className="grid gap-5 sm:grid-cols-3">
           <div>
@@ -52,6 +66,29 @@ export default async function ArtisanProfilePage() {
           <div>
             <label className={labelClass}>Región</label>
             <input name="region" defaultValue={profile.region} className={inputClass} required />
+          </div>
+        </div>
+
+        <div className="grid gap-5 sm:grid-cols-2">
+          <div>
+            <label className={labelClass}>Comunidad / agrupación</label>
+            <input
+              name="community"
+              defaultValue={profile.community ?? ''}
+              placeholder="Ej. Asociación de Tejedoras de Chinchero"
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <label className={labelClass}>Años de experiencia</label>
+            <input
+              name="years_experience"
+              type="number"
+              min={0}
+              max={80}
+              defaultValue={profile.years_experience}
+              className={inputClass}
+            />
           </div>
         </div>
 

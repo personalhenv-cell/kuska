@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/auth/config'
-import { pusherServer } from '@/lib/pusher'
+import { inboxChannel, pusherServer } from '@/lib/pusher'
 import { prisma } from '@/lib/prisma'
 
 export async function POST(req: Request) {
@@ -22,6 +22,11 @@ export async function POST(req: Request) {
     // Solo autoriza canales de conversación que incluyan al usuario actual —
     // evita que alguien escuche una conversación ajena.
     if (!channel.includes(session.user.id)) {
+      return NextResponse.json({ error: 'Canal no autorizado' }, { status: 403 })
+    }
+  } else if (channel.startsWith('private-inbox-')) {
+    // Solo el dueño de la bandeja puede escuchar su propio canal.
+    if (channel !== inboxChannel(session.user.id)) {
       return NextResponse.json({ error: 'Canal no autorizado' }, { status: 403 })
     }
   } else if (channel.startsWith('private-group-')) {

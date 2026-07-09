@@ -4,10 +4,13 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
 import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import toast from 'react-hot-toast'
 import { formatPrice } from '@/lib/utils'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { WhatsAppButton } from '@/components/ui/WhatsAppButton'
+import { useCart } from '@/contexts/CartContext'
 import type { ProductDetail } from '@/types/marketplace'
 
 function StarDisplay({ value, count }: { value: number; count: number }) {
@@ -99,10 +102,28 @@ interface ProductDetailClientProps {
 
 export function ProductDetailClient({ product }: ProductDetailClientProps) {
   const { data: session } = useSession()
+  const router = useRouter()
+  const { addItem } = useCart()
+  const [addingToCart, setAddingToCart] = useState(false)
   const isOwnProduct = session?.user.id === product.artisan.user.id
   const chatHref = !session
     ? `/login?callbackUrl=/producto/${product.slug}`
     : `/dashboard/cliente/mensajes?with=${product.artisan.user.id}`
+
+  async function handleAddToCart() {
+    if (!session) {
+      router.push(`/login?callbackUrl=/producto/${product.slug}`)
+      return
+    }
+    setAddingToCart(true)
+    const ok = await addItem(product.id, 1)
+    setAddingToCart(false)
+    if (ok) {
+      toast.success(`${product.name} se agregó al carrito 🛒`)
+    } else {
+      toast.error('No se pudo agregar al carrito. Intenta de nuevo.')
+    }
+  }
 
   const waMessage = `Hola, vi tu ${product.name} en Kuska y me interesa.`
 
@@ -176,6 +197,15 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                 Comprar ahora
               </Button>
             </Link>
+            {!isOwnProduct && (
+              <button
+                onClick={handleAddToCart}
+                disabled={addingToCart || product.stock === 0}
+                className="flex-1 rounded-btn border-2 border-kuska-gold bg-white py-3 font-body font-semibold text-kuska-brown transition-transform hover:scale-[1.02] disabled:opacity-50 active:scale-95"
+              >
+                {product.stock === 0 ? 'Agotado' : addingToCart ? 'Agregando…' : '🛒 Agregar al carrito'}
+              </button>
+            )}
           </div>
 
           {!isOwnProduct && (

@@ -129,6 +129,13 @@ export const authOptions: NextAuthOptions = {
       if (trigger === 'update' && session?.is_entrepreneur !== undefined) {
         token.is_entrepreneur = session.is_entrepreneur
       }
+      // Mismo mecanismo para la foto de perfil: AvatarUploader llama a
+      // useSession().update({ image }) justo después de subir la nueva foto
+      // a Vercel Blob — sin esto, el header/sidebar seguirían mostrando el
+      // avatar viejo hasta el próximo login aunque la DB ya esté actualizada.
+      if (trigger === 'update' && typeof session?.image === 'string') {
+        token.picture = session.image
+      }
       return token
     },
     async session({ session, token }) {

@@ -4,7 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
-import { signOut } from 'next-auth/react'
+import { signOut, useSession } from 'next-auth/react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Kusi } from '@/components/ui/Kusi'
 import { Logo } from '@/components/ui/Logo'
@@ -112,6 +112,12 @@ function UserHeader({ user, roleLabel, accent }: { user: User; roleLabel: string
 export function DashboardNav({ user, roleLabel, accent, kusiMessage, sections }: DashboardNavProps) {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
+  // `user` viene del server (getServerSession) y solo cambia tras un
+  // router.refresh(); AvatarUploader llama a useSession().update({ image })
+  // apenas termina de subir la foto, así que preferimos ese valor "en vivo"
+  // para que el avatar cambie al instante sin esperar el refresh del server.
+  const { data: liveSession } = useSession()
+  const displayUser: User = { ...user, image: liveSession?.user?.image ?? user.image }
 
   // Cierra el drawer al navegar y bloquea el scroll del body mientras está abierto.
   useEffect(() => setOpen(false), [pathname])
@@ -140,7 +146,7 @@ export function DashboardNav({ user, roleLabel, accent, kusiMessage, sections }:
             <span className="font-display text-xl font-bold text-kuska-text">Kuska</span>
           </Link>
         </div>
-        <UserHeader user={user} roleLabel={roleLabel} accent={accent} />
+        <UserHeader user={displayUser} roleLabel={roleLabel} accent={accent} />
         <NavLinks sections={sections} pathname={pathname} />
         <div className="space-y-3 border-t border-kuska-border px-6 py-4">
           <Kusi size="sm" animation="idle" message={kusiMessage} />
@@ -202,7 +208,7 @@ export function DashboardNav({ user, roleLabel, accent, kusiMessage, sections }:
                   <Icon name="close" className="h-5 w-5" />
                 </button>
               </div>
-              <UserHeader user={user} roleLabel={roleLabel} accent={accent} />
+              <UserHeader user={displayUser} roleLabel={roleLabel} accent={accent} />
               <NavLinks sections={sections} pathname={pathname} onNavigate={() => setOpen(false)} />
               <div className="border-t border-kuska-border px-4 py-3">{logoutButton}</div>
             </motion.aside>

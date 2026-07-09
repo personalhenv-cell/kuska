@@ -13,6 +13,8 @@ const ProfileSchema = z.object({
   specialty: z.string().min(1).max(80),
   technique: z.string().min(1).max(80),
   region: z.string().min(1).max(80),
+  community: z.string().max(120).optional(),
+  years_experience: z.coerce.number().int().min(0).max(80).optional(),
   whatsapp: z.string().max(20).optional(),
 })
 
@@ -28,6 +30,8 @@ export async function updateArtisanProfile(formData: FormData): Promise<void> {
     specialty: formData.get('specialty')?.toString() ?? '',
     technique: formData.get('technique')?.toString() ?? '',
     region: formData.get('region')?.toString() ?? '',
+    community: formData.get('community')?.toString() || undefined,
+    years_experience: formData.get('years_experience')?.toString() || undefined,
     whatsapp: formData.get('whatsapp')?.toString() || undefined,
   })
 

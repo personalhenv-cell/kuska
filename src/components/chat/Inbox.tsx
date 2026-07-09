@@ -1,10 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import { ChatWindow } from './ChatWindow'
 import { Kusi } from '@/components/ui/Kusi'
+import { getPusherClient } from '@/lib/pusher-client'
 
 interface Conversation {
   user: { id: string; name: string; avatar_url: string | null }
@@ -21,12 +22,32 @@ export function Inbox({ currentUserId, basePath }: { currentUserId: string; base
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    fetch('/api/messages/conversations')
+  const fetchConversations = useCallback(() => {
+    return fetch('/api/messages/conversations')
       .then((res) => res.json())
       .then((data: { conversations?: Conversation[] }) => setConversations(data.conversations ?? []))
-      .finally(() => setLoading(false))
   }, [])
+
+  useEffect(() => {
+    fetchConversations().finally(() => setLoading(false))
+  }, [fetchConversations])
+
+  // Se suscribe a la bandeja personal del usuario: cualquier mensaje que
+  // envíe o reciba (incluida una conversación totalmente nueva que aún no
+  // aparece en la lista) dispara un refresco en tiempo real, sin esperar a
+  // recargar la página.
+  useEffect(() => {
+    const channelName = `private-inbox-${currentUserId}`
+    const pusher = getPusherClient()
+    const channel = pusher.subscribe(channelName)
+    channel.bind('conversation-update', () => {
+      fetchConversations()
+    })
+    return () => {
+      channel.unbind('conversation-update')
+      pusher.unsubscribe(channelName)
+    }
+  }, [currentUserId, fetchConversations])
 
   const selected = conversations.find((c) => c.user.id === selectedId)
   const selectedName = selected?.user.name ?? (selectedId ? 'Conversación' : undefined)

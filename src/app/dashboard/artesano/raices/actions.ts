@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { authOptions } from '@/auth/config'
 import { prisma } from '@/lib/prisma'
+import { hasPlanAccess } from '@/lib/memberships'
 
 const RaicesSchema = z.object({
   story: z.string().max(3000).optional(),
@@ -28,7 +29,7 @@ export async function updateRaices(input: {
     where: { id: session.user.artisan_profile_id },
     select: { membership_tier: true },
   })
-  if (profile?.membership_tier !== 'pro' && profile?.membership_tier !== 'maestro') {
+  if (!hasPlanAccess(profile?.membership_tier, 'pro')) {
     throw new Error('El módulo Raíces completo es parte del plan Pro o superior')
   }
 
