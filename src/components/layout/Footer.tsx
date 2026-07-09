@@ -28,6 +28,7 @@ const columns = [
     links: [
       { href: '/#alianzas', label: 'Alianzas' },
       { href: '/comunidad', label: 'Blog cultural' },
+      { href: '/contactanos', label: 'Contáctanos' },
       { href: '/login', label: 'Ingresar' },
       { href: '/registro', label: 'Crear cuenta' },
     ],
