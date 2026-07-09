@@ -7,6 +7,7 @@ import { Kusi } from '@/components/ui/Kusi'
 import { Badge } from '@/components/ui/Badge'
 import { ModuleGrid, type ModuleCard } from '@/components/dashboard/ModuleGrid'
 import { SmartCards, type SmartCard } from '@/components/dashboard/SmartCards'
+import { ContactCard } from '@/components/dashboard/ContactCard'
 import { formatPrice, timeGreeting } from '@/lib/utils'
 import { levelName } from '@/lib/memberships'
 
@@ -142,6 +143,11 @@ export function ClientDashboardContent({
             <p className="font-nunito text-xs text-kuska-text-mid">Favoritos</p>
           </motion.div>
         </Link>
+      </motion.div>
+
+      {/* Contact Card */}
+      <motion.div variants={itemVariants}>
+        <ContactCard />
       </motion.div>
 
       {/* Todos los módulos del cliente — visible en cualquier pantalla */}

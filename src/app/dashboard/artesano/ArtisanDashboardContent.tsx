@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/Badge'
 import { ModuleGrid, type ModuleCard } from '@/components/dashboard/ModuleGrid'
 import { SmartCards, type SmartCard } from '@/components/dashboard/SmartCards'
 import { StockAlerts } from '@/components/dashboard/StockAlerts'
+import { ContactCard } from '@/components/dashboard/ContactCard'
 import { formatPrice, formatDate, timeGreeting } from '@/lib/utils'
 import { levelName, DEMO_UNLOCK_ALL_PLANS } from '@/lib/memberships'
 
@@ -162,6 +163,11 @@ export function ArtisanDashboardContent({
             <p className="font-nunito text-xs text-kuska-text-mid">{s.label}</p>
           </motion.div>
         ))}
+      </motion.div>
+
+      {/* Contact Card */}
+      <motion.div variants={itemVariants}>
+        <ContactCard />
       </motion.div>
 
       {/* Todos los módulos del artesano — visible en cualquier pantalla */}
