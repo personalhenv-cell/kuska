@@ -26,3 +26,10 @@ export function conversationChannel(userIdA: string, userIdB: string): string {
 export function groupChannel(groupId: string): string {
   return `private-group-${groupId}`
 }
+
+/** Canal privado personal — notifica a la bandeja de entrada de un usuario
+ * que una de sus conversaciones cambió (mensaje nuevo enviado o recibido),
+ * para refrescar la lista en tiempo real sin esperar a recargar la página. */
+export function inboxChannel(userId: string): string {
+  return `private-inbox-${userId}`
+}

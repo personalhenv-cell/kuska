@@ -74,6 +74,16 @@ export function ChatWindow({ currentUserId, otherUserId, otherUserName }: ChatWi
     const channel = pusher.subscribe(channelName)
     channel.bind('new-message', (msg: ChatMessage) => {
       setMessages((prev) => dedupeAppend(prev, msg))
+      // El chat ya está abierto: marca como leído de inmediato en vez de
+      // esperar a que se reabra la conversación, para que el contador de no
+      // leídos de la bandeja no se quede desactualizado.
+      if (msg.sender_id === otherUserId && msg.receiver_id === currentUserId) {
+        fetch('/api/messages', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ with: otherUserId }),
+        }).catch(() => {})
+      }
     })
     return () => {
       channel.unbind('new-message')

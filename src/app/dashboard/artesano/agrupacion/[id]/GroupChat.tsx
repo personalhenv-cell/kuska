@@ -30,10 +30,25 @@ export function GroupChat({ groupId }: { groupId: string }) {
   useEffect(() => {
     let cancelled = false
     setLoading(true)
+    // Igual que en el chat directo: no reemplazamos `messages` con la
+    // respuesta del GET, la fusionamos con lo que ya haya llegado por Pusher
+    // o por un envío optimista mientras el fetch estaba en vuelo — si no,
+    // un mensaje recién enviado podía "desaparecer" pisado por una lista
+    // desactualizada.
+    setMessages([])
     fetch(`/api/grupos/${groupId}/mensajes`)
       .then((res) => res.json())
       .then((data: { messages?: GroupMessageItem[] }) => {
-        if (!cancelled) setMessages(data.messages ?? [])
+        if (cancelled) return
+        const fetched = data.messages ?? []
+        setMessages((prev) => {
+          const merged = [...fetched]
+          for (const m of prev) {
+            if (!merged.some((fm) => fm.id === m.id)) merged.push(m)
+          }
+          merged.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+          return merged
+        })
       })
       .finally(() => !cancelled && setLoading(false))
     return () => {

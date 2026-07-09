@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth'
 import { z } from 'zod'
 import { authOptions } from '@/auth/config'
 import { prisma } from '@/lib/prisma'
-import { pusherServer, conversationChannel } from '@/lib/pusher'
+import { pusherServer, conversationChannel, inboxChannel } from '@/lib/pusher'
 import { sendPushToUser } from '@/lib/onesignal'
 
 const SendSchema = z.object({
@@ -39,6 +39,32 @@ export async function GET(req: Request) {
   return NextResponse.json({ messages })
 }
 
+const MarkReadSchema = z.object({
+  with: z.string().min(1),
+})
+
+/** Marca como leídos los mensajes de una conversación sin traer el historial
+ * completo — se usa cuando el chat ya está abierto y llega un mensaje nuevo
+ * por Pusher, para que el contador de no leídos de la bandeja no quede
+ * desincronizado mientras el usuario está viendo esa conversación. */
+export async function PATCH(req: Request) {
+  const session = await getServerSession(authOptions)
+  if (!session) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+
+  const body = await req.json().catch(() => null)
+  const parsed = MarkReadSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Datos inválidos' }, { status: 400 })
+  }
+
+  await prisma.message.updateMany({
+    where: { sender_id: parsed.data.with, receiver_id: session.user.id, is_read: false },
+    data: { is_read: true },
+  })
+
+  return NextResponse.json({ ok: true })
+}
+
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions)
   if (!session) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
@@ -70,6 +96,15 @@ export async function POST(req: Request) {
     'new-message',
     message,
   )
+
+  // Avisa a la bandeja de ambos (remitente y destinatario) para que la lista
+  // de conversaciones se refresque en tiempo real: sin esto, una conversación
+  // nueva (o el reordenamiento por un mensaje reciente) no aparecía hasta
+  // recargar la página — parecía que la conversación "desaparecía".
+  await Promise.all([
+    pusherServer.trigger(inboxChannel(session.user.id), 'conversation-update', { with: receiver_id }),
+    pusherServer.trigger(inboxChannel(receiver_id), 'conversation-update', { with: session.user.id }),
+  ])
 
   // Fire-and-forget: si el destinatario tiene la app abierta, ya lo ve por
   // Pusher en tiempo real; el push es para cuando no la tiene abierta.
