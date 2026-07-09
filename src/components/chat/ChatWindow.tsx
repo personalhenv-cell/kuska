@@ -37,10 +37,29 @@ export function ChatWindow({ currentUserId, otherUserId, otherUserName }: ChatWi
   useEffect(() => {
     let cancelled = false
     setLoading(true)
+    // Al cambiar de conversación limpiamos la lista, pero la respuesta del
+    // GET puede tardar. Si mientras tanto el usuario envía un mensaje (o
+    // llega uno por Pusher), ese mensaje entra a `messages` antes de que
+    // resuelva este fetch. Por eso NO reemplazamos el estado con la
+    // respuesta del servidor: la fusionamos con lo que ya esté en pantalla
+    // para esa misma conversación, así el mensaje recién creado nunca se
+    // pisa con una lista desactualizada.
+    setMessages([])
     fetch(`/api/messages?with=${otherUserId}`)
       .then((res) => res.json())
       .then((data: { messages?: ChatMessage[] }) => {
-        if (!cancelled) setMessages(data.messages ?? [])
+        if (cancelled) return
+        const fetched = data.messages ?? []
+        setMessages((prev) => {
+          const merged = [...fetched]
+          for (const m of prev) {
+            if (!merged.some((fm) => fm.id === m.id)) merged.push(m)
+          }
+          merged.sort(
+            (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+          )
+          return merged
+        })
       })
       .finally(() => !cancelled && setLoading(false))
     return () => {

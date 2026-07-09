@@ -4,10 +4,11 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useState, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
+import toast from 'react-hot-toast'
 import { cn, formatPrice } from '@/lib/utils'
 import { Badge } from '@/components/ui/Badge'
 import { TiltCard } from '@/components/ui/TiltCard'
-import { useCart } from '@/hooks/useCart'
+import { useCart } from '@/contexts/CartContext'
 import type { ProductListItem } from '@/types/marketplace'
 
 interface ProductCardProps {
@@ -76,10 +77,15 @@ export function ProductCard({ product, initialFavorited = false }: ProductCardPr
         return
       }
       setAddingToCart(true)
-      await addItem(product.id, 1)
+      const ok = await addItem(product.id, 1)
       setAddingToCart(false)
+      if (ok) {
+        toast.success(`${product.name} se agregó al carrito 🛒`)
+      } else {
+        toast.error('No se pudo agregar al carrito. Intenta de nuevo.')
+      }
     },
-    [product.id, session, addItem],
+    [product.id, product.name, session, addItem],
   )
 
   return (

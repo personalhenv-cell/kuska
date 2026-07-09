@@ -25,7 +25,7 @@ export default async function EmprendedorPage() {
       <DashboardHero
         badge="🚀 Emprendedor IA"
         title="Convierte tu idea en un plan real"
-        description="Genera tu plan de negocio con inteligencia artificial, descárgalo en PDF y postula al Hub de Capitalización cuando esté listo."
+        description="Sigue los 4 pasos: cuéntanos tu negocio, genera tu plan con IA, revísalo y guárdalo, y descubre aliados y planes anteriores."
         kusiAnimation="celebrate"
       />
       <BusinessPlanGenerator />

@@ -9,7 +9,7 @@ import { RippleButton } from '@/components/ui/RippleButton'
 import { Kusi } from '@/components/ui/Kusi'
 import { formatPrice } from '@/lib/utils'
 
-type PaymentMethod = 'yape' | 'plin' | 'visa'
+export type PaymentMethod = 'yape' | 'plin' | 'visa'
 
 interface CheckoutProduct {
   id: string
@@ -48,7 +48,7 @@ function YapeQR() {
   )
 }
 
-function YapePanel({ amount }: { amount: number }) {
+export function YapePanel({ amount }: { amount: number }) {
   return (
     <div
       className="rounded-card p-6 text-center text-white"
@@ -66,7 +66,7 @@ function YapePanel({ amount }: { amount: number }) {
   )
 }
 
-function PlinPanel({ amount }: { amount: number }) {
+export function PlinPanel({ amount }: { amount: number }) {
   return (
     <div
       className="rounded-card p-6 text-center text-white"
@@ -88,7 +88,7 @@ function PlinPanel({ amount }: { amount: number }) {
   )
 }
 
-function VisaPanel() {
+export function VisaPanel() {
   const [flipped, setFlipped] = useState(false)
   const [number, setNumber] = useState('')
   const [holder, setHolder] = useState('')

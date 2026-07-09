@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { signOut, useSession } from 'next-auth/react'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -78,6 +79,25 @@ export function Navbar() {
               <span className="hidden max-w-[140px] truncate font-body text-sm text-kuska-cream/85 md:block">
                 {t('hello')}, <span className="font-semibold text-kuska-cream">{session.user.name?.split(' ')[0]}</span>
               </span>
+              <Link
+                href="/dashboard"
+                aria-label="Mi panel"
+                className="flex h-9 w-9 flex-shrink-0 items-center justify-center overflow-hidden rounded-full border border-kuska-cream/30 bg-kuska-gold/20 transition-transform hover:-translate-y-0.5"
+              >
+                {session.user.image ? (
+                  <Image
+                    src={session.user.image}
+                    alt={session.user.name ?? ''}
+                    width={36}
+                    height={36}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <span className="font-display text-xs font-bold text-kuska-gold">
+                    {(session.user.name ?? '?').charAt(0).toUpperCase()}
+                  </span>
+                )}
+              </Link>
               <Link
                 href="/dashboard"
                 className="whitespace-nowrap rounded-btn bg-kuska-gold px-3 py-2 font-body text-xs font-bold text-kuska-brown transition-transform hover:-translate-y-0.5 sm:px-4 sm:text-sm"
