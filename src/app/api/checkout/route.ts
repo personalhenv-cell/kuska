@@ -125,7 +125,7 @@ export async function POST(req: Request) {
       }
 
       return created
-    )
+    })
 
     // Fire-and-forget: un push que falla o tarda no debe bloquear ni
     // hacer fallar una compra ya confirmada y pagada.
