@@ -10,6 +10,7 @@ declare module 'next-auth' {
       role: KuskaRole
       artisan_profile_id: string | null
       is_entrepreneur: boolean
+      nickname: string | null
     } & DefaultSession['user']
   }
 
@@ -19,6 +20,7 @@ declare module 'next-auth' {
     role: KuskaRole
     artisan_profile_id: string | null
     is_entrepreneur: boolean
+    nickname: string | null
   }
 }
 
@@ -29,5 +31,6 @@ declare module 'next-auth/jwt' {
     role: KuskaRole
     artisan_profile_id: string | null
     is_entrepreneur: boolean
+    nickname: string | null
   }
 }

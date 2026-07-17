@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { authOptions } from '@/auth/config'
 import { prisma } from '@/lib/prisma'
 import { AvatarUploader } from '@/components/ui/AvatarUploader'
+import { NicknameField } from '@/components/ui/NicknameField'
 import { ClientProfileForm } from './ClientProfileForm'
 
 export default async function ClientProfilePage() {
@@ -17,7 +18,7 @@ export default async function ClientProfilePage() {
     }),
     prisma.user.findUniqueOrThrow({
       where: { id: session.user.id },
-      select: { id: true, name: true, avatar_url: true },
+      select: { id: true, name: true, nickname: true, avatar_url: true },
     }),
   ])
 
@@ -35,6 +36,9 @@ export default async function ClientProfilePage() {
           Foto de perfil
         </p>
         <AvatarUploader userId={user.id} name={user.name} initialUrl={user.avatar_url} accent="red" />
+        <div className="mt-5 border-t border-kuska-border pt-5">
+          <NicknameField initialNickname={user.nickname} />
+        </div>
       </div>
 
       <ClientProfileForm profile={profile} />

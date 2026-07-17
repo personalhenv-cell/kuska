@@ -22,7 +22,7 @@ export default async function ComunidadPublicaPage() {
     orderBy: { created_at: 'desc' },
     take: 30,
     include: {
-      author: { select: { name: true, role: true } },
+      author: { select: { name: true, nickname: true, role: true } },
       _count: { select: { reactions: true, comments: true } },
     },
   })
@@ -57,14 +57,16 @@ export default async function ComunidadPublicaPage() {
           </div>
         ) : (
           <div className="mt-8 space-y-5">
-            {posts.map((p) => (
+            {posts.map((p) => {
+              const displayName = p.author.nickname || p.author.name
+              return (
               <article key={p.id} className="rounded-card border border-kuska-border bg-white p-5">
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-kuska-teal/15 font-display text-sm font-bold text-kuska-teal">
-                    {p.author.name.charAt(0).toUpperCase()}
+                    {displayName.charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <p className="font-body text-sm font-semibold text-kuska-text">{p.author.name}</p>
+                    <p className="font-body text-sm font-semibold text-kuska-text">{displayName}</p>
                     <p className="font-nunito text-xs text-kuska-text-mid">
                       {p.author.role === 'artesano' ? '🎨 Artesano' : '💛 Cliente'} · {formatDate(p.created_at)}
                     </p>
@@ -75,7 +77,7 @@ export default async function ComunidadPublicaPage() {
 
                 {p.images[0] && (
                   <div className="relative mt-3 h-64 w-full overflow-hidden rounded-card">
-                    <Image src={p.images[0]} alt={`Imagen del post por ${p.author.name}`} fill className="object-cover" />
+                    <Image src={p.images[0]} alt={`Imagen del post por ${displayName}`} fill className="object-cover" />
                   </div>
                 )}
 
@@ -84,7 +86,8 @@ export default async function ComunidadPublicaPage() {
                   <span>💬 {p._count.comments}</span>
                 </div>
               </article>
-            ))}
+              )
+            })}
           </div>
         )}
       </main>

@@ -4,6 +4,7 @@ import QRCode from 'qrcode'
 import { authOptions } from '@/auth/config'
 import { prisma } from '@/lib/prisma'
 import { AvatarUploader } from '@/components/ui/AvatarUploader'
+import { NicknameField } from '@/components/ui/NicknameField'
 import { updateArtisanProfile } from './actions'
 import { SaveProfileButton } from './SaveProfileButton'
 import { ShareQrCard } from './ShareQrCard'
@@ -22,7 +23,7 @@ export default async function ArtisanProfilePage() {
     }),
     prisma.user.findUniqueOrThrow({
       where: { id: session.user.id },
-      select: { id: true, name: true, avatar_url: true },
+      select: { id: true, name: true, nickname: true, avatar_url: true },
     }),
   ])
 
@@ -51,6 +52,9 @@ export default async function ArtisanProfilePage() {
           Foto de perfil
         </p>
         <AvatarUploader userId={user.id} name={user.name} initialUrl={user.avatar_url} accent="teal" />
+        <div className="mt-5 border-t border-kuska-border pt-5">
+          <NicknameField initialNickname={user.nickname} />
+        </div>
       </div>
 
       <form action={updateArtisanProfile} className="space-y-5 rounded-card border border-kuska-border bg-white p-6">

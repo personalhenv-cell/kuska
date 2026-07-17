@@ -8,6 +8,7 @@ type KuskaRole = 'artesano' | 'cliente' | 'admin'
 interface AuthRow {
   id: string
   name: string
+  nickname: string | null
   phone: string
   role: KuskaRole
   avatar_url: string | null
@@ -81,7 +82,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         const rows = await prisma.$queryRawUnsafe<AuthRow[]>(
-          `SELECT u.id, u.name, u.phone, u.role, u.avatar_url,
+          `SELECT u.id, u.name, u.nickname, u.phone, u.role, u.avatar_url,
                   ap.id AS artisan_profile_id,
                   cp.is_entrepreneur
            FROM users u
@@ -101,7 +102,11 @@ export const authOptions: NextAuthOptions = {
 
         return {
           id: row.id,
-          name: row.name,
+          // El apodo, si el usuario puso uno, reemplaza el nombre real en
+          // toda la plataforma (header, dashboards, comunidad) reusando el
+          // mismo campo `name` que NextAuth ya propaga a session.user.name.
+          name: row.nickname || row.name,
+          nickname: row.nickname ?? null,
           phone: row.phone,
           role: row.role,
           // NextAuth mapea user.image → token.picture → session.user.image;
@@ -121,6 +126,7 @@ export const authOptions: NextAuthOptions = {
         token.role = user.role
         token.artisan_profile_id = user.artisan_profile_id
         token.is_entrepreneur = user.is_entrepreneur
+        token.nickname = user.nickname
       }
       // Permite refrescar is_entrepreneur sin re-login: el cliente llama a
       // useSession().update({ is_entrepreneur }) justo después de guardar su
@@ -136,6 +142,13 @@ export const authOptions: NextAuthOptions = {
       if (trigger === 'update' && typeof session?.image === 'string') {
         token.picture = session.image
       }
+      // Mismo mecanismo para el apodo: el formulario de perfil llama a
+      // useSession().update({ nickname }) justo después de guardarlo, y
+      // como `name` se deriva del apodo, actualizamos ambos a la vez.
+      if (trigger === 'update' && 'nickname' in (session ?? {})) {
+        token.nickname = session.nickname
+        token.name = session.nickname || token.name
+      }
       return token
     },
     async session({ session, token }) {
@@ -144,6 +157,7 @@ export const authOptions: NextAuthOptions = {
       session.user.role = token.role
       session.user.artisan_profile_id = token.artisan_profile_id
       session.user.is_entrepreneur = token.is_entrepreneur
+      session.user.nickname = token.nickname
       return session
     },
   },
