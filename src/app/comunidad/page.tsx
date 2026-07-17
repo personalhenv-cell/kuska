@@ -38,7 +38,13 @@ export default async function ComunidadPublicaPage() {
         </p>
 
         <Link
-          href={session ? '/dashboard/cliente/red' : '/registro'}
+          href={
+            session
+              ? session.user.role === 'artesano'
+                ? '/dashboard/artesano/comunidad'
+                : '/dashboard/cliente/comunidad'
+              : '/registro'
+          }
           className="mt-5 inline-block rounded-input bg-kuska-red px-5 py-2.5 font-body text-sm font-semibold text-white transition-transform hover:-translate-y-0.5"
         >
           {session ? 'Ver la comunidad' : 'Únete y comparte tu historia'}
