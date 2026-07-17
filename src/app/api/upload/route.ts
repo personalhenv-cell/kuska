@@ -66,9 +66,15 @@ export async function POST(req: Request): Promise<NextResponse> {
           maximumSizeInBytes: isAvatar ? 5 * 1024 * 1024 : 8 * 1024 * 1024,
         }
       },
-      onUploadCompleted: async () => {},
+      onUploadCompleted: async ({ blob }) => {
+        // Este callback SOLO se dispara cuando Vercel Blob confirma que el
+        // archivo llegó completo al storage — es la única forma real de
+        // saber si una subida terminó, a diferencia de la generación de
+        // token (que solo confirma que el usuario está autorizado).
+        console.log(`Upload confirmed complete by Blob storage: ${blob.url}`)
+      },
     })
-    console.log(`Upload completed successfully for user ${session.user.id}`)
+    console.log(`/api/upload request handled OK for user ${session.user.id} (type=${body.type})`)
     return NextResponse.json(jsonResponse)
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : 'Error desconocido'

@@ -60,7 +60,7 @@ export function AvatarUploader({
     setProgress(0)
     const sanitizedFilename = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
     const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 45000)
+    const timeoutId = setTimeout(() => controller.abort(), 90000)
     try {
       const blob = await upload(`avatars/${userId}/${Date.now()}-${sanitizedFilename}`, file, {
         access: 'public',
@@ -79,7 +79,7 @@ export function AvatarUploader({
       const isAbort = err instanceof Error && err.name === 'AbortError'
       setError(
         isAbort
-          ? 'La subida tardó demasiado (> 45s). Revisa tu conexión e intenta de nuevo.'
+          ? 'La subida tardó demasiado (> 90s). Revisa tu conexión e intenta de nuevo.'
           : err instanceof Error
             ? err.message
             : 'No se pudo subir la foto. Intenta de nuevo.',

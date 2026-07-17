@@ -93,10 +93,13 @@ export function NewProductForm() {
           const sanitizedFilename = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
           const path = `products/${authSession.user.id}/${Date.now()}-${sanitizedFilename}`
 
-          // AbortController real: si tarda más de 45s, se cancela la petición
+          // AbortController real: si tarda más de 90s, se cancela la petición
           // en curso (no solo se abandona la promesa) y se muestra un error claro.
+          // 90s (no 45s) porque ahora el % de progreso es real — una conexión
+          // lenta pero viva no debe cortarse antes de tiempo, solo una que
+          // de verdad se congeló.
           const controller = new AbortController()
-          const timeoutId = setTimeout(() => controller.abort(), 45000)
+          const timeoutId = setTimeout(() => controller.abort(), 90000)
 
           const blob = await upload(path, file, {
             access: 'public',
@@ -111,7 +114,7 @@ export function NewProductForm() {
         } catch (uploadErr) {
           const isAbort = uploadErr instanceof Error && uploadErr.name === 'AbortError'
           const errorMsg = isAbort
-            ? 'La subida tardó demasiado (> 45s). Prueba con una foto más liviana o revisa tu conexión.'
+            ? 'La subida tardó demasiado (> 90s). Prueba con una foto más liviana o revisa tu conexión.'
             : uploadErr instanceof Error
               ? uploadErr.message
               : 'Error desconocido al subir foto'
