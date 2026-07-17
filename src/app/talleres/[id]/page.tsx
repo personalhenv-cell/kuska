@@ -117,7 +117,17 @@ export default async function TallerDetailPage({ params }: { params: { id: strin
           )}
 
           <div className="mt-6 flex flex-wrap gap-3">
-            {!past && <EnrollButton workshopId={workshop.id} full={full} alreadyEnrolled={alreadyEnrolled} />}
+            {!past && (
+              <EnrollButton
+                workshopId={workshop.id}
+                title={workshop.title}
+                date={workshop.date.toISOString()}
+                price={workshop.price}
+                isVirtual={workshop.is_virtual}
+                full={full}
+                alreadyEnrolled={alreadyEnrolled}
+              />
+            )}
             {workshop.artisan.whatsapp && (
               <WhatsAppButton
                 phone={workshop.artisan.whatsapp}

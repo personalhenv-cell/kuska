@@ -298,7 +298,12 @@ model WorkshopParticipant {
   user_id         String
   completed       Boolean  @default(false)
   certificate_url String?
+  /// Pago SIMULADO (igual que Order) — obligatorio solo si el taller tiene precio > 0.
+  payment_method  String?
+  payment_status  String   @default("pendiente")
   joined_at       DateTime @default(now())
+
+  @@unique([workshop_id, user_id])
 }
 
 model DigitalFair {
