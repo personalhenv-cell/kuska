@@ -51,6 +51,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartState>(EMPTY_CART)
   const [loading, setLoading] = useState(true)
 
+  // fetchCart no depende de nada que pueda cambiar — solo fetch de datos
   const fetchCart = useCallback(async () => {
     if (!session) {
       setCart(EMPTY_CART)
@@ -60,27 +61,41 @@ export function CartProvider({ children }: { children: ReactNode }) {
     try {
       const res = await fetch('/api/cart')
       if (res.ok) {
-        setCart(await res.json())
+        const data = await res.json()
+        setCart(data)
+      } else {
+        // Si el servidor retorna error, resetea a carrito vacío en lugar de
+        // dejar el estado viejo que podría estar desincronizado.
+        setCart(EMPTY_CART)
       }
+    } catch {
+      // Network error — deja el estado actual, no resetea
+      console.error('Error fetching cart')
     } finally {
       setLoading(false)
     }
   }, [session])
 
+  // Refetch cuando la sesión cambia
   useEffect(() => {
-    fetchCart()
-  }, [fetchCart])
+    void fetchCart()
+  }, [session])
 
   const addItem = useCallback(
     async (productId: string, quantity: number) => {
-      const res = await fetch('/api/cart', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ product_id: productId, quantity }),
-      })
-      if (res.ok) {
-        await fetchCart()
-        return true
+      try {
+        const res = await fetch('/api/cart', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ product_id: productId, quantity }),
+        })
+        if (res.ok) {
+          await fetchCart()
+          return true
+        }
+        console.error('Failed to add item:', await res.json().catch(() => res.statusText))
+      } catch (e) {
+        console.error('Error adding to cart:', e)
       }
       return false
     },
@@ -89,14 +104,19 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const updateQuantity = useCallback(
     async (productId: string, quantity: number) => {
-      const res = await fetch(`/api/cart/${productId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ quantity }),
-      })
-      if (res.ok) {
-        await fetchCart()
-        return true
+      try {
+        const res = await fetch(`/api/cart/${productId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ quantity }),
+        })
+        if (res.ok) {
+          await fetchCart()
+          return true
+        }
+        console.error('Failed to update quantity:', await res.json().catch(() => res.statusText))
+      } catch (e) {
+        console.error('Error updating quantity:', e)
       }
       return false
     },
@@ -105,10 +125,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const removeItem = useCallback(
     async (productId: string) => {
-      const res = await fetch(`/api/cart/${productId}`, { method: 'DELETE' })
-      if (res.ok) {
-        await fetchCart()
-        return true
+      try {
+        const res = await fetch(`/api/cart/${productId}`, { method: 'DELETE' })
+        if (res.ok) {
+          await fetchCart()
+          return true
+        }
+        console.error('Failed to remove item:', await res.json().catch(() => res.statusText))
+      } catch (e) {
+        console.error('Error removing from cart:', e)
       }
       return false
     },
