@@ -115,16 +115,17 @@ export async function POST(req: Request) {
         })
       }
 
-      return created
-    })
+      // Vaciar el carrito dentro de la transacción para asegurar atomicidad:
+      // Si falla aquí, se revierte la orden y el stock se restaura.
+      const cart = await tx.cart.findUnique({ where: { user_id: session.user.id } })
+      if (cart) {
+        await tx.cartItem.deleteMany({
+          where: { cart_id: cart.id, product_id: { in: items.map((i) => i.product_id) } },
+        })
+      }
 
-    // Si la compra vino del carrito, se vacía tras confirmarse el pago.
-    const cart = await prisma.cart.findUnique({ where: { user_id: session.user.id } })
-    if (cart) {
-      await prisma.cartItem.deleteMany({
-        where: { cart_id: cart.id, product_id: { in: items.map((i) => i.product_id) } },
-      })
-    }
+      return created
+    )
 
     // Fire-and-forget: un push que falla o tarda no debe bloquear ni
     // hacer fallar una compra ya confirmada y pagada.
