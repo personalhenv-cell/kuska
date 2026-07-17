@@ -23,17 +23,24 @@ export function RememberSessionGuard() {
   useEffect(() => {
     if (status !== 'authenticated') return
 
-    const remember = localStorage.getItem('kuska_remember')
-    const tabActive = sessionStorage.getItem('kuska_tab_active')
+    // localStorage/sessionStorage pueden lanzar en navegadores in-app con
+    // almacenamiento restringido (WhatsApp, Instagram, modo privado) — un
+    // error aquí no debe nunca cerrar la sesión del usuario por accidente.
+    try {
+      const remember = localStorage.getItem('kuska_remember')
+      const tabActive = sessionStorage.getItem('kuska_tab_active')
 
-    if (remember === '0' && !tabActive) {
-      // Navegador reabierto y el usuario no quería persistir → cerrar sesión.
-      signOut({ redirect: false })
-      return
+      if (remember === '0' && !tabActive) {
+        // Navegador reabierto y el usuario no quería persistir → cerrar sesión.
+        signOut({ redirect: false })
+        return
+      }
+
+      // Marca esta sesión de navegador como activa para no volver a evaluar.
+      sessionStorage.setItem('kuska_tab_active', '1')
+    } catch {
+      // Almacenamiento no disponible: no forzamos cierre de sesión.
     }
-
-    // Marca esta sesión de navegador como activa para no volver a evaluar.
-    sessionStorage.setItem('kuska_tab_active', '1')
   }, [status])
 
   return null

@@ -36,6 +36,7 @@ export function AvatarUploader({
   const inputRef = useRef<HTMLInputElement>(null)
   const [preview, setPreview] = useState<string | null>(initialUrl)
   const [uploading, setUploading] = useState(false)
+  const [progress, setProgress] = useState(0)
   const [error, setError] = useState<string>()
 
   async function onFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
@@ -56,11 +57,18 @@ export function AvatarUploader({
     const localPreview = URL.createObjectURL(file)
     setPreview(localPreview)
     setUploading(true)
+    setProgress(0)
+    const sanitizedFilename = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 45000)
     try {
-      const blob = await upload(`avatars/${userId}/${Date.now()}-${file.name}`, file, {
+      const blob = await upload(`avatars/${userId}/${Date.now()}-${sanitizedFilename}`, file, {
         access: 'public',
         handleUploadUrl: '/api/upload',
+        abortSignal: controller.signal,
+        onUploadProgress: ({ percentage }) => setProgress(percentage),
       })
+      clearTimeout(timeoutId)
       await updateAvatarUrl(blob.url)
       // Refresca el JWT activo — sin esto el header/sidebar seguirían
       // mostrando la foto vieja hasta el próximo login.
@@ -68,10 +76,19 @@ export function AvatarUploader({
       setPreview(blob.url)
       router.refresh()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'No se pudo subir la foto. Intenta de nuevo.')
+      const isAbort = err instanceof Error && err.name === 'AbortError'
+      setError(
+        isAbort
+          ? 'La subida tardó demasiado (> 45s). Revisa tu conexión e intenta de nuevo.'
+          : err instanceof Error
+            ? err.message
+            : 'No se pudo subir la foto. Intenta de nuevo.',
+      )
       setPreview(initialUrl)
     } finally {
+      clearTimeout(timeoutId)
       setUploading(false)
+      setProgress(0)
       URL.revokeObjectURL(localPreview)
     }
   }
@@ -113,7 +130,7 @@ export function AvatarUploader({
           disabled={uploading}
           className="rounded-btn border border-kuska-border bg-white px-4 py-2 font-body text-xs font-bold text-kuska-text transition-colors hover:border-kuska-gold disabled:opacity-60"
         >
-          {uploading ? 'Subiendo…' : 'Cambiar foto'}
+          {uploading ? `Subiendo… ${progress}%` : 'Cambiar foto'}
         </button>
         <p className="mt-1.5 font-body text-xs text-kuska-text-mid">JPG, PNG o WEBP. Máx. 5 MB.</p>
         {error && <p className="mt-1 font-body text-xs text-kuska-red">{error}</p>}
