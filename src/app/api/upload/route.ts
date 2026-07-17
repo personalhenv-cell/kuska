@@ -18,22 +18,36 @@ export async function POST(req: Request): Promise<NextResponse> {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
 
-  const body = (await req.json()) as HandleUploadBody
+  let body: HandleUploadBody
+  try {
+    body = (await req.json()) as HandleUploadBody
+  } catch (e) {
+    console.error('Error parsing upload request body:', e)
+    return NextResponse.json({ error: 'Cuerpo inválido' }, { status: 400 })
+  }
 
   try {
     const jsonResponse = await handleUpload({
       body,
       request: req,
       onBeforeGenerateToken: async (pathname) => {
-        if (!PathnameSchema.safeParse(pathname).success) {
-          throw new Error('Ruta de subida no autorizada')
+        console.log(`Upload validation for pathname: ${pathname}`)
+
+        const pathValidation = PathnameSchema.safeParse(pathname)
+        if (!pathValidation.success) {
+          console.error(`Pathname validation failed: ${pathname}`, pathValidation.error)
+          throw new Error('Ruta de subida no autorizada (formato inválido)')
         }
+
         const allowed = UPLOAD_PREFIXES.some((prefix) => pathname.startsWith(`${prefix}/${session.user.id}/`))
         if (!allowed) {
-          throw new Error('Ruta de subida no autorizada')
+          console.error(`Pathname not authorized for user ${session.user.id}: ${pathname}`)
+          throw new Error('Ruta de subida no autorizada (usuario no permitido)')
         }
+
         const isRaicesAudio = pathname.startsWith(`raices/${session.user.id}/`)
         const isAvatar = pathname.startsWith(`avatars/${session.user.id}/`)
+
         return {
           allowedContentTypes: isRaicesAudio
             ? [
@@ -49,18 +63,18 @@ export async function POST(req: Request): Promise<NextResponse> {
                 'audio/x-m4a',
               ]
             : ['image/jpeg', 'image/png', 'image/webp', 'image/avif'],
-          // La foto de perfil se muestra pequeña en toda la plataforma
-          // (header, tarjetas, reseñas) — 5 MB es de sobra y evita subidas
-          // pesadas innecesarias comparado con las fotos de producto (8 MB).
           maximumSizeInBytes: isAvatar ? 5 * 1024 * 1024 : 8 * 1024 * 1024,
         }
       },
       onUploadCompleted: async () => {},
     })
+    console.log(`Upload completed successfully for user ${session.user.id}`)
     return NextResponse.json(jsonResponse)
   } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : 'Error desconocido'
+    console.error(`Upload error for user ${session.user.id}:`, errorMsg)
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Error al subir la imagen' },
+      { error: errorMsg },
       { status: 400 },
     )
   }

@@ -88,11 +88,28 @@ export function NewProductForm() {
       for (let i = 0; i < files.length; i++) {
         setUploadProgress(`Subiendo foto ${i + 1} de ${files.length}…`)
         const file = files[i]
-        const blob = await upload(`products/${authSession.user.id}/${Date.now()}-${file.name}`, file, {
-          access: 'public',
-          handleUploadUrl: '/api/upload',
-        })
-        images.push(blob.url)
+        try {
+          // Sanitizar nombre de archivo para evitar caracteres problemáticos
+          const sanitizedFilename = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
+          const path = `products/${authSession.user.id}/${Date.now()}-${sanitizedFilename}`
+
+          // Timeout de 2 minutos para el upload
+          const uploadPromise = upload(path, file, {
+            access: 'public',
+            handleUploadUrl: '/api/upload',
+          })
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Timeout: la foto tardó demasiado en subir (> 2 min). Intenta con una foto más pequeña.')), 120000)
+          )
+
+          const blob = await Promise.race([uploadPromise, timeoutPromise as Promise<any>])
+          images.push(blob.url)
+        } catch (uploadErr) {
+          const errorMsg = uploadErr instanceof Error ? uploadErr.message : 'Error desconocido al subir foto'
+          setError(`Error subiendo foto ${i + 1}: ${errorMsg}`)
+          console.error(`Upload error for file ${i}:`, uploadErr)
+          return
+        }
       }
 
       setUploadProgress('Creando producto…')
