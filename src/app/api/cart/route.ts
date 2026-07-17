@@ -80,12 +80,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Producto no disponible' }, { status: 404 })
     }
 
-    let cart = await prisma.cart.findUnique({ where: { user_id: session.user.id } })
-    if (!cart) {
-      cart = await prisma.cart.create({
-        data: { user_id: session.user.id },
-      })
-    }
+    // upsert evita race condition: si dos requests llegan simultáneamente,
+    // Prisma maneja el constraint violation y retorna el cart existente.
+    let cart = await prisma.cart.upsert({
+      where: { user_id: session.user.id },
+      create: { user_id: session.user.id },
+      update: {},
+    })
 
     const existing = await prisma.cartItem.findUnique({
       where: { cart_id_product_id: { cart_id: cart.id, product_id } },
