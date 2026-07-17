@@ -8,6 +8,7 @@ import { useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/Button'
 import { RippleButton } from '@/components/ui/RippleButton'
 import { Input } from '@/components/ui/Input'
+import { compressImage } from '@/lib/image-compress'
 
 const SPECIALTIES = ['Textilería', 'Cerámica', 'Joyería', 'Retablos', 'Madera', 'Cuero', 'Gobelino', 'Pintura', 'Platería', 'Cestería']
 const TECHNIQUES = ['Telar de cintura', 'Telar de pedal', 'Modelado y bruñido', 'Retablo ayacuchano', 'Filigrana de plata', 'Tapicería', 'Tallado en madera', 'Bordado', 'Macramé', 'Repujado']
@@ -86,12 +87,13 @@ export function NewProductForm() {
     try {
       const images: string[] = []
       for (let i = 0; i < files.length; i++) {
-        setUploadProgress(`Subiendo foto ${i + 1} de ${files.length}… 0%`)
-        const file = files[i]
+        setUploadProgress(`Comprimiendo foto ${i + 1} de ${files.length}…`)
+        const file = await compressImage(files[i])
         try {
           // Sanitizar nombre de archivo para evitar caracteres problemáticos
           const sanitizedFilename = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
           const path = `products/${authSession.user.id}/${Date.now()}-${sanitizedFilename}`
+          setUploadProgress(`Subiendo foto ${i + 1} de ${files.length}… 0%`)
 
           // AbortController real: si tarda más de 90s, se cancela la petición
           // en curso (no solo se abandona la promesa) y se muestra un error claro.
@@ -112,12 +114,11 @@ export function NewProductForm() {
           clearTimeout(timeoutId)
           images.push(blob.url)
         } catch (uploadErr) {
-          const isAbort = uploadErr instanceof Error && uploadErr.name === 'AbortError'
+          const rawMsg = uploadErr instanceof Error ? uploadErr.message : ''
+          const isAbort = uploadErr instanceof Error && /abort/i.test(rawMsg)
           const errorMsg = isAbort
-            ? 'La subida tardó demasiado (> 90s). Prueba con una foto más liviana o revisa tu conexión.'
-            : uploadErr instanceof Error
-              ? uploadErr.message
-              : 'Error desconocido al subir foto'
+            ? 'La subida tardó demasiado (> 90s) incluso comprimida. Revisa tu conexión a internet e intenta de nuevo.'
+            : rawMsg || 'Error desconocido al subir foto'
           setError(`Error subiendo foto ${i + 1}: ${errorMsg}`)
           console.error(`Upload error for file ${i}:`, uploadErr)
           return

@@ -6,6 +6,7 @@ import { upload } from '@vercel/blob/client'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { updateAvatarUrl } from '@/lib/actions/avatar'
+import { compressImage } from '@/lib/image-compress'
 
 const MAX_SIZE = 5 * 1024 * 1024
 const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif']
@@ -40,24 +41,30 @@ export function AvatarUploader({
   const [error, setError] = useState<string>()
 
   async function onFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
+    const original = e.target.files?.[0]
     e.target.value = ''
-    if (!file) return
+    if (!original) return
     setError(undefined)
 
-    if (!ACCEPTED_TYPES.includes(file.type)) {
+    if (!ACCEPTED_TYPES.includes(original.type)) {
       setError('Formato no permitido. Usa JPG, PNG, WEBP o AVIF.')
       return
     }
-    if (file.size > MAX_SIZE) {
-      setError('La imagen no debe superar 5 MB.')
-      return
-    }
 
-    const localPreview = URL.createObjectURL(file)
+    const localPreview = URL.createObjectURL(original)
     setPreview(localPreview)
     setUploading(true)
     setProgress(0)
+    // Comprime antes de subir — una foto de cámara sin comprimir (3-8 MB)
+    // puede tardar minutos con mala señal; comprimida sube en segundos.
+    const file = await compressImage(original, 800, 0.85)
+    if (file.size > MAX_SIZE) {
+      setError('La imagen es muy grande incluso comprimida. Intenta con otra foto.')
+      setUploading(false)
+      setPreview(initialUrl)
+      URL.revokeObjectURL(localPreview)
+      return
+    }
     const sanitizedFilename = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 90000)
@@ -76,13 +83,12 @@ export function AvatarUploader({
       setPreview(blob.url)
       router.refresh()
     } catch (err) {
-      const isAbort = err instanceof Error && err.name === 'AbortError'
+      const rawMsg = err instanceof Error ? err.message : ''
+      const isAbort = /abort/i.test(rawMsg)
       setError(
         isAbort
-          ? 'La subida tardó demasiado (> 90s). Revisa tu conexión e intenta de nuevo.'
-          : err instanceof Error
-            ? err.message
-            : 'No se pudo subir la foto. Intenta de nuevo.',
+          ? 'La subida tardó demasiado (> 90s) incluso comprimida. Revisa tu conexión e intenta de nuevo.'
+          : rawMsg || 'No se pudo subir la foto. Intenta de nuevo.',
       )
       setPreview(initialUrl)
     } finally {
