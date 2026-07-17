@@ -44,17 +44,52 @@ const STEPS: { id: Step; label: string }[] = [
 ]
 
 const STEP_TRANSITION = { duration: 0.28, ease: [0.4, 0, 0.2, 1] as const }
+const DRAFT_KEY = 'kuska-emprendedor-draft'
+
+interface Draft {
+  step: Step
+  form: FormState
+  result: string
+}
+
+function loadDraft(): Draft | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const raw = sessionStorage.getItem(DRAFT_KEY)
+    if (!raw) return null
+    return JSON.parse(raw) as Draft
+  } catch {
+    return null
+  }
+}
 
 export function BusinessPlanGenerator() {
-  const [step, setStep] = useState<Step>(1)
-  const [form, setForm] = useState<FormState>(EMPTY)
-  const [result, setResult] = useState('')
+  const initialDraft = loadDraft()
+  const [step, setStep] = useState<Step>(initialDraft?.step ?? 1)
+  const [form, setForm] = useState<FormState>(initialDraft?.form ?? EMPTY)
+  const [result, setResult] = useState(initialDraft?.result ?? '')
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string>()
 
-  const set = (key: keyof FormState) => (value: string) => setForm((prev) => ({ ...prev, [key]: value }))
+  const persist = (next: Partial<Draft>) => {
+    if (typeof window === 'undefined') return
+    const draft: Draft = { step, form, result, ...next }
+    sessionStorage.setItem(DRAFT_KEY, JSON.stringify(draft))
+  }
+
+  const set = (key: keyof FormState) => (value: string) =>
+    setForm((prev) => {
+      const next = { ...prev, [key]: value }
+      persist({ form: next })
+      return next
+    })
+
+  const goToStep = (s: Step) => {
+    setStep(s)
+    persist({ step: s })
+  }
 
   const formComplete = Object.values(form).every((v) => v.trim().length > 0)
   const canGoTo = (target: Step) => {
@@ -89,8 +124,12 @@ export function BusinessPlanGenerator() {
         if (done) break
         acc += decoder.decode(value, { stream: true })
         setResult(acc)
+        persist({ result: acc })
       }
-      setStep(3)
+      goToStep(3)
+      persist({ result: acc, step: 3 })
+    } catch {
+      setError('Se perdió la conexión mientras se generaba el plan. Intenta de nuevo.')
     } finally {
       setLoading(false)
     }
@@ -123,6 +162,7 @@ export function BusinessPlanGenerator() {
     setSaved(false)
     setError(undefined)
     setStep(1)
+    if (typeof window !== 'undefined') sessionStorage.removeItem(DRAFT_KEY)
   }
 
   return (
@@ -136,7 +176,7 @@ export function BusinessPlanGenerator() {
             <button
               key={s.id}
               type="button"
-              onClick={() => enabled && setStep(s.id)}
+              onClick={() => enabled && goToStep(s.id)}
               disabled={!enabled}
               className={`flex items-center gap-2 rounded-full border px-4 py-2 font-body text-xs font-semibold transition-all ${
                 active
@@ -201,7 +241,7 @@ export function BusinessPlanGenerator() {
                   size="lg"
                   className="w-full"
                   disabled={!formComplete}
-                  onClick={() => setStep(2)}
+                  onClick={() => goToStep(2)}
                 >
                   Continuar →
                 </Button>
@@ -220,16 +260,25 @@ export function BusinessPlanGenerator() {
               </div>
 
               {loading ? (
-                <div className="space-y-2 rounded-btn border border-kuska-border p-4">
-                  <div className="skeleton h-3 w-full rounded-full" />
-                  <div className="skeleton h-3 w-5/6 rounded-full" />
-                  <div className="skeleton h-3 w-4/6 rounded-full" />
-                  <div className="skeleton h-3 w-3/6 rounded-full" />
+                <div className="space-y-2 rounded-btn border border-kuska-border bg-white p-4">
+                  {result ? (
+                    <p className="max-h-56 overflow-y-auto whitespace-pre-line font-body text-sm leading-relaxed text-kuska-text">
+                      {result}
+                      <span className="animate-pulse text-kuska-gold">▍</span>
+                    </p>
+                  ) : (
+                    <>
+                      <div className="skeleton h-3 w-full rounded-full" />
+                      <div className="skeleton h-3 w-5/6 rounded-full" />
+                      <div className="skeleton h-3 w-4/6 rounded-full" />
+                      <div className="skeleton h-3 w-3/6 rounded-full" />
+                    </>
+                  )}
                   <p className="pt-1 font-body text-xs text-kuska-text-mid">Kuska IA está redactando tu plan…</p>
                 </div>
               ) : (
                 <div className="flex flex-wrap gap-3">
-                  <Button variant="ghost" size="lg" onClick={() => setStep(1)}>
+                  <Button variant="ghost" size="lg" onClick={() => goToStep(1)}>
                     ← Editar datos
                   </Button>
                   <RippleButton className="block flex-1">
@@ -250,7 +299,7 @@ export function BusinessPlanGenerator() {
                   <h3 className="font-nunito text-xs font-bold uppercase tracking-wide text-kuska-text-mid">
                     Paso 3 · Revisa y edita tu plan
                   </h3>
-                  <Button variant="ghost" size="sm" onClick={() => setStep(2)}>
+                  <Button variant="ghost" size="sm" onClick={() => goToStep(2)}>
                     ← Volver a generar
                   </Button>
                 </div>
@@ -258,7 +307,7 @@ export function BusinessPlanGenerator() {
                   <>
                     <textarea
                       value={result}
-                      onChange={(e) => { setResult(e.target.value); setSaved(false) }}
+                      onChange={(e) => { setResult(e.target.value); setSaved(false); persist({ result: e.target.value }) }}
                       className="mt-4 h-72 w-full resize-y rounded-btn border border-kuska-border bg-white p-4 font-body text-sm leading-relaxed text-kuska-text focus:border-kuska-gold focus:outline-none focus:ring-2 focus:ring-kuska-gold/30"
                     />
                     <p className="mt-2 font-body text-xs text-kuska-text-mid">

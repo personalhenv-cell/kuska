@@ -86,26 +86,35 @@ export function NewProductForm() {
     try {
       const images: string[] = []
       for (let i = 0; i < files.length; i++) {
-        setUploadProgress(`Subiendo foto ${i + 1} de ${files.length}…`)
+        setUploadProgress(`Subiendo foto ${i + 1} de ${files.length}… 0%`)
         const file = files[i]
         try {
           // Sanitizar nombre de archivo para evitar caracteres problemáticos
           const sanitizedFilename = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
           const path = `products/${authSession.user.id}/${Date.now()}-${sanitizedFilename}`
 
-          // Timeout de 2 minutos para el upload
-          const uploadPromise = upload(path, file, {
+          // AbortController real: si tarda más de 45s, se cancela la petición
+          // en curso (no solo se abandona la promesa) y se muestra un error claro.
+          const controller = new AbortController()
+          const timeoutId = setTimeout(() => controller.abort(), 45000)
+
+          const blob = await upload(path, file, {
             access: 'public',
             handleUploadUrl: '/api/upload',
+            abortSignal: controller.signal,
+            onUploadProgress: ({ percentage }) => {
+              setUploadProgress(`Subiendo foto ${i + 1} de ${files.length}… ${percentage}%`)
+            },
           })
-          const timeoutPromise = new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('Timeout: la foto tardó demasiado en subir (> 2 min). Intenta con una foto más pequeña.')), 120000)
-          )
-
-          const blob = await Promise.race([uploadPromise, timeoutPromise as Promise<any>])
+          clearTimeout(timeoutId)
           images.push(blob.url)
         } catch (uploadErr) {
-          const errorMsg = uploadErr instanceof Error ? uploadErr.message : 'Error desconocido al subir foto'
+          const isAbort = uploadErr instanceof Error && uploadErr.name === 'AbortError'
+          const errorMsg = isAbort
+            ? 'La subida tardó demasiado (> 45s). Prueba con una foto más liviana o revisa tu conexión.'
+            : uploadErr instanceof Error
+              ? uploadErr.message
+              : 'Error desconocido al subir foto'
           setError(`Error subiendo foto ${i + 1}: ${errorMsg}`)
           console.error(`Upload error for file ${i}:`, uploadErr)
           return
