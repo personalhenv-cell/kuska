@@ -30,6 +30,11 @@ export async function POST(req: Request): Promise<NextResponse> {
     const jsonResponse = await handleUpload({
       body,
       request: req,
+      // El store de Blob público vive bajo el prefijo PUBLIC_* (el store
+      // BLOB_* original quedó configurado como privado y nunca permitió
+      // subir nada). handleUpload usa BLOB_READ_WRITE_TOKEN por defecto,
+      // así que hay que pasarle el token correcto explícitamente.
+      token: process.env.PUBLIC_READ_WRITE_TOKEN,
       onBeforeGenerateToken: async (pathname) => {
         console.log(`Upload validation for pathname: ${pathname}`)
 
