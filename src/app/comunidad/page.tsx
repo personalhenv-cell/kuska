@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { getServerSession } from 'next-auth'
 import { prisma } from '@/lib/prisma'
+import { authOptions } from '@/auth/config'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { formatDate } from '@/lib/utils'
@@ -13,6 +15,7 @@ export const metadata = {
 }
 
 export default async function ComunidadPublicaPage() {
+  const session = await getServerSession(authOptions)
   const now = new Date()
   const posts = await prisma.post.findMany({
     where: { OR: [{ expires_at: null }, { expires_at: { gt: now } }] },
@@ -35,10 +38,10 @@ export default async function ComunidadPublicaPage() {
         </p>
 
         <Link
-          href="/registro"
+          href={session ? '/dashboard/cliente/red' : '/registro'}
           className="mt-5 inline-block rounded-input bg-kuska-red px-5 py-2.5 font-body text-sm font-semibold text-white transition-transform hover:-translate-y-0.5"
         >
-          Únete y comparte tu historia
+          {session ? 'Ver la comunidad' : 'Únete y comparte tu historia'}
         </Link>
 
         {posts.length === 0 ? (
