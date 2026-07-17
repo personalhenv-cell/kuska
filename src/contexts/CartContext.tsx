@@ -53,6 +53,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   // fetchCart no depende de nada que pueda cambiar — solo fetch de datos
   const fetchCart = useCallback(async () => {
+    // Cuando session cambia (de undefined a user o viceversa), refetch con loading state
+    setLoading(true)
     if (!session) {
       setCart(EMPTY_CART)
       setLoading(false)
