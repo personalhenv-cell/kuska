@@ -96,20 +96,37 @@ export function NewProductForm() {
       }
 
       setUploadProgress('Creando producto…')
+      const price = Number(form.price)
+      const stock = Number(form.stock)
+
+      if (!price || price <= 0) {
+        setError('El precio debe ser mayor a 0')
+        return
+      }
+      if (stock < 0) {
+        setError('El stock no puede ser negativo')
+        return
+      }
+
       const res = await fetch('/api/productos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...form,
-          price: Number(form.price) || 0,
-          stock: Number(form.stock) || 0,
+          price,
+          stock,
           materials: form.materials.split(',').map((m) => m.trim()).filter(Boolean),
           images,
         }),
       })
       if (!res.ok) {
         const data: { error?: string | object } = await res.json().catch(() => ({}))
-        setError(typeof data.error === 'string' ? data.error : 'No se pudo crear el producto')
+        const errorMsg = typeof data.error === 'string' ? data.error :
+                        (data.error && typeof data.error === 'object' && 'message' in data.error) ?
+                        (data.error as any).message :
+                        'No se pudo crear el producto'
+        setError(errorMsg)
+        console.error('Error creating product:', data)
         return
       }
       router.push('/dashboard/artesano/productos')

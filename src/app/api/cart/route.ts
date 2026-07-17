@@ -61,40 +61,50 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
   }
 
-  const body = await req.json().catch(() => null)
+  let body: unknown
+  try {
+    body = await req.json()
+  } catch {
+    return NextResponse.json({ error: 'Cuerpo inválido' }, { status: 400 })
+  }
   const parsed = AddItemSchema.safeParse(body)
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
+    return NextResponse.json({ error: 'product_id y quantity son requeridos' }, { status: 400 })
   }
 
   const { product_id, quantity } = parsed.data
 
-  const product = await prisma.product.findUnique({ where: { id: product_id } })
-  if (!product || !product.is_available) {
-    return NextResponse.json({ error: 'Producto no disponible' }, { status: 404 })
-  }
+  try {
+    const product = await prisma.product.findUnique({ where: { id: product_id } })
+    if (!product || !product.is_available) {
+      return NextResponse.json({ error: 'Producto no disponible' }, { status: 404 })
+    }
 
-  let cart = await prisma.cart.findUnique({ where: { user_id: session.user.id } })
-  if (!cart) {
-    cart = await prisma.cart.create({
-      data: { user_id: session.user.id },
+    let cart = await prisma.cart.findUnique({ where: { user_id: session.user.id } })
+    if (!cart) {
+      cart = await prisma.cart.create({
+        data: { user_id: session.user.id },
+      })
+    }
+
+    const existing = await prisma.cartItem.findUnique({
+      where: { cart_id_product_id: { cart_id: cart.id, product_id } },
     })
+
+    if (existing) {
+      await prisma.cartItem.update({
+        where: { id: existing.id },
+        data: { quantity: existing.quantity + quantity },
+      })
+    } else {
+      await prisma.cartItem.create({
+        data: { cart_id: cart.id, product_id, quantity },
+      })
+    }
+
+    return NextResponse.json({ ok: true, added: quantity }, { status: 201 })
+  } catch (e) {
+    console.error('Error adding to cart:', e)
+    return NextResponse.json({ error: 'Error al agregar al carrito' }, { status: 500 })
   }
-
-  const existing = await prisma.cartItem.findUnique({
-    where: { cart_id_product_id: { cart_id: cart.id, product_id } },
-  })
-
-  if (existing) {
-    await prisma.cartItem.update({
-      where: { id: existing.id },
-      data: { quantity: existing.quantity + quantity },
-    })
-  } else {
-    await prisma.cartItem.create({
-      data: { cart_id: cart.id, product_id, quantity },
-    })
-  }
-
-  return NextResponse.json({ ok: true, added: quantity }, { status: 201 })
 }
